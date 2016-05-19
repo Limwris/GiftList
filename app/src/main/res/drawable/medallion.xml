@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:drawable="@mipmap/ic_launcher"
+        android:bottom="7dp"
+        android:left="7dp"
+        android:right="7dp"
+        android:top="7dp"/>
+    <!--<item android:drawable="@drawable/circle"/>-->
+    <!--<item android:drawable="@drawable/nav_header_bg"-->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@android:color/transparent" />
+            <stroke android:color="@color/cardview_dark_background"
+                android:width="2dp"/>
+        </shape>
+    </item>
+</layer-list>
