@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NotesActivity"
+    tools:context=".views.rooms.RoomsActivity"
     tools:openDrawer="start">
 
     <LinearLayout
@@ -28,13 +28,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.nichesoftware.giftlist.views.personlist.PersonListView
+            <com.nichesoftware.giftlist.views.rooms.RoomsView
                 android:id="@+id/container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_add_person"
+                android:id="@+id/fab_add_room"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/fab_margin"

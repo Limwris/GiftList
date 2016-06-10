@@ -1,4 +1,4 @@
-package com.nichesoftware.giftlist.views.personlist;
+package com.nichesoftware.giftlist.views.rooms;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -7,20 +7,27 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.R;
 
 /**
  * Created by n_che on 25/04/2016.
  */
-public class PersonListActivity extends AppCompatActivity {
+public class RoomsActivity extends AppCompatActivity {
+    private static final String TAG = RoomsActivity.class.getSimpleName();
     private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onCreate");
+        }
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.persons_activity);
+        setContentView(R.layout.rooms_activity);
 
         // Set up the toolbar.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
