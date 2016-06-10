@@ -1,4 +1,4 @@
-package com.nichesoftware.giftlist.views.personlist;
+package com.nichesoftware.giftlist.views.rooms;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -22,10 +22,11 @@ import android.widget.TextView;
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.contracts.PersonListContract;
-import com.nichesoftware.giftlist.model.Person;
-import com.nichesoftware.giftlist.presenters.PersonListPresenter;
+import com.nichesoftware.giftlist.contracts.RoomsContract;
+import com.nichesoftware.giftlist.model.Room;
+import com.nichesoftware.giftlist.presenters.RoomsPresenter;
 import com.nichesoftware.giftlist.views.ErrorView;
+import com.nichesoftware.giftlist.views.addroom.AddRoomActivity;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 
 import java.util.ArrayList;
@@ -34,37 +35,40 @@ import java.util.List;
 /**
  * Created by n_che on 25/04/2016.
  */
-public class PersonListView extends FrameLayout implements PersonListContract.View {
-    private static final String TAG = PersonListView.class.getSimpleName();
+public class RoomsView extends FrameLayout implements RoomsContract.View {
+    private static final String TAG = RoomsView.class.getSimpleName();
 
     /**
      * Adapter lié à la RecyclerView
      */
-    private PersonListAdapter personListAdapter;
+    private RoomsAdapter roomsAdapter;
     /**
      * Listener sur les actions de l'utilisateur
      */
-    private PersonListContract.UserActionListener actionsListener;
+    private RoomsContract.UserActionListener actionsListener;
     /**
      * Listener for clicks on person in the RecyclerView.
      */
-    private PersonItemListener itemListener;
+    private RoomItemListener itemListener;
 
-    public PersonListView(Context context) {
+    public RoomsView(Context context) {
         super(context);
+    }
+
+    public RoomsView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "RoomsView");
+        }
         init(context);
     }
 
-    public PersonListView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public PersonListView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RoomsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public PersonListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public RoomsView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
@@ -73,27 +77,29 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
      * @param context
      */
     protected void init(Context context) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "init");
+        }
 
-        actionsListener = new PersonListPresenter(this, Injection.getDataProvider());
+        actionsListener = new RoomsPresenter(this, Injection.getDataProvider(getContext()));
 
-        itemListener = new PersonItemListener() {
+        itemListener = new RoomItemListener() {
             @Override
-            public void onPersonClick(Person clickedPerson) {
+            public void onRoomClick(Room clickedRoom) {
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Clic détecté sur la personne " + clickedPerson.getFirstName());
+                    Log.d(TAG, "Clic détecté sur la salle " + clickedRoom.getRoomName());
                 }
-                actionsListener.openPersonDetail(clickedPerson);
+                actionsListener.openRoomDetail(clickedRoom);
             }
         };
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        View root = inflater.inflate(R.layout.persons_view, this, true);
         View root = inflater.inflate(R.layout.list_view, this, true);
 //        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.persons_list);
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.recycler_view);
-        personListAdapter = new PersonListAdapter(new ArrayList<Person>(0), itemListener);
-        recyclerView.setAdapter(personListAdapter);
+        roomsAdapter = new RoomsAdapter(new ArrayList<Room>(0), itemListener);
+        recyclerView.setAdapter(roomsAdapter);
         int numColumns = getContext().getResources().getInteger(R.integer.num_persons_columns);
 
         recyclerView.setHasFixedSize(true);
@@ -109,12 +115,12 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                actionsListener.loadPersons(true);
+                actionsListener.loadRooms(true);
             }
         });
 
-        // Charge les notes à l'ouverture de l'activité
-        actionsListener.loadPersons(false);
+        // Charge les salles à l'ouverture de l'activité
+        actionsListener.loadRooms(false);
     }
 
     @Override
@@ -123,14 +129,16 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
 
         // Action sur le FAB -> La vue doit être attachée à la fenêtre pour être certain
         // que la vue ait accès à l'activité parente et que le FAB soit inflate correctement
-        Activity activity = getActivity();
+        final Activity activity = getActivity();
         if (activity != null) {
-            activity.findViewById(R.id.fab_add_person).setOnClickListener(new OnClickListener() {
+            activity.findViewById(R.id.fab_add_room).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "onClick FAB");
                     }
+                    Intent intent = new Intent(activity, AddRoomActivity.class);
+                    activity.startActivity(intent);
                 }
             });
         }
@@ -160,39 +168,46 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
     }
 
     @Override
-    public void showPersons(List<Person> persons) {
-//        personListAdapter.replaceData(persons);
+    public void showRooms(List<Room> rooms) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "showRooms");
+        }
+
         ErrorView errorView = (ErrorView) findViewById(R.id.error_view);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        if (persons.isEmpty()) {
-            errorView.setMessage(getResources().getString(R.string.person_error_view_message));
+        if (rooms.isEmpty()) {
+            errorView.setMessage(getResources().getString(R.string.room_error_view_message));
             errorView.setVisibility(VISIBLE);
             recyclerView.setVisibility(GONE);
         } else {
             errorView.setVisibility(GONE);
             recyclerView.setVisibility(VISIBLE);
-            personListAdapter.replaceData(persons);
+            roomsAdapter.replaceData(rooms);
         }
     }
 
     @Override
-    public void showPersonDetail(@NonNull String personId) {
+    public void showRoomDetail(@NonNull int roomId) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "showRoomDetail");
+        }
+
         Intent intent = new Intent(getContext(), GiftListActivity.class);
-        intent.putExtra(GiftListActivity.EXTRA_PERSON_ID, personId);
+        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
         getContext().startActivity(intent);
     }
 
-    private static class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.ViewHolder> {
+    private static class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.ViewHolder> {
 
         /**
-         * Données (liste de personnes)
+         * Données (liste de salles)
          */
-        private List<Person> persons;
+        private List<Room> rooms;
 
         /**
-         * Listener sur le clic de la personne
+         * Listener sur le clic de la salle
          */
-        private PersonItemListener itemListener;
+        private RoomItemListener itemListener;
 
         /**
          * Context
@@ -201,54 +216,62 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
 
         /**
          * Constructeur
-         * @param notes
+         * @param rooms
          * @param itemListener
          */
-        public PersonListAdapter(List<Person> notes, PersonItemListener itemListener) {
+        public RoomsAdapter(List<Room> rooms, RoomItemListener itemListener) {
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "PersonListAdapter");
+                Log.d(TAG, "RoomsAdapter");
             }
-            setList(notes);
+            setList(rooms);
             this.itemListener = itemListener;
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "PersonListAdapter - itemListener: " + itemListener);
+                Log.d(TAG, "RoomsAdapter - itemListener: " + itemListener);
             }
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "RoomsAdapter - onCreateViewHolder");
+            }
+
             this.context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View noteView = inflater.inflate(R.layout.person_list_item, parent, false);
+            View roomsView = inflater.inflate(R.layout.room_list_item_view, parent, false);
 
-            return new ViewHolder(noteView, itemListener);
+            return new ViewHolder(roomsView, itemListener);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
-            Person person = persons.get(position);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "RoomsAdapter - onBindViewHolder");
+            }
 
-            viewHolder.name.setText(person.getFirstName());
+            Room room = rooms.get(position);
+
+            viewHolder.name.setText(room.getRoomName());
             // The first parameter of getQuantityString is used to decide which format to use (single or plural)
-            viewHolder.giftDescription.setText(context.getResources().getQuantityString(R.plurals.gift_description, 0, 0, person.getGiftList().size()));
+            viewHolder.giftDescription.setText(context.getResources().getQuantityString(R.plurals.gift_description, 0, 0, room.getGiftList().size()));
         }
 
-        public void replaceData(List<Person> persons) {
-            setList(persons);
+        public void replaceData(List<Room> rooms) {
+            setList(rooms);
             notifyDataSetChanged();
         }
 
-        private void setList(List<Person> persons) {
-            this.persons = persons;
+        private void setList(List<Room> rooms) {
+            this.rooms = rooms;
         }
 
         @Override
         public int getItemCount() {
-            return persons.size();
+            return rooms.size();
         }
 
-        public Person getItem(int position) {
-            return persons.get(position);
+        public Room getItem(int position) {
+            return rooms.get(position);
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder implements android.view.View.OnClickListener {
@@ -264,18 +287,18 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
             public TextView giftDescription;
 
             /**
-             * Listener sur le clic de la personne
+             * Listener sur le clic de la salle
              */
-            private PersonItemListener personItemListener;
+            private RoomItemListener roomItemListener;
 
             /**
              * Constructeur
              * @param itemView vue d'un item de la liste
              * @param listener listener sur le clic d'un item de la liste
              */
-            public ViewHolder(View itemView, PersonItemListener listener) {
+            public ViewHolder(View itemView, RoomItemListener listener) {
                 super(itemView);
-                personItemListener = listener;
+                roomItemListener = listener;
                 name = (TextView) itemView.findViewById(R.id.person_name);
                 giftDescription = (TextView) itemView.findViewById(R.id.person_gift_description);
                 itemView.findViewById(R.id.mainHolder).setOnClickListener(this);
@@ -287,9 +310,9 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Clic détecté dans la liste à la position: " + position);
                 }
-                Person person = getItem(position);
-                if (personItemListener != null) {
-                    personItemListener.onPersonClick(person);
+                Room room = getItem(position);
+                if (roomItemListener != null) {
+                    roomItemListener.onRoomClick(room);
                 }
 
             }
@@ -297,10 +320,10 @@ public class PersonListView extends FrameLayout implements PersonListContract.Vi
     }
 
     /**
-     * Interface du listener du clic sur une personne
+     * Interface du listener du clic sur une salle
      */
-    public interface PersonItemListener {
-        void onPersonClick(Person clickedNote);
+    public interface RoomItemListener {
+        void onRoomClick(Room clickedRoom);
     }
 
     private Activity getActivity() {
