@@ -1,6 +1,8 @@
 <manifest package="com.nichesoftware.giftlist"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -8,18 +10,46 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".views.personlist.PersonListActivity">
+        <activity android:name=".views.start.StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".views.giftlist.GiftListActivity"
-            android:parentActivityName=".views.personlist.PersonListActivity">
+        <activity android:name=".views.rooms.RoomsActivity"
+            android:parentActivityName=".views.start.StartActivity">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".views.personlist.PersonListActivity" />
+                android:value=".views.start.StartActivity" />
+        </activity>
+        <activity android:name=".views.giftlist.GiftListActivity"
+            android:parentActivityName=".views.rooms.RoomsActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".views.rooms.RoomsActivity" />
+        </activity>
+        <activity android:name=".views.addroom.AddRoomActivity"
+            android:parentActivityName=".views.rooms.RoomsActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".views.rooms.RoomsActivity" />
+        </activity>
+        <activity android:name=".views.addgift.AddGiftActivity"
+            android:parentActivityName=".views.giftlist.GiftListActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".views.giftlist.GiftListActivity" />
+        </activity>
+        <activity android:name=".views.giftdetail.GiftDetailActivity"
+            android:parentActivityName=".views.giftlist.GiftListActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".views.giftlist.GiftListActivity" />
         </activity>
     </application>
 
