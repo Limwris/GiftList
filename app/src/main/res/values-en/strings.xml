@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Navigation handler -->
+    <string name="navigation_view_header_title">Gifts list</string>
+
+    <!-- StartActivity -->
+    <string name="sign_up">Sign Up</string>
+    <string name="log_in">Log In</string>
+    <string name="getting_started_didacticiel_title">Getting started</string>
+    <string name="add_room_didacticiel_title">Create room for any occasion</string>
+    <string name="add_gift_didacticiel_title">Add gift or participate to any existing gift</string>
+
+    <!-- RoomsActivity-->
+    <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>
+    <plurals name="gift_description">
+        <!--
+             As a developer, you should always supply "one" and "other"
+             strings. Your translators will know which strings are actually
+             needed for their language. Always include %d in "one" because
+             translators will need to use %d for languages where "one"
+             doesn't mean 1 (as explained above).
+          -->
+        <item quantity="zero">None of the %2$d gifts have been already bought.</item>
+        <item quantity="one">%1$d over %2$d gifts already bought.</item>
+        <item quantity="other">%1$d over %2$d gifts already bought.</item>
+    </plurals>
+    <string name="description_medaillon_list_person">Medaillon depicting the room.</string>
+
+    <!-- GiftlisActivity -->
+    <string name="gift_description">Price: %1$,.2f €</string>
+    <string name="gift_error_view_message">Empty room ! Be the first to propose a gift.</string>
+
+    <!-- Add Room -->
+    <string name="add_room_create_button_text">Create room</string>
+    <string name="add_room_name_hint_text">Room name</string>
+    <string name="add_room_occasion_hint_text">Occasion</string>
+    <string name="add_room_empty_field_error_text">This field should not be left empty</string>
+
+    <!-- Add Gift -->
+    <string name="add_gift_create_button_text">Add the gift</string>
+    <string name="add_gift_name_hint_text">Name</string>
+    <string name="add_gift_price_hint_text">Price</string>
+    <string name="add_gift_amount_hint_text">Allocated amount</string>
+    <string name="add_gift_empty_field_error_text">This field should not be left empty</string>
+</resources>

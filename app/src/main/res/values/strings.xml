@@ -1,7 +1,18 @@
 <resources>
     <string name="app_name">GiftList</string>
+
+    <!-- Navigation handler -->
     <string name="navigation_view_header_title">Liste de cadeaux</string>
-    <string name="person_error_view_message">Aucune personne n\'est enregistrée.</string>
+
+    <!-- StartActivity -->
+    <string name="sign_up">Enregistrement</string>
+    <string name="log_in">Authentification</string>
+    <string name="getting_started_didacticiel_title">Prise en main</string>
+    <string name="add_room_didacticiel_title">Créer une salle pour n\'importe quelle occasion</string>
+    <string name="add_gift_didacticiel_title">Ajouter un cadeau ou participer à un cadeau déjà proposé</string>
+
+    <!-- RoomsActivity-->
+    <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>
     <plurals name="gift_description">
         <!--
              As a developer, you should always supply "one" and "other"
@@ -15,6 +26,22 @@
         <item quantity="other">%1$d de %2$d cadeaux achetés.</item>
     </plurals>
     <string name="description_medaillon_list_person">Médaillon affichant une image représentant la personne.</string>
+
+    <!-- GiftlisActivity -->
     <string name="gift_description">Prix: %1$,.2f €</string>
-    <string name="gift_error_view_message">Aucun cadeau n\'a été proposé pour cette personne.</string>
+    <string name="gift_error_view_message">Aucun cadeau n\'a été proposé pour cette salle.</string>
+
+    <!-- Add Room -->
+    <string name="add_room_create_button_text">Créer la salle</string>
+    <string name="add_room_name_hint_text">Nom de la salle</string>
+    <string name="add_room_occasion_hint_text">Occasion</string>
+    <string name="add_room_empty_field_error_text">Ce champ ne doit pas être vide</string>
+
+    <!-- Add Gift -->
+    <string name="add_gift_create_button_text">Ajouter le cadeau</string>
+    <string name="add_gift_name_hint_text">Nom du cadeau</string>
+    <string name="add_gift_price_hint_text">Prix</string>
+    <string name="add_gift_amount_hint_text">Montant affecté</string>
+    <string name="add_gift_empty_field_error_text">Ce champ ne doit pas être vide</string>
+    <string name="add_gift_nan_error_text">Ce champ doit etre un chiffre valide</string>
 </resources>
