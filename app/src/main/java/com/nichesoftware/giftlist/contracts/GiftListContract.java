@@ -16,9 +16,13 @@ public interface GiftListContract {
         void showGifts(List<Gift> gifts);
         /**
          * Affiche le détail du cadeau passée en paramètre (id)
-         * @param giftId
+         * @param gift
          */
-        void showGiftDetail(final String giftId);
+        void showGiftDetail(final Gift gift);
+        /**
+         * Force le rechargement des données
+         */
+        void forceReload();
         /**
          * Affiche le loader
          */
@@ -31,9 +35,10 @@ public interface GiftListContract {
     interface UserActionListener {
         /**
          * Action permettant de charger la liste des cadeaux
+         * @param roomId        Identifiant de la salle
          * @param forceUpdate   Flag indiquant si la mise à jour doit être forcée
          */
-        void loadGifts(final String personId, boolean forceUpdate);
+        void loadGifts(final int roomId, boolean forceUpdate);
         /**
          * Action permettant d'ouvrir le détail d'un cadeau
          * @param gift

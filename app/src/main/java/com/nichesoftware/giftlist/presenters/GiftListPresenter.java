@@ -14,7 +14,7 @@ import java.util.List;
  * Created by n_che on 25/04/2016.
  */
 public class GiftListPresenter implements GiftListContract.UserActionListener {
-    private static final String TAG = PersonListPresenter.class.getSimpleName();
+    private static final String TAG = GiftListPresenter.class.getSimpleName();
 
     /**
      * Data provider
@@ -37,15 +37,11 @@ public class GiftListPresenter implements GiftListContract.UserActionListener {
     }
 
     @Override
-    public void loadGifts(final String personId, boolean forceUpdate) {
+    public void loadGifts(final int roomId, boolean forceUpdate) {
         // Show loader
         giftListView.showLoader();
 
-        if (forceUpdate) {
-            dataProvider.refreshData();
-        }
-
-        dataProvider.getGifts(personId, new DataProvider.LoadGiftsCallback() {
+        dataProvider.getGifts(forceUpdate, roomId, new DataProvider.LoadGiftsCallback() {
             @Override
             public void onGiftsLoaded(List<Gift> gifts) {
                 // Cache le loader
@@ -63,8 +59,8 @@ public class GiftListPresenter implements GiftListContract.UserActionListener {
     @Override
     public void openGiftDetail(Gift gift) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("Le cadeau [id=%s, nom=%s, amount=%f] a été cliqué...", gift.getId(), gift.getName(), gift.getAmount()));
+            Log.d(TAG, String.format("Le cadeau [id=%s, nom=%s, amount=%f] a été cliqué...", gift.getId(), gift.getName(), gift.getPrice()));
         }
-        giftListView.showGiftDetail(gift.getId());
+        giftListView.showGiftDetail(gift);
     }
 }

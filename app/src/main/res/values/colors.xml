@@ -6,4 +6,7 @@
     <color name="colorControlNormal">@android:color/white</color>
     <!-- ErrorView -->
     <color name="error_view_container_background">#10000000</color>
+
+
+    <color name="iron">#CCCCCC</color>
 </resources>

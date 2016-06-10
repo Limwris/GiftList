@@ -1,5 +1,6 @@
 package com.nichesoftware.giftlist.views.giftlist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -12,10 +13,11 @@ import com.nichesoftware.giftlist.R;
  * Created by n_che on 25/04/2016.
  */
 public class GiftListActivity extends AppCompatActivity {
-    public static final String EXTRA_PERSON_ID = "PERSON_ID";
+    public static final String EXTRA_ROOM_ID = "ROOM_ID";
+    public static final int ADD_GIFT_REQUEST = 1;  // The request code
 
     /**
-     * Vue du détail de la note
+     * Vue de la liste des cadeaux
      */
     private GiftListView giftListView;
 
@@ -38,15 +40,26 @@ public class GiftListActivity extends AppCompatActivity {
         }
 
         // Get the requested note id
-        String personId = getIntent().getStringExtra(EXTRA_PERSON_ID);
+        int personId = getIntent().getIntExtra(EXTRA_ROOM_ID, 0); // Todo: valeur par défaut ?
         initView(personId);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == ADD_GIFT_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                giftListView.forceReload();
+            }
+        }
     }
 
     /**
      * Initialisation de la vue
      * @param personId
      */
-    private void initView(@Nullable final String personId) {
+    private void initView(@Nullable final int personId) {
         giftListView.compile(personId);
     }
 

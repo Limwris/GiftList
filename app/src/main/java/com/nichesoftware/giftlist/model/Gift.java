@@ -1,19 +1,21 @@
 package com.nichesoftware.giftlist.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 /**
  * Created by n_che on 25/04/2016.
  */
-public class Gift {
+public class Gift implements Parcelable {
     /**
      * Identifiant unique du cadeau
      */
-    private String id;
+    private int id;
     /**
      * Montant du cadeau
      */
-    private double amount;
+    private double price;
     /**
      * Nom du cadeau
      */
@@ -30,15 +32,15 @@ public class Gift {
     /**
      * Constructeur
      */
-//    public Gift() {
-//        this.id = UUID.randomUUID().toString();
-//    }
+    public Gift() {
+        // Nothing
+    }
 
     /**
      * Setter sur l'identifiant unique du cadeau
      * @return id
      */
-    public void setId(@NonNull final String id) {
+    public void setId(@NonNull final int id) {
         this.id = id;
     }
 
@@ -47,24 +49,24 @@ public class Gift {
      * @return id
      */
     @NonNull
-    public String getId() {
+    public int getId() {
         return id;
     }
 
     /**
      * Getter sur le montant du cadeau
-     * @return amount
+     * @return price
      */
-    public double getAmount() {
-        return amount;
+    public double getPrice() {
+        return price;
     }
 
     /**
      * Setter sur le montant du cadeau
-     * @param amount
+     * @param price
      */
-    public void setAmount(double amount) {
-        this.amount = amount;
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     /**
@@ -114,4 +116,43 @@ public class Gift {
     public void setIsBought(boolean isBought) {
         this.isBought = isBought;
     }
+
+    /**********************************************************************************************/
+    /********************************          PARCELABLE          ********************************/
+    /**********************************************************************************************/
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeInt(id);
+        parcel.writeDouble(price);
+        parcel.writeString(name);
+        parcel.writeString(url);
+        parcel.writeByte((byte) (isBought ? 1 : 0));
+    }
+
+    public Gift(Parcel in) {
+        this.id = in.readInt();
+        this.price = in.readDouble();
+        this.name = in.readString();
+        this.url = in.readString();
+        this.isBought = in.readByte() != 0;     //myBoolean == true if byte != 0
+    }
+
+    public static final Parcelable.Creator<Gift> CREATOR = new Parcelable.Creator<Gift>() {
+
+        @Override
+        public Gift createFromParcel(Parcel in) {
+            return new Gift(in);
+        }
+
+        @Override
+        public Gift[] newArray(int size) {
+            return new Gift[size];
+        }
+    };
 }

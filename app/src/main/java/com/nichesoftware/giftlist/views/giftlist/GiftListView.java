@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -18,13 +19,15 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
+import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
 import com.nichesoftware.giftlist.views.ErrorView;
+import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
+import com.nichesoftware.giftlist.views.giftdetail.GiftDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +37,7 @@ import java.util.List;
  */
 public class GiftListView extends FrameLayout implements GiftListContract.View {
     private static final String TAG = GiftListView.class.getSimpleName();
+
 
     /**
      * Adapter lié à la RecyclerView
@@ -48,17 +52,20 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
      */
     private GiftItemListener giftItemListener;
     /**
-     * Identifiant de la personne
+     * Identifiant de la salle
      */
-    private String personId;
+    private int roomId;
 
     public GiftListView(Context context) {
         super(context);
-        init(context);
     }
 
     public GiftListView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "GiftListView");
+        }
+        init(context);
     }
 
     public GiftListView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -70,10 +77,10 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public void compile(@Nullable final String personId) {
-        this.personId = personId;
+    public void compile(@Nullable final int roomId) {
+        this.roomId = roomId;
         // Charge les cadeaux à l'ouverture de l'activité
-        actionsListener.loadGifts(personId, false);
+        actionsListener.loadGifts(roomId, false);
     }
     /**
      * Initialisation de la vue
@@ -81,7 +88,7 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
      */
     protected void init(Context context) {
 
-        actionsListener = new GiftListPresenter(this, Injection.getDataProvider());
+        actionsListener = new GiftListPresenter(this, Injection.getDataProvider(getContext()));
 
         giftItemListener = new GiftItemListener() {
             @Override
@@ -95,9 +102,7 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        View root = inflater.inflate(R.layout.gift_list_view, this, true);
         View root = inflater.inflate(R.layout.list_view, this, true);
-//        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.gifts_list);
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.recycler_view);
         giftListAdapter = new GiftListAdapter(new ArrayList<Gift>(0), giftItemListener);
         recyclerView.setAdapter(giftListAdapter);
@@ -116,7 +121,7 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                actionsListener.loadGifts(personId, true);
+                actionsListener.loadGifts(roomId, true);
             }
         });
     }
@@ -127,7 +132,7 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
 
         // Action sur le FAB -> La vue doit être attachée à la fenêtre pour être certain
         // que la vue ait accès à l'activité parente et que le FAB soit inflate correctement
-        Activity activity = getActivity();
+        final Activity activity = getActivity();
         if (activity != null) {
             activity.findViewById(R.id.fab_add_gift).setOnClickListener(new OnClickListener() {
                 @Override
@@ -135,6 +140,9 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "onClick FAB");
                     }
+                    Intent intent = new Intent(activity, AddGiftActivity.class);
+                    intent.putExtra(AddGiftActivity.PARCELABLE_ROOM_ID_KEY, roomId);
+                    activity.startActivityForResult(intent, GiftListActivity.ADD_GIFT_REQUEST);
                 }
             });
         }
@@ -180,6 +188,22 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
         }
     }
 
+    @Override
+    public void showGiftDetail(final Gift gift) {
+        final Activity activity = getActivity();
+        if (activity != null) {
+            Intent intent = new Intent(activity, GiftDetailActivity.class);
+            // Passing data as a parecelable object
+            intent.putExtra(GiftDetailActivity.PARCELABLE_GIFT_KEY, gift);
+            activity.startActivity(intent);
+        }
+    }
+
+    @Override
+    public void forceReload() {
+        actionsListener.loadGifts(roomId, true);
+    }
+
 
     private static class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHolder> {
 
@@ -217,7 +241,7 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             this.context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View noteView = inflater.inflate(R.layout.gift_list_item, parent, false);
+            View noteView = inflater.inflate(R.layout.gift_list_item_view, parent, false);
 
             return new ViewHolder(noteView, giftItemListener);
         }
@@ -227,7 +251,7 @@ public class GiftListView extends FrameLayout implements GiftListContract.View {
             Gift gift = gifts.get(position);
 
             viewHolder.name.setText(gift.getName());
-            viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_description), gift.getAmount()));
+            viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_description), gift.getPrice()));
         }
 
         public void replaceData(List<Gift> gifts) {

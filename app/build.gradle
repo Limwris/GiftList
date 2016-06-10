@@ -102,6 +102,8 @@ dependencies {
     // Retrofit
     compile new StringBuffer('com.squareup.retrofit2:retrofit:').append(rootProject.ext.retrofitVersion).toString()
     compile new StringBuffer('com.squareup.retrofit2:converter-gson:').append(rootProject.ext.retrofitVersion).toString()
+    compile new StringBuffer('com.squareup.retrofit2:converter-scalars:').append(rootProject.ext.retrofitVersion).toString()
+    compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
     // CircularImageView
     compile 'de.hdodenhof:circleimageview:2.0.0'
 
