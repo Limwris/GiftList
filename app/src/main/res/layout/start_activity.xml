@@ -41,4 +41,23 @@
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#c16f12">
+
+        <TextView
+            android:id="@+id/didacticiel_not_authenticated_start"
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/not_authenticated_start_button" />
+    </LinearLayout>
 </LinearLayout>

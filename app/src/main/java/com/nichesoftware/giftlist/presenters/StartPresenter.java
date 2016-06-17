@@ -6,6 +6,7 @@ import android.util.Log;
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.contracts.StartContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
+import com.nichesoftware.giftlist.utils.StringUtils;
 
 /**
  * Created by n_che on 08/06/2016.
@@ -34,13 +35,44 @@ public class StartPresenter implements StartContract.UserActionListener {
     }
 
     @Override
-    public void startApplication() {
+    public void startApplication(final String username, final String password) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "startApplication");
         }
         view.showLoader("Log in...");
 
-        dataProvider.logIn("ap", "pass", new DataProvider.Callback() {
+        if (StringUtils.isEmpty(username) && StringUtils.isEmpty(password)) {
+            dataProvider.logInDisconnected(new DataProvider.Callback() {
+                @Override
+                public void onSuccess() {
+                    view.hideLoader();
+                    view.showRoomsActivity();
+                }
+
+                @Override
+                public void onError() {
+                    view.hideLoader();
+                }
+            });
+        } else {
+            dataProvider.logIn(username, password, new DataProvider.Callback() {
+                @Override
+                public void onSuccess() {
+                    view.hideLoader();
+                    view.showRoomsActivity();
+                }
+
+                @Override
+                public void onError() {
+                    view.hideLoader();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void register(final String username, final String password) {
+        dataProvider.register(username, password, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
                 view.hideLoader();

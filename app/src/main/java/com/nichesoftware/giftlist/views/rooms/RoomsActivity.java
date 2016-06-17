@@ -1,5 +1,6 @@
 package com.nichesoftware.giftlist.views.rooms;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,7 +19,12 @@ import com.nichesoftware.giftlist.R;
  */
 public class RoomsActivity extends AppCompatActivity {
     private static final String TAG = RoomsActivity.class.getSimpleName();
+    public static final int ADD_ROOM_REQUEST = 2;  // The request code
+    /**
+     * Graphical components
+     */
     private DrawerLayout drawerLayout;
+    private RoomsView view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +34,7 @@ public class RoomsActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rooms_activity);
+        view = (RoomsView) findViewById(R.id.container);
 
         // Set up the toolbar.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -47,6 +54,17 @@ public class RoomsActivity extends AppCompatActivity {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
             setupDrawerContent(navigationView);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == ADD_ROOM_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                view.forceReload();
+            }
         }
     }
 

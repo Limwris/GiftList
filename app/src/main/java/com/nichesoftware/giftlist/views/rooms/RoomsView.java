@@ -192,9 +192,17 @@ public class RoomsView extends FrameLayout implements RoomsContract.View {
             Log.d(TAG, "showRoomDetail");
         }
 
-        Intent intent = new Intent(getContext(), GiftListActivity.class);
-        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
-        getContext().startActivity(intent);
+        final Activity activity = getActivity();
+        if (activity != null) {
+            Intent intent = new Intent(getContext(), GiftListActivity.class);
+            intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
+            activity.startActivityForResult(intent, RoomsActivity.ADD_ROOM_REQUEST);
+        }
+    }
+
+    @Override
+    public void forceReload() {
+        actionsListener.loadRooms(false);
     }
 
     private static class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.ViewHolder> {

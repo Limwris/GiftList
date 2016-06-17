@@ -19,7 +19,7 @@ import retrofit2.http.PUT;
  * Created by n_che on 06/06/2016.
  */
 public interface RestAPI {
-    String BASE_URL = "http://192.168.42.176:8080/giftlist/";
+    String BASE_URL = "http://192.168.42.231:8080/giftlist/";
 
     @GET("rooms")
     Call<List<Room>> getAllRooms(@Header("X-Auth-Token") final String token);
@@ -34,11 +34,11 @@ public interface RestAPI {
     Call<String> register(@Body final UserDto userDto);
 
     @POST("room")
-    Call<Boolean> createRoom(@Header("X-Auth-Token") final String token, @Body final RoomDto roomDto);
+    Call<Room> createRoom(@Header("X-Auth-Token") final String token, @Body final RoomDto roomDto);
 
     @POST("gift")
-    Call<Boolean> addGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
+    Call<Gift> addGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
 
     @PUT("gift")
-    Call<Boolean> updateGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
+    Call<Gift> updateGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
 }

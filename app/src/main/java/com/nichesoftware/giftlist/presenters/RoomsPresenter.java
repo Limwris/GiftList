@@ -72,9 +72,4 @@ public class RoomsPresenter implements RoomsContract.UserActionListener {
         });
 
     }
-
-    @Override
-    public void createRoom() {
-        // Todo
-    }
 }

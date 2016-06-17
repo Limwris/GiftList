@@ -133,7 +133,7 @@ public class RestService implements ServiceAPI {
     }
 
     @Override
-    public void createRoom(final String token, final String roomName, final String occasion, final ServiceCallback<Boolean> callback) {
+    public void createRoom(final String token, final String roomName, final String occasion, final ServiceCallback<Room> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("createRoom [token = %s, roomName = %s, occasion = %s]", token, roomName, occasion));
         }
@@ -143,10 +143,10 @@ public class RestService implements ServiceAPI {
         roomDto.setOccasion(occasion);
 
         RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Boolean> call = restAPI.createRoom(token, roomDto);
-        call.enqueue(new Callback<Boolean>() {
+        Call<Room> call = restAPI.createRoom(token, roomDto);
+        call.enqueue(new Callback<Room>() {
             @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+            public void onResponse(Call<Room> call, Response<Room> response) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, String.format("getGifts - response %s", response.raw()));
                 }
@@ -154,7 +154,7 @@ public class RestService implements ServiceAPI {
             }
 
             @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
+            public void onFailure(Call<Room> call, Throwable t) {
                 callback.onError();
             }
         });
@@ -162,7 +162,7 @@ public class RestService implements ServiceAPI {
 
     @Override
     public void addGift(String token, int roomId, String name, double price, double amount,
-                        final ServiceCallback<Boolean> callback) {
+                        final ServiceCallback<Gift> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("addGift [token = %s, name = %s, price = %s]", token, name, price));
         }
@@ -174,10 +174,10 @@ public class RestService implements ServiceAPI {
         giftDto.setAmount(amount);
 
         RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Boolean> call = restAPI.addGift(token, giftDto);
-        call.enqueue(new Callback<Boolean>() {
+        Call<Gift> call = restAPI.addGift(token, giftDto);
+        call.enqueue(new Callback<Gift>() {
             @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+            public void onResponse(Call<Gift> call, Response<Gift> response) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, String.format("addGift - response %s", response.raw()));
                 }
@@ -185,7 +185,7 @@ public class RestService implements ServiceAPI {
             }
 
             @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
+            public void onFailure(Call<Gift> call, Throwable t) {
                 callback.onError();
             }
         });
@@ -193,7 +193,7 @@ public class RestService implements ServiceAPI {
 
     @Override
     public void updateGift(String token, int roomId, int giftId, double amount,
-                           final ServiceCallback<Boolean> callback) {
+                           final ServiceCallback<Gift> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("updateGift [token = %s, giftId = %s, amount = %s]", token, giftId, amount));
         }
@@ -204,10 +204,10 @@ public class RestService implements ServiceAPI {
         giftDto.setAmount(amount);
 
         RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Boolean> call = restAPI.updateGift(token, giftDto);
-        call.enqueue(new Callback<Boolean>() {
+        Call<Gift> call = restAPI.updateGift(token, giftDto);
+        call.enqueue(new Callback<Gift>() {
             @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+            public void onResponse(Call<Gift> call, Response<Gift> response) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, String.format("updateGift - response %s", response.raw()));
                 }
@@ -215,7 +215,7 @@ public class RestService implements ServiceAPI {
             }
 
             @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
+            public void onFailure(Call<Gift> call, Throwable t) {
                 callback.onError();
             }
         });

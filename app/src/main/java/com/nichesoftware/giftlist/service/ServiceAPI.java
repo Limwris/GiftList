@@ -21,9 +21,9 @@ public interface ServiceAPI {
     void getAllRooms(final String token, final ServiceCallback<List<Room>> callback);
     void getGifts(final String token, final int roomId, final ServiceCallback<List<Gift>> callback);
     void createRoom(final String token, final String roomName,
-                    final String occasion, final ServiceCallback<Boolean> callback);
+                    final String occasion, final ServiceCallback<Room> callback);
     void addGift(final String token, int roomId, final String name, double price,
-                 double amount, final ServiceCallback<Boolean> callback);
+                 double amount, final ServiceCallback<Gift> callback);
     void updateGift(final String token, int roomId, int giftId,
-                 double amount, final ServiceCallback<Boolean> callback);
+                 double amount, final ServiceCallback<Gift> callback);
 }

@@ -7,9 +7,19 @@
     <!-- StartActivity -->
     <string name="sign_up">Enregistrement</string>
     <string name="log_in">Authentification</string>
+    <string name="not_authenticated_start_button">Lancement déconnecté</string>
     <string name="getting_started_didacticiel_title">Prise en main</string>
     <string name="add_room_didacticiel_title">Créer une salle pour n\'importe quelle occasion</string>
     <string name="add_gift_didacticiel_title">Ajouter un cadeau ou participer à un cadeau déjà proposé</string>
+    <string name="not_authenticated_start_message">Attention, vous vous apprêtez à démarrer l\'application en mode déconnecté.\n\n
+        Dans ce mode, il n\'est pas possible d\'enregistrer a posteriori les salles et les listes de cadeaux que vous aurez créé de cette manière.</string>
+    <string name="not_authenticated_start_positive_button">Démarrer l\'application</string>
+    <string name="not_authenticated_start_negative_button">Annuler</string>
+    <string name="start_dialog_username_hint_text">Identifiant</string>
+    <string name="start_dialog_password_hint_text">Mot de passe</string>
+    <string name="start_dialog_positive_button">Démarrer l\'application</string>
+    <string name="start_dialog_negative_button">Annuler</string>
+    <string name="start_dialog_empty_field_error_text">Ce champ ne doit pas être vide</string>
 
     <!-- RoomsActivity-->
     <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>
@@ -43,5 +53,5 @@
     <string name="add_gift_price_hint_text">Prix</string>
     <string name="add_gift_amount_hint_text">Montant affecté</string>
     <string name="add_gift_empty_field_error_text">Ce champ ne doit pas être vide</string>
-    <string name="add_gift_nan_error_text">Ce champ doit etre un chiffre valide</string>
+    <string name="add_gift_nan_error_text">Ce champ doit être un chiffre valide</string>
 </resources>

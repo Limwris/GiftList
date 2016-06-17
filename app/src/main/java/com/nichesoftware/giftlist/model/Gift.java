@@ -4,6 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by n_che on 25/04/2016.
  */
@@ -25,9 +28,9 @@ public class Gift implements Parcelable {
      */
     private String url;
     /**
-     * Flag indiquant si la cadeau a été acheté
+     * Montants alloués par utilisateur au cadeau
      */
-    private boolean isBought;
+    private Map<String, Double> amountByUser = new HashMap<>();
 
     /**
      * Constructeur
@@ -102,19 +105,31 @@ public class Gift implements Parcelable {
     }
 
     /**
-     * Getter sur le flag indiquant si la cadeau a été acheté
+     * Indique si la cadeau a été acheté
      * @return isBought
      */
     public boolean isBought() {
-        return isBought;
+        double amount = 0;
+        for (Map.Entry<String, Double> entry : amountByUser.entrySet()) {
+            amount += entry.getValue();
+        }
+        return amount >= price;
     }
 
     /**
-     * Setter sur le flag indiquant si la cadeau a été acheté
-     * @param isBought
+     * Getter sur les montants alloués par utilisateur au cadeau
+     * @return
      */
-    public void setIsBought(boolean isBought) {
-        this.isBought = isBought;
+    public Map<String, Double> getAmountByUser() {
+        return amountByUser;
+    }
+
+    /**
+     * Setter sur les montants alloués par utilisateur au cadeau
+     * @param amountByUser
+     */
+    public void setAmountByUser(Map<String, Double> amountByUser) {
+        this.amountByUser = amountByUser;
     }
 
     /**********************************************************************************************/
@@ -132,7 +147,11 @@ public class Gift implements Parcelable {
         parcel.writeDouble(price);
         parcel.writeString(name);
         parcel.writeString(url);
-        parcel.writeByte((byte) (isBought ? 1 : 0));
+        parcel.writeInt(amountByUser.size());
+        for (Map.Entry<String, Double> entry : amountByUser.entrySet()) {
+            parcel.writeString(entry.getKey());
+            parcel.writeDouble(entry.getValue());
+        }
     }
 
     public Gift(Parcel in) {
@@ -140,7 +159,10 @@ public class Gift implements Parcelable {
         this.price = in.readDouble();
         this.name = in.readString();
         this.url = in.readString();
-        this.isBought = in.readByte() != 0;     //myBoolean == true if byte != 0
+        int count = in.readInt();
+        for (int i = 0; i < count; i++) {
+            amountByUser.put(in.readString(), in.readDouble());
+        }
     }
 
     public static final Parcelable.Creator<Gift> CREATOR = new Parcelable.Creator<Gift>() {

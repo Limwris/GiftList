@@ -22,6 +22,10 @@ public interface RoomsContract {
          */
         void showRoomDetail(@NonNull int roomId);
         /**
+         * Force le rechargement des données
+         */
+        void forceReload();
+        /**
          * Affiche le loader
          */
         void showLoader();
@@ -41,9 +45,5 @@ public interface RoomsContract {
          * @param forceUpdate   Flag indiquant si la mise à jour doit être forcée
          */
         void loadRooms(boolean forceUpdate);
-        /**
-         * Action permettant l'ajout d'une salle
-         */
-        void createRoom();
     }
 }

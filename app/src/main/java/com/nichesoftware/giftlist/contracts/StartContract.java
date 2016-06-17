@@ -20,8 +20,16 @@ public interface StartContract {
     }
     interface UserActionListener {
         /**
-         *
+         * Lance l'application
+         * @param username
+         * @param password
          */
-        void startApplication();
+        void startApplication(final String username, final String password);
+        /**
+         * Enregistrement
+         * @param username
+         * @param password
+         */
+        void register(final String username, final String password);
     }
 }

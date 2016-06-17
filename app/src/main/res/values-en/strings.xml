@@ -7,9 +7,18 @@
     <!-- StartActivity -->
     <string name="sign_up">Sign Up</string>
     <string name="log_in">Log In</string>
+    <string name="not_authenticated_start_button">Disconnected launch</string>
     <string name="getting_started_didacticiel_title">Getting started</string>
     <string name="add_room_didacticiel_title">Create room for any occasion</string>
     <string name="add_gift_didacticiel_title">Add gift or participate to any existing gift</string>
+    <string name="not_authenticated_start_message">Be careful ! After creating an account, you will not be able to retreive nor save the rooms and gifts list you will add in disconnected mode.</string>
+    <string name="not_authenticated_start_positive_button">Start the application</string>
+    <string name="not_authenticated_start_negative_button">Cancel</string>
+    <string name="start_dialog_username_hint_text">Username</string>
+    <string name="start_dialog_password_hint_text">Password</string>
+    <string name="start_dialog_positive_button">Start the application</string>
+    <string name="start_dialog_negative_button">Cancel</string>
+    <string name="start_dialog_empty_field_error_text">This field should not be left empty</string>
 
     <!-- RoomsActivity-->
     <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>
@@ -43,4 +52,5 @@
     <string name="add_gift_price_hint_text">Price</string>
     <string name="add_gift_amount_hint_text">Allocated amount</string>
     <string name="add_gift_empty_field_error_text">This field should not be left empty</string>
+    <string name="add_gift_nan_error_text">This field should be a valid number</string>
 </resources>

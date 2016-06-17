@@ -124,4 +124,31 @@ public class Room {
         }
         giftList.addAll(gifts);
     }
+    /**
+     * Ajout d'un cadeau à la liste
+     * @param gift
+     */
+    public boolean updateGift(Gift gift) {
+        for (Gift temp : giftList) {
+            if (temp.getId() == gift.getId()) {
+                // Todo: Update...
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Recherche un cadeau dans la liste des cadeaux de la salle
+     * @param giftId - identifiant du cadeau recherchée
+     * @return room  - cadeau correspondant à l'identifiant passé en paramètre, nul sinon
+     */
+    public Gift getGiftById(final int giftId) {
+        for (Gift gift : giftList) {
+            if (gift.getId() == giftId) {
+                return gift;
+            }
+        }
+        return null;
+    }
 }
