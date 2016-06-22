@@ -2,6 +2,7 @@ package com.nichesoftware.giftlist.dataproviders;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.nichesoftware.giftlist.BuildConfig;
@@ -91,7 +92,8 @@ public class DataProvider {
      * Récupère l'ensemble des salles
      * @param callback   - Callback
      */
-    public void getRooms(@NonNull final LoadRoomsCallback callback) {
+    public void getRooms(final boolean forceUpdate,
+            @NonNull final LoadRoomsCallback callback) {
         final String username = PersistenceBroker.getCurrentUser(context);
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("getRooms [username = %s]", username));
@@ -106,7 +108,7 @@ public class DataProvider {
             final String token = PersistenceBroker.retreiveUserToken(context);
 
             // Load from API only if needed.
-            if (rooms == null) {
+            if (rooms == null || forceUpdate) {
                 serviceApi.getAllRooms(token, new ServiceAPI.ServiceCallback<List<Room>>() {
                     @Override
                     public void onLoaded(List<Room> rooms) {
@@ -226,7 +228,7 @@ public class DataProvider {
             User user = PersistenceBroker.retreiveUser(context);
             List<Room> rooms = user.getRooms();
             if (rooms != null) {
-                idRoom = rooms.get(-1).getId() + 1;
+                idRoom = rooms.get(rooms.size() - 1).getId() + 1;
             } else {
                 rooms = new ArrayList<>();
             }
@@ -375,7 +377,10 @@ public class DataProvider {
         // A l'enregistrement, on nettoie les données sur les salles
         PersistenceBroker.clearData(context);
 
-        serviceApi.register(username, password, new ServiceAPI.ServiceCallback<String>() {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        final String phoneNumber = telephonyManager.getLine1Number();
+
+        serviceApi.register(username, password, phoneNumber, new ServiceAPI.ServiceCallback<String>() {
             @Override
             public void onLoaded(String value) {
                 // Set current user
@@ -397,6 +402,10 @@ public class DataProvider {
                 callback.onError();
             }
         });
+    }
+
+    public void retreiveAvailableContacts(@NonNull final Callback callback) {
+
     }
 
     /**

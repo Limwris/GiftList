@@ -93,6 +93,7 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
 
     @Override
     public void onCreateRoomSuccess() {
+        setResult(RESULT_OK);
         finish();
     }
 

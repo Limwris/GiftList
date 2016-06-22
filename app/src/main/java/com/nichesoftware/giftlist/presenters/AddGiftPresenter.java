@@ -37,12 +37,12 @@ public class AddGiftPresenter implements AddGiftContract.UserActionListener {
                 new DataProvider.Callback() {
                     @Override
                     public void onSuccess() {
-
+                        view.onCreateGiftSuccess();
                     }
 
                     @Override
                     public void onError() {
-
+                        view.onCreateGiftFailed();
                     }
                 });
     }

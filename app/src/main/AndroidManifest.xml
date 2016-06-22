@@ -2,6 +2,18 @@
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- GCM requires a Google account. -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- Keeps the processor from sleeping when a message is received -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- App receives GCM messages. -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <!-- Retreive phone number -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!--<permission android:name="{applicationId}.gcm.permission.C2D_MESSAGE"-->
+        <!--android:protectionLevel="signature" />-->
+    <!--<uses-permission android:name="{applicationId}.gcm.permission.C2D_MESSAGE" />-->
 
     <application
         android:allowBackup="true"
@@ -45,6 +57,13 @@
                 android:value=".views.giftlist.GiftListActivity" />
         </activity>
         <activity android:name=".views.giftdetail.GiftDetailActivity"
+            android:parentActivityName=".views.giftlist.GiftListActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".views.giftlist.GiftListActivity" />
+        </activity>
+        <activity android:name=".views.adduser.AddUserActivity"
             android:parentActivityName=".views.giftlist.GiftListActivity">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data

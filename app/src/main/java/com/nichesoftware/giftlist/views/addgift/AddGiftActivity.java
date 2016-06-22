@@ -115,6 +115,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
 
     @Override
     public void onCreateGiftSuccess() {
+        setResult(RESULT_OK);
         finish();
     }
 
