@@ -5,6 +5,7 @@ import com.nichesoftware.giftlist.dto.RoomDto;
 import com.nichesoftware.giftlist.dto.UserDto;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
+import com.nichesoftware.giftlist.model.User;
 
 import java.util.List;
 
@@ -41,4 +42,8 @@ public interface RestAPI {
 
     @PUT("gift")
     Call<Gift> updateGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
+
+    @POST("contacts")
+    Call<List<User>> retreiveAvailableContacts(@Header("X-Auth-Token") final String token,
+                                               @Body final List<String> phoneNumber);
 }

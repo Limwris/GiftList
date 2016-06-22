@@ -1,36 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
+    android:id="@+id/refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/refresh_layout"
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/persons_activity_vertical_margin"
+        android:paddingLeft="@dimen/persons_activity_horizontal_margin"
+        android:paddingRight="@dimen/persons_activity_horizontal_margin"
+        android:paddingTop="@dimen/persons_activity_vertical_margin"/>
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:visibility="gone"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingBottom="@dimen/persons_activity_vertical_margin"
-                android:paddingLeft="@dimen/persons_activity_horizontal_margin"
-                android:paddingRight="@dimen/persons_activity_horizontal_margin"
-                android:paddingTop="@dimen/persons_activity_vertical_margin"/>
+    <com.nichesoftware.giftlist.views.ErrorView
+        android:id="@+id/error_view"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-            <com.nichesoftware.giftlist.views.ErrorView
-                android:id="@+id/error_view"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
-</LinearLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
