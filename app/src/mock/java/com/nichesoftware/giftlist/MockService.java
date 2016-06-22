@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
+import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void register(String username, String password, ServiceCallback<String> callback) {
+    public void register(String username, String password, String phoneNumber, ServiceCallback<String> callback) {
         callback.onLoaded("");
     }
 
@@ -61,17 +62,37 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void createRoom(String token, String roomName, String occasion, ServiceCallback<Boolean> callback) {
-        callback.onLoaded(true);
+    public void createRoom(String token, String roomName, String occasion, ServiceCallback<Room> callback) {
+        callback.onLoaded(new Room(0, "Test", "Test"));
     }
 
     @Override
-    public void addGift(String token, int roomId, String name, double price, double amount, ServiceCallback<Boolean> callback) {
-        callback.onLoaded(true);
+    public void addGift(String token, int roomId, String name, double price, double amount, ServiceCallback<Gift> callback) {
+        Gift gift = new Gift();
+        gift.setName("PS4");
+        gift.setPrice(250);
+        callback.onLoaded(gift);
+
     }
 
     @Override
-    public void updateGift(String token, int roomId, int giftId, double amount, ServiceCallback<Boolean> callback) {
-        callback.onLoaded(true);
+    public void updateGift(String token, int roomId, int giftId, double amount, ServiceCallback<Gift> callback) {
+        Gift gift = new Gift();
+        gift.setName("PS4");
+        gift.setPrice(250);
+        callback.onLoaded(gift);
+    }
+
+    @Override
+    public void retreiveAvailableUsers(final String token, List<String> phoneNumber,
+                                       ServiceCallback<List<User>> callback) {
+        List<User> users = new ArrayList<>();
+        User user1 = new User();
+        user1.setUsername("User1");
+        users.add(user1);
+        User user2 = new User();
+        user2.setUsername("User2");
+        users.add(user2);
+        callback.onLoaded(users);
     }
 }
