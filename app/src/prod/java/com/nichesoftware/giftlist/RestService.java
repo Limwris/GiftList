@@ -7,6 +7,7 @@ import com.nichesoftware.giftlist.dto.RoomDto;
 import com.nichesoftware.giftlist.dto.UserDto;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
+import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
 
 import java.util.List;
@@ -54,7 +55,8 @@ public class RestService implements ServiceAPI {
     }
 
     @Override
-    public void register(final String username, final String password, final ServiceCallback<String> callback) {
+    public void register(final String username, final String password, final String phoneNumber,
+                         final ServiceCallback<String> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("register [username = %s, password = %s]", username, password));
         }
@@ -62,6 +64,7 @@ public class RestService implements ServiceAPI {
         UserDto userDto = new UserDto();
         userDto.setUsername(username);
         userDto.setPassword(password);
+        userDto.setPhoneNumber(phoneNumber);
 
         RestAPI restAPI = getRetrofit().create(RestAPI.class);
         Call<String> call = restAPI.register(userDto);
@@ -216,6 +219,31 @@ public class RestService implements ServiceAPI {
 
             @Override
             public void onFailure(Call<Gift> call, Throwable t) {
+                callback.onError();
+            }
+        });
+    }
+
+    @Override
+    public void retreiveAvailableUsers(final String token, List<String> phoneNumber,
+                                       final ServiceCallback<List<User>> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("retreiveAvailableUsers [token = %s]", token));
+        }
+
+        RestAPI restAPI = getRetrofit().create(RestAPI.class);
+        Call<List<User>> call = restAPI.retreiveAvailableContacts(token, phoneNumber);
+        call.enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("retreiveAvailableUsers - response %s", response.raw()));
+                }
+                callback.onLoaded(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
                 callback.onError();
             }
         });

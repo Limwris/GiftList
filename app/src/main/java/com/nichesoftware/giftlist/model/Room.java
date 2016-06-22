@@ -151,4 +151,12 @@ public class Room {
         }
         return null;
     }
+
+    public int getGiftListSize() {
+        if (giftList == null) {
+            return 0;
+        } else {
+            return giftList.size();
+        }
+    }
 }

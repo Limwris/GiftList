@@ -12,6 +12,10 @@ public class UserDto {
      * Mot de passe de l'utilisateur
      */
     private String password;
+    /**
+     * Numéro de téléphone
+     */
+    private String phoneNumber;
 
     /**
      * Getter sur l'identifiant de l'utilisateur
@@ -43,5 +47,21 @@ public class UserDto {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * Getter sur le numéro de téléphone
+     * @return phoneNumber
+     */
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    /**
+     * Setter sur le numéro de téléphone
+     * @param phoneNumber
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
