@@ -63,4 +63,9 @@ public class GiftListPresenter implements GiftListContract.UserActionListener {
         }
         giftListView.showGiftDetail(gift);
     }
+
+    @Override
+    public void leaveCurrentRoom(int roomId) {
+
+    }
 }

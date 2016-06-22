@@ -44,5 +44,10 @@ public interface GiftListContract {
          * @param gift
          */
         void openGiftDetail(Gift gift);
+        /**
+         * Action permettant à l'utilisateur de quitter la salle
+         * @param roomId
+         */
+        void leaveCurrentRoom(final int roomId);
     }
 }
