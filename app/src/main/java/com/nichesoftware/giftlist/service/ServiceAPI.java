@@ -2,6 +2,7 @@ package com.nichesoftware.giftlist.service;
 
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
+import com.nichesoftware.giftlist.model.User;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface ServiceAPI {
 
     void authenticate(final String username, final String password,
                       final ServiceCallback<String> callback);
-    void register(final String username, final String password,
+    void register(final String username, final String password, final String phoneNumber,
                   final ServiceCallback<String> callback);
     void getAllRooms(final String token, final ServiceCallback<List<Room>> callback);
     void getGifts(final String token, final int roomId, final ServiceCallback<List<Gift>> callback);
@@ -26,4 +27,6 @@ public interface ServiceAPI {
                  double amount, final ServiceCallback<Gift> callback);
     void updateGift(final String token, int roomId, int giftId,
                  double amount, final ServiceCallback<Gift> callback);
+    void retreiveAvailableUsers(final String token, final List<String> phoneNumber,
+                                final ServiceCallback<List<User>> callback);
 }

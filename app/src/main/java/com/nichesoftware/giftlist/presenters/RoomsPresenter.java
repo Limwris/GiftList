@@ -53,11 +53,11 @@ public class RoomsPresenter implements RoomsContract.UserActionListener {
         // Show loader
         roomsView.showLoader();
 
-        if (forceUpdate) {
-            dataProvider.refreshData();
-        }
+//        if (forceUpdate) {
+//            dataProvider.refreshData();
+//        }
 
-        dataProvider.getRooms(new DataProvider.LoadRoomsCallback() {
+        dataProvider.getRooms(forceUpdate, new DataProvider.LoadRoomsCallback() {
             @Override
             public void onRoomsLoaded(List<Room> rooms) {
                 // Cache le loader

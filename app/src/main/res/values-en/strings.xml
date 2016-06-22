@@ -21,7 +21,7 @@
     <string name="start_dialog_empty_field_error_text">This field should not be left empty</string>
 
     <!-- RoomsActivity-->
-    <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>
+    <string name="room_error_view_message">No room has been already created.</string>
     <plurals name="gift_description">
         <!--
              As a developer, you should always supply "one" and "other"
@@ -39,6 +39,11 @@
     <!-- GiftlisActivity -->
     <string name="gift_description">Price: %1$,.2f €</string>
     <string name="gift_error_view_message">Empty room ! Be the first to propose a gift.</string>
+    <string name="gift_list_leave_room_menu_item">Leave room</string>
+    <string name="gift_list_invite_user_menu_item">Invite another user</string>
+    <string name="gift_list_empty_field_error_text">This field should not be left empty</string>
+    <string name="gift_list_dialog_positive_button">Invite</string>
+    <string name="gift_list_dialog_negative_button">Cancel</string>
 
     <!-- Add Room -->
     <string name="add_room_create_button_text">Create room</string>
@@ -53,4 +58,9 @@
     <string name="add_gift_amount_hint_text">Allocated amount</string>
     <string name="add_gift_empty_field_error_text">This field should not be left empty</string>
     <string name="add_gift_nan_error_text">This field should be a valid number</string>
+
+    <!-- Add User -->
+    <string name="add_user_invite_button_text">Invite</string>
+    <string name="add_user_error_view_message">None of your contacts have installed this application.</string>
+    <string name="description_medaillon_list_contacts">Medaillon depicting the contact.</string>
 </resources>

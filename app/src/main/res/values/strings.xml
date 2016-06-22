@@ -40,6 +40,12 @@
     <!-- GiftlisActivity -->
     <string name="gift_description">Prix: %1$,.2f €</string>
     <string name="gift_error_view_message">Aucun cadeau n\'a été proposé pour cette salle.</string>
+    <string name="gift_list_leave_room_menu_item">Quitter la salle</string>
+    <string name="gift_list_invite_user_menu_item">Inviter un utilisateur</string>
+    <string name="gift_list_empty_field_error_text">Ce champ ne doit pas être vide</string>
+    <string name="gift_list_invitation_explanation_text"></string>
+    <string name="gift_list_dialog_positive_button">Inviter</string>
+    <string name="gift_list_dialog_negative_button">Annuler</string>
 
     <!-- Add Room -->
     <string name="add_room_create_button_text">Créer la salle</string>
@@ -54,4 +60,9 @@
     <string name="add_gift_amount_hint_text">Montant affecté</string>
     <string name="add_gift_empty_field_error_text">Ce champ ne doit pas être vide</string>
     <string name="add_gift_nan_error_text">Ce champ doit être un chiffre valide</string>
+
+    <!-- Add User -->
+    <string name="add_user_invite_button_text">Inviter</string>
+    <string name="add_user_error_view_message">Aucun contact n\'a installé l\'application de gestion de listes de cadeaux.</string>
+    <string name="description_medaillon_list_contacts">Médaillon affichant une image représentant le contact.</string>
 </resources>

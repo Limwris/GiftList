@@ -138,7 +138,7 @@ public class RoomsView extends FrameLayout implements RoomsContract.View {
                         Log.d(TAG, "onClick FAB");
                     }
                     Intent intent = new Intent(activity, AddRoomActivity.class);
-                    activity.startActivity(intent);
+                    activity.startActivityForResult(intent, RoomsActivity.ADD_ROOM_REQUEST);
                 }
             });
         }
@@ -192,12 +192,9 @@ public class RoomsView extends FrameLayout implements RoomsContract.View {
             Log.d(TAG, "showRoomDetail");
         }
 
-        final Activity activity = getActivity();
-        if (activity != null) {
-            Intent intent = new Intent(getContext(), GiftListActivity.class);
-            intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
-            activity.startActivityForResult(intent, RoomsActivity.ADD_ROOM_REQUEST);
-        }
+        Intent intent = new Intent(getContext(), GiftListActivity.class);
+        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
+        getContext().startActivity(intent);
     }
 
     @Override
@@ -261,7 +258,7 @@ public class RoomsView extends FrameLayout implements RoomsContract.View {
 
             viewHolder.name.setText(room.getRoomName());
             // The first parameter of getQuantityString is used to decide which format to use (single or plural)
-            viewHolder.giftDescription.setText(context.getResources().getQuantityString(R.plurals.gift_description, 0, 0, room.getGiftList().size()));
+            viewHolder.giftDescription.setText(context.getResources().getQuantityString(R.plurals.gift_description, 0, 0, room.getGiftListSize()));
         }
 
         public void replaceData(List<Room> rooms) {
