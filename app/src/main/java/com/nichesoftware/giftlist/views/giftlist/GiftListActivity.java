@@ -1,12 +1,14 @@
 package com.nichesoftware.giftlist.views.giftlist;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.BuildConfig;
@@ -26,7 +27,6 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
-import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
 import com.nichesoftware.giftlist.views.adduser.AddUserActivity;
@@ -41,8 +41,9 @@ import java.util.List;
 public class GiftListActivity extends AppCompatActivity implements GiftListContract.View {
     private static final String TAG = GiftListActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
-    public static final int ADD_GIFT_REQUEST = 1;  // The request code
-    public static final int ADD_USER_REQUEST = 11;  // The request code
+    public static final int RESULT_RELOAD = 100;
+    public static final int ADD_GIFT_REQUEST = 10;  // The request code
+    public static final int ADD_USER_REQUEST = 11;
 
     /**
      * Adapter lié à la RecyclerView
@@ -88,7 +89,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                 }
                 Intent intent = new Intent(GiftListActivity.this, AddGiftActivity.class);
                 intent.putExtra(AddGiftActivity.PARCELABLE_ROOM_ID_KEY, roomId);
-                startActivityForResult(intent, GiftListActivity.ADD_GIFT_REQUEST);
+                startActivityForResult(intent, ADD_GIFT_REQUEST);
             }
         });
 
@@ -163,6 +164,15 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.giftlist_menu, menu);
+        MenuItem item = menu.findItem(R.id.gift_list_invite_user);
+//        if (actionsListener.isInvitationAvailable()) {
+//            item.setEnabled(true);
+//            item.getIcon().setAlpha(255);
+//        } else {
+//            // disabled
+//            item.setEnabled(false);
+//            item.getIcon().setAlpha(130);
+//        }
         return true;
     }
 
@@ -171,10 +181,11 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         switch (item.getItemId()) {
             case R.id.giftlist_delete_room:
                 // Comportement du bouton "Supprimer une salle"
-                actionsListener.leaveCurrentRoom(roomId);
+                doShowLeaveRoomDialog();
                 return true;
             case R.id.gift_list_invite_user:
                 // Comportement du bouton "Inviter un utilisateur"
+                showLoader();
                 Intent intent = new Intent(this, AddUserActivity.class);
                 intent.putExtra(AddUserActivity.EXTRA_ROOM_ID, roomId);
                 startActivityForResult(intent, ADD_USER_REQUEST);
@@ -184,19 +195,31 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         }
     }
 
-
-    private boolean validate(EditText usernameEditText) {
-        boolean valid = true;
-
-        final String username = usernameEditText.getText().toString();
-        if (StringUtils.isEmpty(username)) {
-            usernameEditText.setError(getString(R.string.gift_list_empty_field_error_text));
-            valid = false;
-        } else {
-            usernameEditText.setError(null);
-        }
-
-        return valid;
+    private void doShowLeaveRoomDialog() {
+        new AlertDialog.Builder(this,
+                R.style.AppTheme_Dark_Dialog)
+                .setMessage(R.string.leave_room_dialog_message)
+                .setPositiveButton(R.string.ok_button_text,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int  whichButton) {
+                                actionsListener.leaveCurrentRoom(roomId);
+                                if (dialogInterface != null) {
+                                    dialogInterface.dismiss();
+                                }
+                                setResult(RESULT_RELOAD);
+                                finish();
+                            }
+                        })
+                .setNegativeButton(R.string.cancel_button_text,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int  whichButton) {
+                                if (dialogInterface != null) {
+                                    dialogInterface.dismiss();
+                                }
+                            }
+                        }).show();
     }
 
     /**********************************************************************************************/

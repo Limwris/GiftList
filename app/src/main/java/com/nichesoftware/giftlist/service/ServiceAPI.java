@@ -29,4 +29,6 @@ public interface ServiceAPI {
                  double amount, final ServiceCallback<Gift> callback);
     void retreiveAvailableUsers(final String token, final List<String> phoneNumber,
                                 final ServiceCallback<List<User>> callback);
+    void inviteUserToRoom(final String token, int roomId, final String username,
+                          final ServiceCallback<Boolean> callback);
 }

@@ -1,10 +1,16 @@
 package com.nichesoftware.giftlist.dataproviders;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
@@ -13,6 +19,7 @@ import com.nichesoftware.giftlist.service.ServiceAPI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by n_che on 25/04/2016.
@@ -51,6 +58,11 @@ public class DataProvider {
         void onError();
     }
 
+    public interface CallbackValue<T> {
+        void onSuccess(T value);
+        void onError();
+    }
+
     public void logInDisconnected(@NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("logInDisconnected"));
@@ -70,14 +82,14 @@ public class DataProvider {
         serviceApi.authenticate(username, password, new ServiceAPI.ServiceCallback<String>() {
             @Override
             public void onLoaded(String value) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("logIn - onSuccess | token = %s", value));
+                }
                 PersistenceBroker.setCurrentUser(context, username);
 
                 User user = PersistenceBroker.retreiveUser(context);
                 user.setToken(value);
                 PersistenceBroker.saveUser(context, user);
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, String.format("logIn - onSuccess | token = %s", value));
-                }
                 callback.onSuccess();
             }
 
@@ -404,8 +416,130 @@ public class DataProvider {
         });
     }
 
-    public void retreiveAvailableContacts(@NonNull final Callback callback) {
+    public void retreiveAvailableContacts(@NonNull final CallbackValue<List<User>> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("retreiveAvailableContacts"));
+        }
 
+        final String username = PersistenceBroker.getCurrentUser(context);
+        // Cas déconnecté
+        if (username.equals(User.DISCONNECTED_USER)) {
+            callback.onError();
+        } else {
+            final String token = PersistenceBroker.retreiveUserToken(context);
+            List<String> phoneNumbers = fetchContacts();
+
+            serviceApi.retreiveAvailableUsers(token, phoneNumbers,
+                    new ServiceAPI.ServiceCallback<List<User>>() {
+                        @Override
+                        public void onLoaded(List<User> value) {
+                            callback.onSuccess(value);
+                        }
+
+                        @Override
+                        public void onError() {
+                            callback.onError();
+                        }
+                    });
+        }
+
+    }
+
+    private List<String> fetchContacts() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("fetchContacts"));
+        }
+
+        List<String> phoneNumbers = new ArrayList<>();
+
+        ContentResolver contentResolver = context.getContentResolver();
+
+        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                null,
+                ContactsContract.Contacts.HAS_PHONE_NUMBER + " != 0",
+                null,
+                null);
+
+        // Loop for every contact in the phone
+        if (cursor != null && cursor.getCount() > 0) {
+
+            while (cursor.moveToNext()) {
+
+                String contact_id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+
+                Cursor phoneCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        null,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                        new String[] { contact_id },
+                        null);
+
+                if (phoneCursor!= null) {
+                    while (phoneCursor.moveToNext()) {
+                        int phoneType = phoneCursor.getInt(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                        if (phoneType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) {
+                            Locale locale = context.getResources().getConfiguration().locale;
+                            PhoneNumberUtil pnu = PhoneNumberUtil.getInstance();
+                            Phonenumber.PhoneNumber pn = null;
+
+                            try {
+                                pn = pnu.parse(phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
+                                        locale.getISO3Country());
+                            } catch (NumberParseException ignored) { }
+
+                            if (pn != null) {
+                                String phoneNumber = pnu.format(pn, PhoneNumberUtil.PhoneNumberFormat.E164);
+
+                                if (!phoneNumbers.contains(phoneNumber)) {
+                                    phoneNumbers.add(phoneNumber);
+                                }
+                            }
+                        }
+                    }
+
+                    phoneCursor.close();
+                }
+            }
+
+            cursor.close();
+        }
+
+        return phoneNumbers;
+    }
+
+    public void inviteUserToRoom(final int roomId, @NonNull final String username,
+                                 @NonNull final Callback callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("inviteUserToRoom [roomId = %s, username = %f]", roomId, username));
+        }
+
+        final String user = PersistenceBroker.getCurrentUser(context);
+        // Cas déconnecté
+        if (user.equals(User.DISCONNECTED_USER)) {
+            callback.onError();
+        } else {
+            final String token = PersistenceBroker.retreiveUserToken(context);
+            serviceApi.inviteUserToRoom(token, roomId, username,
+                    new ServiceAPI.ServiceCallback<Boolean>() {
+                        @Override
+                        public void onLoaded(Boolean value) {
+                            callback.onSuccess();
+                        }
+
+                        @Override
+                        public void onError() {
+                            callback.onError();
+                        }
+                    });
+        }
+    }
+
+    /**
+     * Indique si c'est l'utilisateur hors connexion
+     * @return
+     */
+    public boolean isDisconnectedUser() {
+        final String user = PersistenceBroker.getCurrentUser(context);
+        return user.equals(User.DISCONNECTED_USER);
     }
 
     /**

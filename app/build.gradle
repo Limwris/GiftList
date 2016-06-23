@@ -106,6 +106,8 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
     // CircularImageView
     compile 'de.hdodenhof:circleimageview:2.0.0'
+    // googlei18n / libphonenumber
+    compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '7.4.3'
 
     testCompile new StringBuffer('junit:junit:').append(rootProject.ext.junitVersion).toString()
     testCompile new StringBuffer('org.mockito:mockito-all:').append(rootProject.ext.mockitoVersion).toString()

@@ -65,9 +65,12 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
                                                     usernameEditText.getText().toString(),
                                                     passwordEditText.getText().toString());
                                         }
+                                        if (dialogInterface != null) {
+                                            dialogInterface.dismiss();
+                                        }
                                     }
                                 })
-                        .setNegativeButton(R.string.start_dialog_negative_button,
+                        .setNegativeButton(R.string.cancel_button_text,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int whichButton) {
@@ -99,9 +102,12 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
                                                     usernameEditText.getText().toString(),
                                                     passwordEditText.getText().toString());
                                         }
+                                        if (dialogInterface != null) {
+                                            dialogInterface.dismiss();
+                                        }
                                     }
                                 })
-                        .setNegativeButton(R.string.start_dialog_negative_button,
+                        .setNegativeButton(R.string.cancel_button_text,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int whichButton) {
@@ -124,9 +130,12 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int  whichButton) {
                                         actionsListener.startApplication(null, null);
+                                        if (dialogInterface != null) {
+                                            dialogInterface.dismiss();
+                                        }
                                     }
                                 })
-                        .setNegativeButton(R.string.not_authenticated_start_negative_button,
+                        .setNegativeButton(R.string.cancel_button_text,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int  whichButton) {

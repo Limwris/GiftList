@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="ok_button_text">OK</string>
+    <string name="cancel_button_text">Cancel</string>
+
     <!-- Navigation handler -->
     <string name="navigation_view_header_title">Gifts list</string>
 
@@ -11,13 +14,11 @@
     <string name="getting_started_didacticiel_title">Getting started</string>
     <string name="add_room_didacticiel_title">Create room for any occasion</string>
     <string name="add_gift_didacticiel_title">Add gift or participate to any existing gift</string>
-    <string name="not_authenticated_start_message">Be careful ! After creating an account, you will not be able to retreive nor save the rooms and gifts list you will add in disconnected mode.</string>
+    <string name="not_authenticated_start_message">Be careful ! After creating an account, you will not be able to retrieve nor save the rooms and gifts list you will add in disconnected mode.</string>
     <string name="not_authenticated_start_positive_button">Start the application</string>
-    <string name="not_authenticated_start_negative_button">Cancel</string>
     <string name="start_dialog_username_hint_text">Username</string>
     <string name="start_dialog_password_hint_text">Password</string>
     <string name="start_dialog_positive_button">Start the application</string>
-    <string name="start_dialog_negative_button">Cancel</string>
     <string name="start_dialog_empty_field_error_text">This field should not be left empty</string>
 
     <!-- RoomsActivity-->
@@ -43,7 +44,7 @@
     <string name="gift_list_invite_user_menu_item">Invite another user</string>
     <string name="gift_list_empty_field_error_text">This field should not be left empty</string>
     <string name="gift_list_dialog_positive_button">Invite</string>
-    <string name="gift_list_dialog_negative_button">Cancel</string>
+    <string name="leave_room_dialog_message">Do you want to leave this room ? You won\'t be able to participate anymore unless you got invited again.</string>
 
     <!-- Add Room -->
     <string name="add_room_create_button_text">Create room</string>

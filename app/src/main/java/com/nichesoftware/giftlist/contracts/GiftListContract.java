@@ -49,5 +49,10 @@ public interface GiftListContract {
          * @param roomId
          */
         void leaveCurrentRoom(final int roomId);
+        /**
+         * Indique si l'invitation est disponible
+         * @return flag indiquant si l'invitation est disponible
+         */
+        boolean isInvitationAvailable();
     }
 }

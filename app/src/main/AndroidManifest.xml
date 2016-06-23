@@ -8,8 +8,10 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- App receives GCM messages. -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <!-- Retreive phone number -->
+    <!-- Retrieve phone number -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- Retrieve contacts -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <!--<permission android:name="{applicationId}.gcm.permission.C2D_MESSAGE"-->
         <!--android:protectionLevel="signature" />-->

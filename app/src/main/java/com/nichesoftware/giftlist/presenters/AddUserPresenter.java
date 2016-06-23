@@ -4,6 +4,9 @@ import android.support.annotation.NonNull;
 
 import com.nichesoftware.giftlist.contracts.AddUserContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
+import com.nichesoftware.giftlist.model.User;
+
+import java.util.List;
 
 /**
  * Created by n_che on 22/06/2016.
@@ -34,13 +37,33 @@ public class AddUserPresenter implements AddUserContract.UserActionListener {
 
     @Override
     public void inviteUserToCurrentRoom(int roomId, String username) {
-        // http://blog.xebia.fr/2013/01/28/google-cloud-messaging-presentation/
-        // Todo
+        dataProvider.inviteUserToRoom(roomId, username, new DataProvider.Callback() {
+            @Override
+            public void onSuccess() {
+                view.onUserAddedSuccess();
+            }
+
+            @Override
+            public void onError() {
+                view.onUserAddedFailed();
+            }
+        });
     }
 
     @Override
     public void loadContacts() {
-        // Todo
-        view.showContacts(null);
+
+        dataProvider.retreiveAvailableContacts(new DataProvider.CallbackValue<List<User>>() {
+            @Override
+            public void onSuccess(List<User> value) {
+                view.showContacts(value);
+            }
+
+            @Override
+            public void onError() {
+                view.showContacts(null);
+            }
+        });
+
     }
 }

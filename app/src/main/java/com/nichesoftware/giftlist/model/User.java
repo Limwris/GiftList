@@ -20,6 +20,10 @@ public class User {
      * Liste des salles
      */
     private List<Room> rooms;
+    /**
+     * Numéro de téléphone
+     */
+    private String phoneNumber;
 
     /**
      * Getter sur l'identifiant de l'utilisateur
@@ -66,6 +70,22 @@ public class User {
      */
     public void setToken(String token) {
         this.token = token;
+    }
+
+    /**
+     * Getter sur le numéro de téléphone
+     * @return phoneNumber
+     */
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    /**
+     * Setter sur le numéro de téléphone
+     * @param phoneNumber
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     /**

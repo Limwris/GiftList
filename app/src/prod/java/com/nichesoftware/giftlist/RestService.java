@@ -249,6 +249,36 @@ public class RestService implements ServiceAPI {
         });
     }
 
+    @Override
+    public void inviteUserToRoom(final String token, int roomId, final String username,
+                                 final ServiceCallback<Boolean> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("inviteUserToRoom [token = %s]", token));
+        }
+
+        RoomDto roomDto = new RoomDto();
+        roomDto.setRoomId(roomId);
+        UserDto userDto = new UserDto();
+        userDto.setUsername(username);
+
+        RestAPI restAPI = getRetrofit().create(RestAPI.class);
+        Call<Boolean> call = restAPI.inviteUserToRoom(token, userDto, roomDto);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("inviteUserToRoom - response %s", response.raw()));
+                }
+                callback.onLoaded(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                callback.onError();
+            }
+        });
+    }
+
     private Retrofit getRetrofit() {
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(RestAPI.BASE_URL)

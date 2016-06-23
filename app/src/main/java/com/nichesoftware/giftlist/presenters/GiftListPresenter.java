@@ -68,4 +68,9 @@ public class GiftListPresenter implements GiftListContract.UserActionListener {
     public void leaveCurrentRoom(int roomId) {
 
     }
+
+    @Override
+    public boolean isInvitationAvailable() {
+        return !dataProvider.isDisconnectedUser();
+    }
 }

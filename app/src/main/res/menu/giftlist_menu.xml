@@ -3,8 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/gift_list_invite_user"
         android:title="@string/gift_list_invite_user_menu_item"
-        android:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/invite_user_icon_menu"
+        app:showAsAction="ifRoom|withText" />
     <item android:id="@+id/giftlist_delete_room"
         android:title="@string/gift_list_leave_room_menu_item"
+        android:icon="@drawable/leave_room_icon_menu"
         app:showAsAction="ifRoom|withText" />
 </menu>
