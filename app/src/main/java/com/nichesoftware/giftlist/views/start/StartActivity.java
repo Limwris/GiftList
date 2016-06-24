@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -50,8 +51,8 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
             public void onClick(View view) {
                 LayoutInflater inflater = getLayoutInflater();
                 View dialoglayout = inflater.inflate(R.layout.start_sign_up_dialog, null);
-                final EditText usernameEditText = (EditText) dialoglayout.findViewById(R.id.start_sign_up_dialog_username_edit_text);
-                final EditText passwordEditText = (EditText) dialoglayout.findViewById(R.id.start_sign_up_dialog_password_edit_text);
+                final TextInputEditText usernameEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_sign_up_dialog_username_edit_text);
+                final TextInputEditText passwordEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_sign_up_dialog_password_edit_text);
 
                 new AlertDialog.Builder(StartActivity.this,
                         R.style.AppTheme_Dark_Dialog)
@@ -87,8 +88,8 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
             public void onClick(View view) {
                 LayoutInflater inflater = getLayoutInflater();
                 View dialoglayout = inflater.inflate(R.layout.start_log_in_dialog, null);
-                final EditText usernameEditText = (EditText) dialoglayout.findViewById(R.id.start_log_in_dialog_username_edit_text);
-                final EditText passwordEditText = (EditText) dialoglayout.findViewById(R.id.start_log_in_dialog_password_edit_text);
+                final TextInputEditText usernameEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_log_in_dialog_username_edit_text);
+                final TextInputEditText passwordEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_log_in_dialog_password_edit_text);
 
                 new AlertDialog.Builder(StartActivity.this,
                         R.style.AppTheme_Dark_Dialog)

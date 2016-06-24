@@ -93,7 +93,10 @@ public final class PersistenceBroker {
         UserManager manager = new UserManager(context);
         // Ouverture de la table en lecture/écriture
         manager.open();
-        manager.updateUser(user);
+        int s = manager.updateUser(user);
+        if (s == 0) { // Alors l'utilisateur n'a pas encore été sauvegardé dans la base
+            manager.createUser(user);
+        }
         // Fermeture du gestionnaire
         manager.close();
     }

@@ -416,7 +416,8 @@ public class DataProvider {
         });
     }
 
-    public void retreiveAvailableContacts(@NonNull final CallbackValue<List<User>> callback) {
+    public void retreiveAvailableContacts(final int roomId,
+                                          @NonNull final CallbackValue<List<User>> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("retreiveAvailableContacts"));
         }
@@ -429,7 +430,7 @@ public class DataProvider {
             final String token = PersistenceBroker.retreiveUserToken(context);
             List<String> phoneNumbers = fetchContacts();
 
-            serviceApi.retreiveAvailableUsers(token, phoneNumbers,
+            serviceApi.retreiveAvailableUsers(token, roomId, phoneNumbers,
                     new ServiceAPI.ServiceCallback<List<User>>() {
                         @Override
                         public void onLoaded(List<User> value) {
@@ -483,7 +484,7 @@ public class DataProvider {
 
                             try {
                                 pn = pnu.parse(phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
-                                        locale.getISO3Country());
+                                        locale.getCountry());
                             } catch (NumberParseException ignored) { }
 
                             if (pn != null) {

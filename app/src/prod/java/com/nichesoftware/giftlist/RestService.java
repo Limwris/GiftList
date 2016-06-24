@@ -2,7 +2,9 @@ package com.nichesoftware.giftlist;
 
 import android.util.Log;
 
+import com.nichesoftware.giftlist.dto.ContactDto;
 import com.nichesoftware.giftlist.dto.GiftDto;
+import com.nichesoftware.giftlist.dto.InvitationDto;
 import com.nichesoftware.giftlist.dto.RoomDto;
 import com.nichesoftware.giftlist.dto.UserDto;
 import com.nichesoftware.giftlist.model.Gift;
@@ -225,14 +227,24 @@ public class RestService implements ServiceAPI {
     }
 
     @Override
-    public void retreiveAvailableUsers(final String token, List<String> phoneNumber,
+    public void retreiveAvailableUsers(final String token, final int roomId,
+                                       final List<String> phoneNumbers,
                                        final ServiceCallback<List<User>> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("retreiveAvailableUsers [token = %s]", token));
         }
 
+        ContactDto contactDto = new ContactDto();
+        contactDto.setRoomId(roomId);
+        contactDto.setPhoneNumbers(phoneNumbers);
+
         RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<List<User>> call = restAPI.retreiveAvailableContacts(token, phoneNumber);
+        Call<List<User>> call = restAPI.retreiveAvailableContacts(token, contactDto);
+        if (BuildConfig.DEBUG) {
+            for (String phoneNumber : phoneNumbers) {
+                Log.d(TAG, String.format("retreiveAvailableUsers [tel = %s]", phoneNumber));
+            }
+        }
         call.enqueue(new Callback<List<User>>() {
             @Override
             public void onResponse(Call<List<User>> call, Response<List<User>> response) {
@@ -256,13 +268,12 @@ public class RestService implements ServiceAPI {
             Log.d(TAG, String.format("inviteUserToRoom [token = %s]", token));
         }
 
-        RoomDto roomDto = new RoomDto();
-        roomDto.setRoomId(roomId);
-        UserDto userDto = new UserDto();
-        userDto.setUsername(username);
+        InvitationDto invitationDto = new InvitationDto();
+        invitationDto.setRoomId(roomId);
+        invitationDto.setUsername(username);
 
         RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Boolean> call = restAPI.inviteUserToRoom(token, userDto, roomDto);
+        Call<Boolean> call = restAPI.inviteUserToRoom(token, invitationDto);
         call.enqueue(new Callback<Boolean>() {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {

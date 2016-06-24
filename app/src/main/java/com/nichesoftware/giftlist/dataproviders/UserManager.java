@@ -100,7 +100,7 @@ public class UserManager {
         values.put(KEY_TOKEN, user.getToken());
         values.put(KEY_LIST_ROOMS, toJson(user.getRooms()));
 
-        String[] whereArgs = {String.valueOf(user.getUsername())};
+        String[] whereArgs = { String.valueOf(user.getUsername()) };
 
         // Valeur de retour : (int) nombre de lignes affectées par la requête
         return database.update(TABLE_NAME, values, CLAUSE_ID_WHERE, whereArgs);

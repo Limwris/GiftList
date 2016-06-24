@@ -44,6 +44,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     public static final int RESULT_RELOAD = 100;
     public static final int ADD_GIFT_REQUEST = 10;  // The request code
     public static final int ADD_USER_REQUEST = 11;
+    public static final int GIFT_DETAIL_REQUEST = 12;
 
     /**
      * Adapter lié à la RecyclerView
@@ -126,12 +127,13 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         });
 
         // Get the requested note id
-        int personId = getIntent().getIntExtra(EXTRA_ROOM_ID, 0); // Todo: valeur par défaut ?
-        initView(personId);
+        int roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
+        initView(roomId);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
         // Check which request we're responding to
         if (requestCode == ADD_GIFT_REQUEST) {
             // Make sure the request was successful
@@ -141,6 +143,10 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         } else if (requestCode == ADD_USER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 // Do something ?
+            }
+        } else if (requestCode == GIFT_DETAIL_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                forceReload();
             }
         }
     }
@@ -185,7 +191,6 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                 return true;
             case R.id.gift_list_invite_user:
                 // Comportement du bouton "Inviter un utilisateur"
-                showLoader();
                 Intent intent = new Intent(this, AddUserActivity.class);
                 intent.putExtra(AddUserActivity.EXTRA_ROOM_ID, roomId);
                 startActivityForResult(intent, ADD_USER_REQUEST);
@@ -269,7 +274,8 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         Intent intent = new Intent(this, GiftDetailActivity.class);
         // Passing data as a parecelable object
         intent.putExtra(GiftDetailActivity.PARCELABLE_GIFT_KEY, gift);
-        startActivity(intent);
+        intent.putExtra(GiftDetailActivity.EXTRA_ROOM_ID, roomId);
+        startActivityForResult(intent, GIFT_DETAIL_REQUEST);
     }
 
     @Override

@@ -51,19 +51,19 @@ public class AddUserPresenter implements AddUserContract.UserActionListener {
     }
 
     @Override
-    public void loadContacts() {
+    public void loadContacts(int roomId) {
 
-        dataProvider.retreiveAvailableContacts(new DataProvider.CallbackValue<List<User>>() {
-            @Override
-            public void onSuccess(List<User> value) {
-                view.showContacts(value);
-            }
+        dataProvider.retreiveAvailableContacts(roomId,
+                new DataProvider.CallbackValue<List<User>>() {
+                    @Override
+                    public void onSuccess(List<User> value) {
+                        view.showContacts(value);
+                    }
 
-            @Override
-            public void onError() {
-                view.showContacts(null);
-            }
-        });
-
+                    @Override
+                    public void onError() {
+                        view.showContacts(null);
+                    }
+                });
     }
 }

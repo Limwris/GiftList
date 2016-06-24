@@ -38,6 +38,6 @@ public interface AddUserContract {
          * @param username
          */
         void inviteUserToCurrentRoom(final int roomId, final String username);
-        void loadContacts();
+        void loadContacts(int roomId);
     }
 }

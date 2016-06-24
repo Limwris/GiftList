@@ -1,6 +1,7 @@
 package com.nichesoftware.giftlist.views.adduser;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -12,7 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.BuildConfig;
@@ -22,6 +25,7 @@ import com.nichesoftware.giftlist.contracts.AddUserContract;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.AddUserPresenter;
 import com.nichesoftware.giftlist.views.ErrorView;
+import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +59,7 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         setContentView(R.layout.add_user_activity);
 
         /**
-         * Récupération du cadeau
+         * Récupération de l'identifiant de la salle
          */
         roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
 
@@ -83,18 +87,30 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         });
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adapter = new ContactsAdapter(new ArrayList<User>(0));
+        adapter = new ContactsAdapter(new ArrayList<AddUserVO>(0));
         recyclerView.setAdapter(adapter);
         int numColumns = getResources().getInteger(R.integer.num_contacts_columns);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(this, numColumns));
 
-        actionsListener.loadContacts();
+        actionsListener.loadContacts(roomId);
     }
 
     private List<User> getSelectedUsers() {
-        return null;
+        List<User> users = new ArrayList<>();
+        for (AddUserVO vo : adapter.getList()) {
+            if (vo.isChecked()) {
+                users.add(vo.getUser());
+            }
+        }
+        return users;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     /**********************************************************************************************/
@@ -103,7 +119,9 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
 
     @Override
     public void onUserAddedSuccess() {
-        setResult(RESULT_OK);
+        Intent intent = new Intent();
+        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
+        setResult(RESULT_OK, intent);
         finish();
     }
 
@@ -130,7 +148,7 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         }
 
         ErrorView errorView = (ErrorView) findViewById(R.id.error_view);
-        LinearLayout container = (LinearLayout) findViewById(R.id.main_view);
+        RelativeLayout container = (RelativeLayout) findViewById(R.id.main_view);
         if (users == null || users.isEmpty()) {
             errorView.setMessage(getResources().getString(R.string.add_user_error_view_message));
             errorView.setVisibility(View.VISIBLE);
@@ -138,7 +156,13 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         } else {
             errorView.setVisibility(View.GONE);
             container.setVisibility(View.VISIBLE);
-            adapter.replaceData(users);
+            List<AddUserVO> vos = new ArrayList<>();
+            for (User user : users) {
+                AddUserVO vo = new AddUserVO();
+                vo.setUser(user);
+                vos.add(vo);
+            }
+            adapter.replaceData(vos);
         }
     }
 
@@ -151,7 +175,7 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         /**
          * Données (liste de users)
          */
-        private List<User> users;
+        private List<AddUserVO> users;
 
         /**
          * Context
@@ -162,7 +186,7 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
          * Constructeur
          * @param users
          */
-        public ContactsAdapter(List<User> users) {
+        public ContactsAdapter(List<AddUserVO> users) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "ContactsAdapter");
             }
@@ -180,18 +204,33 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
-            User gift = users.get(position);
+            final AddUserVO vo = users.get(position);
 
-            viewHolder.name.setText(gift.getUsername());
+            viewHolder.name.setText(vo.getUser().getUsername());
+
+            // in some cases, it will prevent unwanted situations
+            viewHolder.checkBox.setOnCheckedChangeListener(null);
+
+            viewHolder.checkBox.setChecked(vo.isChecked());
+            viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    vo.setIsChecked(isChecked);
+                }
+            });
         }
 
-        public void replaceData(List<User> users) {
+        public void replaceData(List<AddUserVO> users) {
             setList(users);
             notifyDataSetChanged();
         }
 
-        private void setList(List<User> users) {
+        private void setList(List<AddUserVO> users) {
             this.users = users;
+        }
+
+        private List<AddUserVO> getList() {
+            return this.users;
         }
 
         @Override
@@ -199,16 +238,21 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
             return users.size();
         }
 
-        public User getItem(int position) {
+        public AddUserVO getItem(int position) {
             return users.get(position);
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
+//        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
             /**
              * Nom de l'utilisateur
              */
             public TextView name;
+            /**
+             * Checkbox de sélection de l'utilisateur
+             */
+            public CheckBox checkBox;
 
 
             /**
@@ -219,7 +263,21 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
                 super(itemView);
 
                 name = (TextView) itemView.findViewById(R.id.add_user_contact_name);
+                checkBox = (CheckBox) itemView.findViewById(R.id.add_user_checkbox);
+//                itemView.findViewById(R.id.mainHolder).setOnClickListener(this);
             }
+
+//            @Override
+//            public void onClick(View view) {
+//                int position = getAdapterPosition();
+//                if (BuildConfig.DEBUG) {
+//                    Log.d(TAG, "Clic détecté dans la liste à la position: " + position);
+//                }
+//
+//                AddUserVO vo = getItem(position);
+//                vo.setIsChecked(!vo.isChecked());
+//                notifyItemChanged(position);
+//            }
         }
     }
 }
