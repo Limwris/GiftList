@@ -84,7 +84,8 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void retreiveAvailableUsers(final String token, List<String> phoneNumber,
+    public void retreiveAvailableUsers(final String token, final int roomId,
+                                       final List<String> phoneNumber,
                                        ServiceCallback<List<User>> callback) {
         List<User> users = new ArrayList<>();
         User user1 = new User();
@@ -94,5 +95,10 @@ public class MockService implements ServiceAPI {
         user2.setUsername("User2");
         users.add(user2);
         callback.onLoaded(users);
+    }
+
+    @Override
+    public void inviteUserToRoom(String token, int roomId, String username, ServiceCallback<Boolean> callback) {
+        callback.onError();
     }
 }
