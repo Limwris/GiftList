@@ -84,6 +84,14 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+        super.onDestroy();
+    }
+
     private boolean validate() {
         boolean valid = true;
 
@@ -111,6 +119,10 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
 
         return valid;
     }
+
+    /**********************************************************************************************/
+    /************************************     View contract     ***********************************/
+    /**********************************************************************************************/
 
 
     @Override

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">GiftList</string>
 
+    <!-- Generic -->
     <string name="ok_button_text">OK</string>
     <string name="cancel_button_text">Annuler</string>
 
@@ -19,7 +20,8 @@
     <string name="not_authenticated_start_positive_button">Démarrer l\'application</string>
     <string name="start_dialog_username_hint_text">Identifiant</string>
     <string name="start_dialog_password_hint_text">Mot de passe</string>
-    <string name="start_dialog_positive_button">Démarrer l\'application</string>
+    <string name="start_dialog_log_in_positive_button">Démarrer l\'application</string>
+    <string name="start_dialog_sign_up_positive_button">S\'enregistrer</string>
     <string name="start_dialog_empty_field_error_text">Ce champ ne doit pas être vide</string>
 
     <!-- RoomsActivity-->
@@ -44,7 +46,6 @@
     <string name="gift_list_leave_room_menu_item">Quitter la salle</string>
     <string name="gift_list_invite_user_menu_item">Inviter un utilisateur</string>
     <string name="gift_list_empty_field_error_text">Ce champ ne doit pas être vide</string>
-    <string name="gift_list_invitation_explanation_text"></string>
     <string name="gift_list_dialog_positive_button">Inviter</string>
     <string name="leave_room_dialog_message">Voulez-vous quitter cette salle ? Vous ne serez plus en mesure d\'y participer de nouveau à moins d\'y être invité.</string>
 
@@ -66,4 +67,10 @@
     <string name="add_user_invite_button_text">Inviter</string>
     <string name="add_user_error_view_message">Aucun contact n\'a installé l\'application de gestion de listes de cadeaux.</string>
     <string name="description_medaillon_list_contacts">Médaillon affichant une image représentant le contact.</string>
+
+    <!-- Gift Detail -->
+    <string name="gift_detail_name_hint_text">Nom du cadeau</string>
+
+    <!-- Invite Room -->
+    <string name="invite_room_loader_message">Enrôllement à la salle en cours&#8230;</string>
 </resources>

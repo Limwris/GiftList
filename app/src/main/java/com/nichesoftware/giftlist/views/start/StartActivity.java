@@ -36,6 +36,7 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
      * Listener sur les actions de l'utilisateur
      */
     private StartContract.UserActionListener actionsListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,12 +58,12 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
                 new AlertDialog.Builder(StartActivity.this,
                         R.style.AppTheme_Dark_Dialog)
                         .setView(dialoglayout)
-                        .setPositiveButton(R.string.start_dialog_positive_button,
+                        .setPositiveButton(R.string.start_dialog_sign_up_positive_button,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int whichButton) {
                                         if (validate(usernameEditText, passwordEditText)) {
-                                            actionsListener.startApplication(
+                                            actionsListener.register(
                                                     usernameEditText.getText().toString(),
                                                     passwordEditText.getText().toString());
                                         }
@@ -94,7 +95,7 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
                 new AlertDialog.Builder(StartActivity.this,
                         R.style.AppTheme_Dark_Dialog)
                         .setView(dialoglayout)
-                        .setPositiveButton(R.string.start_dialog_positive_button,
+                        .setPositiveButton(R.string.start_dialog_log_in_positive_button,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int whichButton) {
@@ -148,6 +149,18 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
             }
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+        super.onDestroy();
+    }
+
+    /**********************************************************************************************/
+    /************************************     View contract     ***********************************/
+    /**********************************************************************************************/
 
     @Override
     public void showRoomsActivity() {

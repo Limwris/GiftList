@@ -4,18 +4,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- GCM requires a Google account. -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <!-- Keeps the processor from sleeping when a message is received -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- App receives GCM messages. -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <!-- Retrieve phone number -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!-- Retrieve contacts -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
-    <!--<permission android:name="{applicationId}.gcm.permission.C2D_MESSAGE"-->
-        <!--android:protectionLevel="signature" />-->
-    <!--<uses-permission android:name="{applicationId}.gcm.permission.C2D_MESSAGE" />-->
 
     <application
         android:allowBackup="true"
@@ -24,6 +16,23 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- Firebase Cloud Messaging -->
+        <service
+            android:name=".service.FirebaseMessageHandler"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".service.FirebaseInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <!-- Activities -->
         <activity android:name=".views.start.StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -71,6 +80,13 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".views.giftlist.GiftListActivity" />
+        </activity>
+        <activity android:name=".views.inviteroom.InviteRoomActivity">
+            <!-- Permet d'ouvrir l'activité lors de la réception d'une notification idoine -->
+            <intent-filter>
+                <action android:name="OPEN_INVITE_TO_ROOM_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 

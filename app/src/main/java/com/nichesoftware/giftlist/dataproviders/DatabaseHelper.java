@@ -16,7 +16,7 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
     private static final String DATABASE_NAME = "giftlist.sqlite";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 10;
     private static DatabaseHelper INSTANCE;
 
     public static synchronized DatabaseHelper getInstance(Context context) {
@@ -46,6 +46,7 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
         values.put(UserManager.KEY_USENAME, User.DISCONNECTED_USER);
         values.put(UserManager.KEY_TOKEN, "");
         values.put(UserManager.KEY_LIST_ROOMS, "");
+        values.put(UserManager.KEY_GCM_TOKEN_SENT_TO_SERVER, 0);
         sqLiteDatabase.insert(UserManager.TABLE_NAME, null, values);
     }
 

@@ -69,6 +69,14 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+        super.onDestroy();
+    }
+
     private boolean validate() {
         boolean valid = true;
 
@@ -90,6 +98,10 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
 
         return valid;
     }
+
+    /**********************************************************************************************/
+    /************************************     View contract     ***********************************/
+    /**********************************************************************************************/
 
     @Override
     public void onCreateRoomSuccess() {

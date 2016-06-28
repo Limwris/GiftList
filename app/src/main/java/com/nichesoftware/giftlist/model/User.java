@@ -24,6 +24,10 @@ public class User {
      * Numéro de téléphone
      */
     private String phoneNumber;
+    /**
+     * Flag indiquant si le token GCM a été envoyé correctement au serveur
+     */
+    private boolean isTokenSent;
 
     /**
      * Getter sur l'identifiant de l'utilisateur
@@ -89,6 +93,22 @@ public class User {
     }
 
     /**
+     * Getter sur le flag indiquant si le token GCM a été envoyé correctement au serveur
+     * @return
+     */
+    public boolean isTokenSent() {
+        return isTokenSent;
+    }
+
+    /**
+     * Setter sur le flag indiquant si le token GCM a été envoyé correctement au serveur
+     * @param isTokenSent
+     */
+    public void setIsTokenSent(boolean isTokenSent) {
+        this.isTokenSent = isTokenSent;
+    }
+
+    /**
      * Ajoute une salle à la liste
      * @param room - Salle à ajouter à la liste de l'utilisateur
      */
@@ -97,5 +117,15 @@ public class User {
             rooms = new ArrayList<>();
         }
         rooms.add(room);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", token='" + token + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", isTokenSent=" + isTokenSent +
+                '}';
     }
 }

@@ -1,32 +1,26 @@
-package com.nichesoftware.giftlist.views.giftdetail;
+package com.nichesoftware.giftlist.views.inviteroom;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.contracts.GiftDetailContract;
-import com.nichesoftware.giftlist.model.Gift;
-import com.nichesoftware.giftlist.presenters.GiftDetailPresenter;
-import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
+import com.nichesoftware.giftlist.contracts.InviteRoomContract;
+import com.nichesoftware.giftlist.presenters.InviteRoomPresenter;
 
 /**
- * Created by n_che on 09/06/2016.
+ * Created by n_che on 27/06/2016.
  */
-public class GiftDetailActivity extends AppCompatActivity implements GiftDetailContract.View {
-    private static final String TAG = GiftDetailActivity.class.getSimpleName();
-    public static final String PARCELABLE_GIFT_KEY = "PARCELABLE_GIFT_KEY";
+public class InviteRoomActivity extends AppCompatActivity implements InviteRoomContract.View {
+    private static final String TAG = InviteRoomActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
 
     /**
      * Model
      */
-    private Gift gift;
     private int roomId;
 
     /**
@@ -34,28 +28,22 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
      */
     private ProgressDialog progressDialog;
 
-    /*
+    /**
      * Listener sur les actions de l'utilisateur
      */
-    private GiftDetailContract.UserActionListener actionsListener;
-
+    private InviteRoomContract.UserActionListener actionsListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.gift_detail_activity);
-
-        /**
-         * Récupération du cadeau
-         */
-        gift = getIntent().getParcelableExtra(PARCELABLE_GIFT_KEY);
+        setContentView(R.layout.invite_room_activity);
         /**
          * Récupération de l'identifiant de la salle
          */
         roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
 
-        actionsListener = new GiftDetailPresenter(this, Injection.getDataProvider(this));
+        actionsListener = new InviteRoomPresenter(this, Injection.getDataProvider(this));
 
         // Set up the toolbar.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -88,25 +76,20 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     /**********************************************************************************************/
 
     @Override
-    public void onUpdateGiftSuccess() {
-        Intent intent = new Intent();
-        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
-        setResult(RESULT_OK, intent);
-        finish();
+    public void onAcceptInvitationSuccess() {
+
     }
 
     @Override
-    public void onUpdateGiftFailed() {
-        // Todo
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinatorLayout), "Failed", Snackbar.LENGTH_SHORT);
-        snackbar.show();
+    public void onAcceptInvitationFailed() {
+
     }
 
     @Override
-    public void showLoader(final String message) {
+    public void showLoader() {
         progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage(message);
+        progressDialog.setMessage(getResources().getString(R.string.invite_room_loader_message));
         progressDialog.show();
     }
 

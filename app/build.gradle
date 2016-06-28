@@ -23,6 +23,8 @@ android {
             targetSdkVersion rootProject.ext.targetSdkVersion
             versionCode versionNumber
             versionName "${versionMajor}.${versionMinor} (${versionBuild})"
+            // Needed with Firebase
+            multiDexEnabled true
 
             // Gradle Plugin 1.5
             // disable limited support for vector drawables for Android Studio 1.4
@@ -94,20 +96,25 @@ tasks.matching {it instanceof Test}.all {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile new StringBuffer('com.android.support:appcompat-v7:').append(rootProject.ext.supportLibVersion).toString()
-    compile new StringBuffer('com.android.support:recyclerview-v7:').append(rootProject.ext.supportLibVersion).toString()
-    compile new StringBuffer('com.android.support:cardview-v7:').append(rootProject.ext.supportLibVersion).toString()
-    compile new StringBuffer('com.android.support:design:').append(rootProject.ext.supportLibVersion).toString()
-    compile new StringBuffer('com.android.support:support-vector-drawable:').append(rootProject.ext.supportLibVersion).toString()
+    compile group: 'com.android.support',  name: 'appcompat-v7', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',  name: 'recyclerview-v7', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',  name: 'cardview-v7', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',  name: 'design', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',  name: 'support-vector-drawable', version: rootProject.ext.supportLibVersion
     // Retrofit
-    compile new StringBuffer('com.squareup.retrofit2:retrofit:').append(rootProject.ext.retrofitVersion).toString()
-    compile new StringBuffer('com.squareup.retrofit2:converter-gson:').append(rootProject.ext.retrofitVersion).toString()
-    compile new StringBuffer('com.squareup.retrofit2:converter-scalars:').append(rootProject.ext.retrofitVersion).toString()
+    compile group: 'com.squareup.retrofit2',  name: 'retrofit', version: rootProject.ext.retrofitVersion
+    compile group: 'com.squareup.retrofit2',  name: 'converter-gson', version: rootProject.ext.retrofitVersion
+    compile group: 'com.squareup.retrofit2', name: 'converter-scalars', version: rootProject.ext.retrofitVersion
     compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
     // CircularImageView
     compile 'de.hdodenhof:circleimageview:2.0.0'
     // googlei18n / libphonenumber
     compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '7.4.3'
+    // Firebase (GCM)
+    compile group: 'com.google.firebase', name: 'firebase-messaging', version: rootProject.ext.playServicesVersion
+    compile group: "com.google.android.gms", name: 'play-services', version: rootProject.ext.playServicesVersion
+    // MultiDex
+    compile group: 'com.android.support', name: 'multidex', version: '1.0.1'
 
     testCompile new StringBuffer('junit:junit:').append(rootProject.ext.junitVersion).toString()
     testCompile new StringBuffer('org.mockito:mockito-all:').append(rootProject.ext.mockitoVersion).toString()
@@ -128,9 +135,9 @@ task incrementVersion << {
         versionProps.load(new FileInputStream(versionPropsFile))
         // Increment version build
         def versionBuild = versionProps['VERSION_BUILD'].toInteger()
-        println(":incrementVersion - current versionCode=" + versionBuild);
+        println(":incrementVersion - current versionCode=" + versionBuild.toString());
         versionBuild += 1
-        println(":incrementVersion - next versionCode=" + versionBuild);
+        println(":incrementVersion - next versionCode=" + versionBuild.toString());
         // Store it
         versionProps['VERSION_BUILD'] = versionBuild.toString()
         versionProps.store(versionPropsFile.newWriter(), null)
@@ -141,3 +148,6 @@ task incrementVersion << {
 }
 
 build.dependsOn 'incrementVersion'
+
+// Le plug-in de services Google pour Gradle charge le fichier google-services.json
+apply plugin: 'com.google.gms.google-services'

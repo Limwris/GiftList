@@ -5,12 +5,15 @@ import android.content.SharedPreferences;
 
 import com.nichesoftware.giftlist.model.User;
 
+import java.util.List;
+
 /**
  * Created by n_che on 06/06/2016.
  */
 public final class PersistenceBroker {
     private static final String SHARED_PREFERENCES_GIFLIST_FILE = "SHARED_PREFERENCES_GIFLIST_FILE";
     private static final String USER_KEY = "USER_KEY";
+    public static final String GCM_TOKEN_KEY = "GCM_TOKEN_KEY";
 
     /**
      * Constructeur privé
@@ -37,7 +40,7 @@ public final class PersistenceBroker {
      * Suppression des données en cache
      * @param context
      */
-    public static void clearData(final Context context) {
+    public static void clearRoomsData(final Context context) {
         UserManager manager = new UserManager(context);
         // Ouverture de la table en lecture/écriture
         manager.open();
@@ -101,8 +104,6 @@ public final class PersistenceBroker {
         manager.close();
     }
 
-
-
     /**
      * Supprime les salles de l'utilisateur
      * @param context
@@ -111,5 +112,75 @@ public final class PersistenceBroker {
     public static void deleteRoomsFromUser(final Context context, User user) {
         user.setRooms(null);
         saveUser(context, user);
+    }
+
+    /**
+     * Supprime le GCM token enregistré
+     * @param context
+     */
+    public static void invalidateGcmToken(Context context) {
+        setGcmToken(context, null);
+
+        // On indique que le token doit être envoyé de nouveau au serveur
+        UserManager manager = new UserManager(context);
+        // Ouverture de la table en lecture/écriture
+        manager.open();
+
+        List<User> users = manager.retreiveAllUsers();
+        for(User user : users) {
+            user.setIsTokenSent(false);
+            saveUser(context, user);
+        }
+        // Fermeture du gestionnaire
+        manager.close();
+    }
+
+    public static void setGcmToken(Context context, final String gcmToken) {
+        SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_GIFLIST_FILE,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(GCM_TOKEN_KEY, null);
+        editor.apply();
+    }
+
+    /**
+     * Retourne le GCM token enregistré
+     * @param context
+     * @return
+     */
+    public static String getGcmToken(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_GIFLIST_FILE,
+                Context.MODE_PRIVATE);
+        return sharedPref.getString(GCM_TOKEN_KEY, null);
+    }
+
+    /**
+     * Retourne le flag indiquant si le token a été envoyé au serveur
+     * @param context
+     * @return
+     */
+    public static boolean isTokenSent(Context context) {
+        UserManager manager = new UserManager(context);
+        // Ouverture de la table en lecture/écriture
+        manager.open();
+        // On récupère le username courant
+        String username = getCurrentUser(context);
+        User user = manager.retreiveUser(username);
+        // Fermeture du gestionnaire
+        manager.close();
+        return user.isTokenSent();
+    }
+
+    public static void setTokenSent(Context context, final boolean isSent) {
+        UserManager manager = new UserManager(context);
+        // Ouverture de la table en lecture/écriture
+        manager.open();
+        // On récupère le username courant
+        String username = getCurrentUser(context);
+        User user = manager.retreiveUser(username);
+        user.isTokenSent();
+        saveUser(context, user);
+        // Fermeture du gestionnaire
+        manager.close();
     }
 }

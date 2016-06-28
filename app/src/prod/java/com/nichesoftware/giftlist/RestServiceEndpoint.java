@@ -1,5 +1,6 @@
 package com.nichesoftware.giftlist;
 
+import com.nichesoftware.giftlist.dto.AcceptInvitationDto;
 import com.nichesoftware.giftlist.dto.ContactDto;
 import com.nichesoftware.giftlist.dto.GiftDto;
 import com.nichesoftware.giftlist.dto.InvitationDto;
@@ -17,13 +18,12 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 /**
  * Created by n_che on 06/06/2016.
  */
-public interface RestAPI {
-    String BASE_URL = "http://192.168.42.78:8080/giftlist/";
-
+public interface RestServiceEndpoint {
     @GET("rooms")
     Call<List<Room>> getAllRooms(@Header("X-Auth-Token") final String token);
 
@@ -52,4 +52,11 @@ public interface RestAPI {
     @POST("invite")
     Call<Boolean> inviteUserToRoom(@Header("X-Auth-Token") String token,
                                    @Body final InvitationDto invitationDto);
+
+    @POST("accept")
+    Call<Boolean> acceptInvitationToRoom(@Header("X-Auth-Token") String token,
+                                   @Body final AcceptInvitationDto acceptInvitationDto);
+
+    @POST("gcm/register/{registerId}")
+    Call<Boolean> registerDevice(@Path("registerId") final String registerId);
 }

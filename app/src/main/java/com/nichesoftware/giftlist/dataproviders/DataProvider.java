@@ -16,6 +16,8 @@ import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
+import com.nichesoftware.giftlist.utils.AndroidUtils;
+import com.nichesoftware.giftlist.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +72,7 @@ public class DataProvider {
         PersistenceBroker.setCurrentUser(context, User.DISCONNECTED_USER);
         callback.onSuccess();
     }
+
     public void logIn(@NonNull final String username,
                       @NonNull final String password,
                       @NonNull final Callback callback) {
@@ -77,19 +80,92 @@ public class DataProvider {
             Log.d(TAG, String.format("logIn [username = %s, password = %s]", username, password));
         }
         // A l'authent, on clean les données sur les salles
-        PersistenceBroker.clearData(context);
+        PersistenceBroker.clearRoomsData(context);
 
-        serviceApi.authenticate(username, password, new ServiceAPI.ServiceCallback<String>() {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        final String phoneNumber = telephonyManager.getLine1Number();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("logIn [phoneNumber = %s]", phoneNumber));
+        }
+
+        serviceApi.authenticate(username, password,
+                phoneNumber, new ServiceAPI.ServiceCallback<String>() {
+                    @Override
+                    public void onLoaded(String value) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, String.format("logIn - onSuccess | token = %s", value));
+                        }
+                        PersistenceBroker.setCurrentUser(context, username);
+
+                        User user = PersistenceBroker.retreiveUser(context);
+                        user.setToken(value);
+                        user.setPhoneNumber(phoneNumber);
+                        PersistenceBroker.saveUser(context, user);
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, String.format("logIn - onSuccess | user = %s", user.toString()));
+                        }
+
+                        final String gcmToken = PersistenceBroker.getGcmToken(context);
+                        // Si le token n'a pas été envoyé, alors le renvoyer au serveur
+                        if (!StringUtils.isEmpty(gcmToken)
+                                && !PersistenceBroker.isTokenSent(context)) {
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, String.format("logIn - token not sent"));
+                            }
+                            sendGcmTokenToServer(gcmToken, null);
+                        }
+
+                        callback.onSuccess();
+                    }
+
+                    @Override
+                    public void onError() {
+                        callback.onError();
+                    }
+                });
+    }
+
+    public void register(@NonNull final String username,
+                         @NonNull final String password,
+                         @NonNull final Callback callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("register [username = %s, password = %s]", username, password));
+        }
+        // A l'enregistrement, on nettoie les données sur les salles
+        PersistenceBroker.clearRoomsData(context);
+
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        final String phoneNumber = telephonyManager.getLine1Number();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("register [phoneNumber = %s]", phoneNumber));
+        }
+
+        serviceApi.register(username, password, phoneNumber, new ServiceAPI.ServiceCallback<String>() {
             @Override
             public void onLoaded(String value) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, String.format("logIn - onSuccess | token = %s", value));
-                }
+                // Set current user
                 PersistenceBroker.setCurrentUser(context, username);
-
-                User user = PersistenceBroker.retreiveUser(context);
+                // Sauvegarde du nouvel utilisateur
+                User user = new User();
+                user.setUsername(username);
+                user.setPhoneNumber(phoneNumber);
                 user.setToken(value);
                 PersistenceBroker.saveUser(context, user);
+
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("register - onSuccess | token = %s", value));
+                }
+
+                // A l'enrôllement, on enregistre aussi le token GCM
+                final String gcmToken = PersistenceBroker.getGcmToken(context);
+                // Si le token n'a pas été envoyé, alors le renvoyer au serveur
+                if (!StringUtils.isEmpty(gcmToken) && !PersistenceBroker.isTokenSent(context)) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, String.format("register - token not sent"));
+                    }
+                    sendGcmTokenToServer(gcmToken, null);
+                }
+
                 callback.onSuccess();
             }
 
@@ -98,6 +174,97 @@ public class DataProvider {
                 callback.onError();
             }
         });
+    }
+
+    public void retreiveAvailableContacts(final int roomId,
+                                          @NonNull final CallbackValue<List<User>> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("retreiveAvailableContacts"));
+        }
+
+        final String username = PersistenceBroker.getCurrentUser(context);
+        // Cas déconnecté
+        if (username.equals(User.DISCONNECTED_USER)) {
+            callback.onError();
+        } else {
+            final String token = PersistenceBroker.retreiveUserToken(context);
+            List<String> phoneNumbers = fetchContacts();
+
+            serviceApi.retreiveAvailableUsers(token, roomId, phoneNumbers,
+                    new ServiceAPI.ServiceCallback<List<User>>() {
+                        @Override
+                        public void onLoaded(List<User> value) {
+                            callback.onSuccess(value);
+                        }
+
+                        @Override
+                        public void onError() {
+                            callback.onError();
+                        }
+                    });
+        }
+
+    }
+
+    private List<String> fetchContacts() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("fetchContacts"));
+        }
+
+        List<String> phoneNumbers = new ArrayList<>();
+
+        ContentResolver contentResolver = context.getContentResolver();
+
+        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                null,
+                ContactsContract.Contacts.HAS_PHONE_NUMBER + " != 0",
+                null,
+                null);
+
+        // Loop for every contact in the phone
+        if (cursor != null && cursor.getCount() > 0) {
+
+            while (cursor.moveToNext()) {
+
+                String contact_id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+
+                Cursor phoneCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        null,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                        new String[] { contact_id },
+                        null);
+
+                if (phoneCursor!= null) {
+                    while (phoneCursor.moveToNext()) {
+                        int phoneType = phoneCursor.getInt(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                        if (phoneType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) {
+                            Locale locale = context.getResources().getConfiguration().locale;
+                            PhoneNumberUtil pnu = PhoneNumberUtil.getInstance();
+                            Phonenumber.PhoneNumber pn = null;
+
+                            try {
+                                pn = pnu.parse(phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
+                                        locale.getCountry());
+                            } catch (NumberParseException ignored) { }
+
+                            if (pn != null) {
+                                String phoneNumber = pnu.format(pn, PhoneNumberUtil.PhoneNumberFormat.E164);
+
+                                if (!phoneNumbers.contains(phoneNumber)) {
+                                    phoneNumbers.add(phoneNumber);
+                                }
+                            }
+                        }
+                    }
+
+                    phoneCursor.close();
+                }
+            }
+
+            cursor.close();
+        }
+
+        return phoneNumbers;
     }
 
     /**
@@ -150,12 +317,12 @@ public class DataProvider {
     /**
      * Méthode appelée pour forcer le rafraîchissement des données lors du prochain appel
      */
-    public void refreshData() {
-        String username = PersistenceBroker.getCurrentUser(context);
-        if (!username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur n'est pas local
-            PersistenceBroker.clearData(context);
-        }
-    }
+//    public void refreshData() {
+//        String username = PersistenceBroker.getCurrentUser(context);
+//        if (!username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur n'est pas local
+//            PersistenceBroker.clearRoomsData(context);
+//        }
+//    }
 
     /**
      * Récupère les cadeaux associés à une salle
@@ -380,137 +547,10 @@ public class DataProvider {
         }
     }
 
-    public void register(@NonNull final String username,
-                         @NonNull final String password,
-                         @NonNull final Callback callback) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("register [username = %s, password = %s]", username, password));
-        }
-        // A l'enregistrement, on nettoie les données sur les salles
-        PersistenceBroker.clearData(context);
-
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        final String phoneNumber = telephonyManager.getLine1Number();
-
-        serviceApi.register(username, password, phoneNumber, new ServiceAPI.ServiceCallback<String>() {
-            @Override
-            public void onLoaded(String value) {
-                // Set current user
-                PersistenceBroker.setCurrentUser(context, username);
-                // Sauvegarde du nouvel utilisateur
-                User user = new User();
-                user.setUsername(username);
-                user.setToken(value);
-                PersistenceBroker.saveUser(context, user);
-
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, String.format("register - onSuccess | token = %s", value));
-                }
-                callback.onSuccess();
-            }
-
-            @Override
-            public void onError() {
-                callback.onError();
-            }
-        });
-    }
-
-    public void retreiveAvailableContacts(final int roomId,
-                                          @NonNull final CallbackValue<List<User>> callback) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("retreiveAvailableContacts"));
-        }
-
-        final String username = PersistenceBroker.getCurrentUser(context);
-        // Cas déconnecté
-        if (username.equals(User.DISCONNECTED_USER)) {
-            callback.onError();
-        } else {
-            final String token = PersistenceBroker.retreiveUserToken(context);
-            List<String> phoneNumbers = fetchContacts();
-
-            serviceApi.retreiveAvailableUsers(token, roomId, phoneNumbers,
-                    new ServiceAPI.ServiceCallback<List<User>>() {
-                        @Override
-                        public void onLoaded(List<User> value) {
-                            callback.onSuccess(value);
-                        }
-
-                        @Override
-                        public void onError() {
-                            callback.onError();
-                        }
-                    });
-        }
-
-    }
-
-    private List<String> fetchContacts() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("fetchContacts"));
-        }
-
-        List<String> phoneNumbers = new ArrayList<>();
-
-        ContentResolver contentResolver = context.getContentResolver();
-
-        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
-                null,
-                ContactsContract.Contacts.HAS_PHONE_NUMBER + " != 0",
-                null,
-                null);
-
-        // Loop for every contact in the phone
-        if (cursor != null && cursor.getCount() > 0) {
-
-            while (cursor.moveToNext()) {
-
-                String contact_id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-
-                Cursor phoneCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        null,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                        new String[] { contact_id },
-                        null);
-
-                if (phoneCursor!= null) {
-                    while (phoneCursor.moveToNext()) {
-                        int phoneType = phoneCursor.getInt(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
-                        if (phoneType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) {
-                            Locale locale = context.getResources().getConfiguration().locale;
-                            PhoneNumberUtil pnu = PhoneNumberUtil.getInstance();
-                            Phonenumber.PhoneNumber pn = null;
-
-                            try {
-                                pn = pnu.parse(phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
-                                        locale.getCountry());
-                            } catch (NumberParseException ignored) { }
-
-                            if (pn != null) {
-                                String phoneNumber = pnu.format(pn, PhoneNumberUtil.PhoneNumberFormat.E164);
-
-                                if (!phoneNumbers.contains(phoneNumber)) {
-                                    phoneNumbers.add(phoneNumber);
-                                }
-                            }
-                        }
-                    }
-
-                    phoneCursor.close();
-                }
-            }
-
-            cursor.close();
-        }
-
-        return phoneNumbers;
-    }
-
     public void inviteUserToRoom(final int roomId, @NonNull final String username,
                                  @NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("inviteUserToRoom [roomId = %s, username = %f]", roomId, username));
+            Log.d(TAG, String.format("inviteUserToRoom [roomId = %s, username = %s]", roomId, username));
         }
 
         final String user = PersistenceBroker.getCurrentUser(context);
@@ -532,6 +572,117 @@ public class DataProvider {
                         }
                     });
         }
+    }
+
+    public void acceptInvitationToRoom(final int roomId, @NonNull final Callback callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("acceptInvitationToRoom [roomId = %d]", roomId));
+        }
+
+        final String user = PersistenceBroker.getCurrentUser(context);
+        // Cas déconnecté
+        if (user.equals(User.DISCONNECTED_USER)) {
+            callback.onError();
+        } else {
+            final String token = PersistenceBroker.retreiveUserToken(context);
+            serviceApi.acceptionInvitationToRoom(token, roomId,
+                    new ServiceAPI.ServiceCallback<Boolean>() {
+                        @Override
+                        public void onLoaded(Boolean value) {
+                            callback.onSuccess();
+                        }
+
+                        @Override
+                        public void onError() {
+                            callback.onError();
+                        }
+                    });
+        }
+    }
+
+    public interface OnRegistrationCompleted {
+        void onSuccess(final String token);
+        void onError();
+    }
+
+    public void sendGcmTokenToServer(final String gcmToken, final OnRegistrationCompleted onRegistrationCompleted) {
+
+        final String username = PersistenceBroker.getCurrentUser(context);
+        // Cas déconnecté
+        if (username.equals(User.DISCONNECTED_USER)) {
+            if (onRegistrationCompleted != null) {
+                onRegistrationCompleted.onError();
+            }
+        } else {
+            // Sending the registration id to our server
+            final String token = PersistenceBroker.retreiveUserToken(context);
+            serviceApi.sendRegistrationToServer(token, gcmToken, new ServiceAPI.OnRegistrationCompleted() {
+                @Override
+                public void onSuccess() {
+                    if (BuildConfig.DEBUG) {
+                        Log.e(TAG, "Token registered token successfully in server.");
+                    }
+                    PersistenceBroker.setTokenSent(context, true);
+                    if (onRegistrationCompleted != null) {
+                        onRegistrationCompleted.onSuccess(gcmToken);
+                    }
+                }
+
+                @Override
+                public void onError() {
+                    if (BuildConfig.DEBUG) {
+                        Log.e(TAG, "Failed to registered token in server.");
+                    }
+                    PersistenceBroker.setTokenSent(context, true);
+                    if (onRegistrationCompleted != null) {
+                        onRegistrationCompleted.onError();
+                    }
+                }
+            });
+        }
+    }
+
+    public void registerGcm(final OnRegistrationCompleted onRegistrationCompleted) {
+        // Invalidate previously saved GCM token
+        PersistenceBroker.invalidateGcmToken(context);
+
+        // Retreive GCM token from google server
+        AndroidUtils.retreiveGcmToken(context, new AndroidUtils.GcmTokenCallback() {
+            @Override
+            public void getGcmToken(final String gcmToken) {
+
+                if (!StringUtils.isEmpty(gcmToken)) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "GCM Registration Token: " + gcmToken);
+                    }
+
+                    // Save the token locally
+                    PersistenceBroker.setGcmToken(context, gcmToken);
+
+                    final String username = PersistenceBroker.getCurrentUser(context);
+                    // Cas déconnecté ou non connecté
+                    if (StringUtils.isEmpty(username) || username.equals(User.DISCONNECTED_USER)) {
+                        if (onRegistrationCompleted != null) {
+                            onRegistrationCompleted.onError();
+                        }
+                    } else {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, String.format("registerGcm - token not sent for connected user %s", username));
+                        }
+                        sendGcmTokenToServer(gcmToken, onRegistrationCompleted);
+                    }
+
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        Log.e(TAG, "Failed to complete token refresh.");
+                    }
+                    if (onRegistrationCompleted != null) {
+                        onRegistrationCompleted.onError();
+                    }
+                }
+
+            }
+        });
     }
 
     /**

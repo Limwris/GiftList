@@ -45,12 +45,18 @@ public class StartPresenter implements StartContract.UserActionListener {
             dataProvider.logInDisconnected(new DataProvider.Callback() {
                 @Override
                 public void onSuccess() {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "startApplication - connected - onSuccess");
+                    }
                     view.hideLoader();
                     view.showRoomsActivity();
                 }
 
                 @Override
                 public void onError() {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "startApplication - connected - onError");
+                    }
                     view.hideLoader();
                 }
             });
@@ -58,12 +64,18 @@ public class StartPresenter implements StartContract.UserActionListener {
             dataProvider.logIn(username, password, new DataProvider.Callback() {
                 @Override
                 public void onSuccess() {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "startApplication - disconnected - onSuccess");
+                    }
                     view.hideLoader();
                     view.showRoomsActivity();
                 }
 
                 @Override
                 public void onError() {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "startApplication - disconnected - onError");
+                    }
                     view.hideLoader();
                 }
             });
@@ -72,15 +84,26 @@ public class StartPresenter implements StartContract.UserActionListener {
 
     @Override
     public void register(final String username, final String password) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "register");
+        }
+        view.showLoader("Sign up...");
+
         dataProvider.register(username, password, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "register - onSuccess");
+                }
                 view.hideLoader();
                 view.showRoomsActivity();
             }
 
             @Override
             public void onError() {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "register - onError");
+                }
                 view.hideLoader();
             }
         });

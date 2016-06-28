@@ -22,12 +22,14 @@ public class UserManager {
     public static final String KEY_USENAME = "username";
     public static final String KEY_TOKEN = "token";
     public static final String KEY_LIST_ROOMS = "rooms";
+    public static final String KEY_GCM_TOKEN_SENT_TO_SERVER = "isTokenSent";
     public static final String CLAUSE_ID_WHERE = KEY_USENAME + " = ?";
     private static final String RETREIVE_ALL_RECORDS = "SELECT * FROM " + TABLE_NAME;
     public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
             + KEY_USENAME + " TEXT primary key, "
             + KEY_TOKEN + " TEXT, "
+            + KEY_GCM_TOKEN_SENT_TO_SERVER + " INTEGER, "
             + KEY_LIST_ROOMS + " TEXT);";
 
     private DatabaseHelper databaseHelper;
@@ -61,6 +63,7 @@ public class UserManager {
         ContentValues values = new ContentValues();
         values.put(KEY_USENAME, user.getUsername());
         values.put(KEY_TOKEN, user.getToken());
+        values.put(KEY_GCM_TOKEN_SENT_TO_SERVER, (user.isTokenSent()) ? 1 : 0);
         values.put(KEY_LIST_ROOMS, toJson(user.getRooms()));
 
         return database.insert(TABLE_NAME, null, values);
@@ -81,12 +84,37 @@ public class UserManager {
         if (c.moveToFirst()) {
             user.setRooms(fromJson(c.getString(c.getColumnIndex(KEY_LIST_ROOMS))));
             user.setToken(c.getString(c.getColumnIndex(KEY_TOKEN)));
+            user.setIsTokenSent(c.getInt(c.getColumnIndex(KEY_GCM_TOKEN_SENT_TO_SERVER)) == 1);
             c.close();
         }
 
         return user;
     }
 
+    private Cursor retreiveAllRecords() {
+        // Sélection de tous les enregistrements de la table
+        return database.rawQuery(RETREIVE_ALL_RECORDS, null);
+    }
+
+    /**
+     * Retreive operation (ALL)
+     * @return
+     */
+    public List<User> retreiveAllUsers() {
+        List<User> users = new ArrayList<>();
+        Cursor c = retreiveAllRecords();
+        if (c.moveToFirst()) {
+            do {
+                User user = new User();
+                user.setRooms(fromJson(c.getString(c.getColumnIndex(KEY_LIST_ROOMS))));
+                user.setToken(c.getString(c.getColumnIndex(KEY_TOKEN)));
+                user.setIsTokenSent(c.getInt(c.getColumnIndex(KEY_GCM_TOKEN_SENT_TO_SERVER)) == 1);
+                users.add(user);
+            } while (c.moveToNext());
+            c.close(); // fermeture du curseur
+        }
+        return users;
+    }
 
     /**
      * Update operation
@@ -98,6 +126,7 @@ public class UserManager {
         ContentValues values = new ContentValues();
         values.put(KEY_USENAME, user.getUsername());
         values.put(KEY_TOKEN, user.getToken());
+        values.put(KEY_GCM_TOKEN_SENT_TO_SERVER, (user.isTokenSent()) ? 1 : 0);
         values.put(KEY_LIST_ROOMS, toJson(user.getRooms()));
 
         String[] whereArgs = { String.valueOf(user.getUsername()) };

@@ -16,7 +16,7 @@ public interface ServiceAPI {
     }
 
     void authenticate(final String username, final String password,
-                      final ServiceCallback<String> callback);
+                      final String phoneNumber, final ServiceCallback<String> callback);
     void register(final String username, final String password, final String phoneNumber,
                   final ServiceCallback<String> callback);
     void getAllRooms(final String token, final ServiceCallback<List<Room>> callback);
@@ -32,4 +32,17 @@ public interface ServiceAPI {
                                 final ServiceCallback<List<User>> callback);
     void inviteUserToRoom(final String token, int roomId, final String username,
                           final ServiceCallback<Boolean> callback);
+    void acceptionInvitationToRoom(final String token, int roomId,
+                                   final ServiceCallback<Boolean> callback);
+
+    /**********************************************************************************************/
+    /******************************************   GCM   *******************************************/
+    /**********************************************************************************************/
+
+    interface OnRegistrationCompleted {
+        void onSuccess();
+        void onError();
+    }
+
+    void sendRegistrationToServer(final String token, final String gcmToken, final OnRegistrationCompleted callback);
 }

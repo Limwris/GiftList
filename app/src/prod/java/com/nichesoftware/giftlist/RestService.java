@@ -2,6 +2,7 @@ package com.nichesoftware.giftlist;
 
 import android.util.Log;
 
+import com.nichesoftware.giftlist.dto.AcceptInvitationDto;
 import com.nichesoftware.giftlist.dto.ContactDto;
 import com.nichesoftware.giftlist.dto.GiftDto;
 import com.nichesoftware.giftlist.dto.InvitationDto;
@@ -30,7 +31,8 @@ public class RestService implements ServiceAPI {
     private final static String TAG = RestService.class.getSimpleName();
 
     @Override
-    public void authenticate(final String username, final String password, final ServiceCallback<String> callback) {
+    public void authenticate(final String username, final String password,
+                             final String phoneNumber, final ServiceCallback<String> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("authenticate [username = %s, password = %s]", username, password));
         }
@@ -38,8 +40,9 @@ public class RestService implements ServiceAPI {
         UserDto userDto = new UserDto();
         userDto.setUsername(username);
         userDto.setPassword(password);
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<String> call = restAPI.authenticate(userDto);
+        userDto.setPhoneNumber(phoneNumber);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<String> call = restServiceEndpoint.authenticate(userDto);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -68,8 +71,8 @@ public class RestService implements ServiceAPI {
         userDto.setPassword(password);
         userDto.setPhoneNumber(phoneNumber);
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<String> call = restAPI.register(userDto);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<String> call = restServiceEndpoint.register(userDto);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -92,8 +95,8 @@ public class RestService implements ServiceAPI {
             Log.d(TAG, String.format("getAllRooms [token = %s]", token));
         }
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<List<Room>> call = restAPI.getAllRooms(token);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<List<Room>> call = restServiceEndpoint.getAllRooms(token);
         call.enqueue(new Callback<List<Room>>() {
             @Override
             public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
@@ -119,8 +122,8 @@ public class RestService implements ServiceAPI {
         RoomDto roomDto = new RoomDto();
         roomDto.setRoomId(roomId);
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<List<Gift>> call = restAPI.getGifts(token, roomDto);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<List<Gift>> call = restServiceEndpoint.getGifts(token, roomDto);
         call.enqueue(new Callback<List<Gift>>() {
             @Override
             public void onResponse(Call<List<Gift>> call, Response<List<Gift>> response) {
@@ -147,8 +150,8 @@ public class RestService implements ServiceAPI {
         roomDto.setRoomName(roomName);
         roomDto.setOccasion(occasion);
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Room> call = restAPI.createRoom(token, roomDto);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<Room> call = restServiceEndpoint.createRoom(token, roomDto);
         call.enqueue(new Callback<Room>() {
             @Override
             public void onResponse(Call<Room> call, Response<Room> response) {
@@ -178,8 +181,8 @@ public class RestService implements ServiceAPI {
         giftDto.setPrice(price);
         giftDto.setAmount(amount);
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Gift> call = restAPI.addGift(token, giftDto);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<Gift> call = restServiceEndpoint.addGift(token, giftDto);
         call.enqueue(new Callback<Gift>() {
             @Override
             public void onResponse(Call<Gift> call, Response<Gift> response) {
@@ -208,8 +211,8 @@ public class RestService implements ServiceAPI {
         giftDto.setRoomId(roomId);
         giftDto.setAmount(amount);
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Gift> call = restAPI.updateGift(token, giftDto);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<Gift> call = restServiceEndpoint.updateGift(token, giftDto);
         call.enqueue(new Callback<Gift>() {
             @Override
             public void onResponse(Call<Gift> call, Response<Gift> response) {
@@ -238,8 +241,8 @@ public class RestService implements ServiceAPI {
         contactDto.setRoomId(roomId);
         contactDto.setPhoneNumbers(phoneNumbers);
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<List<User>> call = restAPI.retreiveAvailableContacts(token, contactDto);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<List<User>> call = restServiceEndpoint.retreiveAvailableContacts(token, contactDto);
         if (BuildConfig.DEBUG) {
             for (String phoneNumber : phoneNumbers) {
                 Log.d(TAG, String.format("retreiveAvailableUsers [tel = %s]", phoneNumber));
@@ -272,8 +275,8 @@ public class RestService implements ServiceAPI {
         invitationDto.setRoomId(roomId);
         invitationDto.setUsername(username);
 
-        RestAPI restAPI = getRetrofit().create(RestAPI.class);
-        Call<Boolean> call = restAPI.inviteUserToRoom(token, invitationDto);
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<Boolean> call = restServiceEndpoint.inviteUserToRoom(token, invitationDto);
         call.enqueue(new Callback<Boolean>() {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
@@ -290,9 +293,58 @@ public class RestService implements ServiceAPI {
         });
     }
 
+    @Override
+    public void acceptionInvitationToRoom(String token, int roomId, final ServiceCallback<Boolean> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("acceptionInvitationToRoom [token = %s]", token));
+        }
+
+        AcceptInvitationDto acceptInvitationDto = new AcceptInvitationDto();
+        acceptInvitationDto.setRoomId(roomId);
+
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<Boolean> call = restServiceEndpoint.acceptInvitationToRoom(token, acceptInvitationDto);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("acceptionInvitationToRoom - response %s", response.raw()));
+                }
+                callback.onLoaded(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                callback.onError();
+            }
+        });
+    }
+
+    @Override
+    public void sendRegistrationToServer(final String token, final String gcmToken, final OnRegistrationCompleted callback) {
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<Boolean> call = restServiceEndpoint.registerDevice(token);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                final Boolean result = response.body();
+                if (result) {
+                    callback.onSuccess();
+                } else {
+                    callback.onError();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                callback.onError();
+            }
+        });
+    }
+
     private Retrofit getRetrofit() {
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
-                .baseUrl(RestAPI.BASE_URL)
+                .baseUrl(ServiceConstant.BASE_URL)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create());
 
