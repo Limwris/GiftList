@@ -200,6 +200,12 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        actionsListener.doDisconnect();
+        super.onDestroy();
+    }
+
     private void doShowLeaveRoomDialog() {
         new AlertDialog.Builder(this,
                 R.style.AppTheme_Dark_Dialog)
@@ -232,7 +238,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     /**********************************************************************************************/
 
     @Override
-    public void showLoader() {
+    public void showLoader(final String message) {
         setRefreshIndicator(true);
     }
 

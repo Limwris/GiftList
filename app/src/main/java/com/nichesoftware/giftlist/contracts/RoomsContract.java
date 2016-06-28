@@ -10,7 +10,7 @@ import java.util.List;
  * Created by n_che on 25/04/2016.
  */
 public interface RoomsContract {
-    interface View {
+    interface View extends AbstractContract.View {
         /**
          * Affiche les salles passées en paramètre
          * @param rooms
@@ -25,16 +25,8 @@ public interface RoomsContract {
          * Force le rechargement des données
          */
         void forceReload();
-        /**
-         * Affiche le loader
-         */
-        void showLoader();
-        /**
-         * Supprime le loader
-         */
-        void hideLoader();
     }
-    interface UserActionListener {
+    interface UserActionListener extends AbstractContract.UserActionListener {
         /**
          * Action permettant d'ouvrir le détail d'une salle
          * @param room   Salle à ouvrir

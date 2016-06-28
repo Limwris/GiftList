@@ -8,13 +8,8 @@ import com.nichesoftware.giftlist.dataproviders.DataProvider;
 /**
  * Created by n_che on 09/06/2016.
  */
-public class AddGiftPresenter implements AddGiftContract.UserActionListener {
+public class AddGiftPresenter extends AbstractPresenter implements AddGiftContract.UserActionListener {
     private static final String TAG = AddGiftPresenter.class.getSimpleName();
-
-    /**
-     * Data provider
-     */
-    private DataProvider dataProvider;
 
     /**
      * View

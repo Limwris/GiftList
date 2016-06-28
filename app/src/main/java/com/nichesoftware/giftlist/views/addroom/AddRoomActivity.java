@@ -74,6 +74,7 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

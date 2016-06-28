@@ -2,7 +2,8 @@ package com.nichesoftware.giftlist.service;
 
 import android.util.Log;
 
-import com.google.android.gms.iid.InstanceIDListenerService;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.contracts.GcmContract;
@@ -12,7 +13,7 @@ import com.nichesoftware.giftlist.presenters.GcmPresenter;
  * Created by n_che on 27/06/2016.
  * According to this Google official documentation, the instance ID server issues callbacks periodically (i.e. 6 months) to request apps to refresh their tokens.
  */
-public class FirebaseInstanceIDListenerService extends InstanceIDListenerService {
+public class FirebaseInstanceIDListenerService extends FirebaseInstanceIdService {
     private static final String TAG = FirebaseInstanceIDListenerService.class.getSimpleName();
 
     /**
@@ -31,16 +32,21 @@ public class FirebaseInstanceIDListenerService extends InstanceIDListenerService
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onTokenRefresh");
         }
-        GcmContract.ActionListener actionListener = new GcmPresenter(getApplicationContext(), Injection.getDataProvider(getApplicationContext()));
-        actionListener.registerGcm(new GcmContract.ActionListener.RegistrationCompleteCallback() {
-            @Override
-            public void onRegistrationCompleted(String token) {
-                if (BuildConfig.DEBUG) {
-                    if (token != null) {
-                        Log.d(TAG, "Registrated token: " + token);
-                    }
-                }
-            }
-        });
+
+        // Make a call to Instance API
+        FirebaseInstanceId instanceID = FirebaseInstanceId.getInstance();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onTokenRefresh - Instance retreived...");
+        }
+
+        // Request token that will be used by the server to send push notifications
+        final String gcmToken = instanceID.getToken();
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("onTokenRefresh - Token retreived: token = %s", gcmToken));
+        }
+
+        GcmContract.ActionListener actionListener = new GcmPresenter(Injection.getDataProvider(getApplicationContext()));
+        actionListener.registerGcm(gcmToken);
     }
 }

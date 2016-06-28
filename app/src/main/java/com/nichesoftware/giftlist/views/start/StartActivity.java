@@ -155,6 +155,7 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

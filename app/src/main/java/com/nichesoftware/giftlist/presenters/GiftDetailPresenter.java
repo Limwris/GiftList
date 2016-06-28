@@ -9,13 +9,8 @@ import com.nichesoftware.giftlist.model.Gift;
 /**
  * Created by n_che on 09/06/2016.
  */
-public class GiftDetailPresenter implements GiftDetailContract.UserActionListener {
+public class GiftDetailPresenter extends AbstractPresenter implements GiftDetailContract.UserActionListener {
     private static final String TAG = GiftDetailPresenter.class.getSimpleName();
-
-    /**
-     * Data provider
-     */
-    private DataProvider dataProvider;
 
     /**
      * View

@@ -80,6 +80,7 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

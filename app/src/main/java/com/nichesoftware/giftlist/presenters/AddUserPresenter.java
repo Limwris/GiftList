@@ -11,13 +11,8 @@ import java.util.List;
 /**
  * Created by n_che on 22/06/2016.
  */
-public class AddUserPresenter implements AddUserContract.UserActionListener {
+public class AddUserPresenter extends AbstractPresenter implements AddUserContract.UserActionListener {
     private static final String TAG = AddGiftPresenter.class.getSimpleName();
-
-    /**
-     * Data provider
-     */
-    private DataProvider dataProvider;
 
     /**
      * View

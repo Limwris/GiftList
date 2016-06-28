@@ -139,7 +139,7 @@ public final class PersistenceBroker {
         SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_GIFLIST_FILE,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(GCM_TOKEN_KEY, null);
+        editor.putString(GCM_TOKEN_KEY, gcmToken);
         editor.apply();
     }
 

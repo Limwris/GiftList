@@ -4,21 +4,13 @@ package com.nichesoftware.giftlist.contracts;
  * Created by n_che on 08/06/2016.
  */
 public interface StartContract {
-    interface View {
+    interface View extends AbstractContract.View {
         /**
          *
          */
         void showRoomsActivity();
-        /**
-         * Affiche le loader
-         */
-        void showLoader(final String message);
-        /**
-         * Supprime le loader
-         */
-        void hideLoader();
     }
-    interface UserActionListener {
+    interface UserActionListener extends AbstractContract.UserActionListener {
         /**
          * Lance l'application
          * @param username

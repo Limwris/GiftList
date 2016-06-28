@@ -8,7 +8,7 @@ import java.util.List;
  * Created by n_che on 25/04/2016.
  */
 public interface GiftListContract {
-    interface View {
+    interface View extends AbstractContract.View {
         /**
          * Affiche les cadeaux passées en paramètre
          * @param gifts
@@ -23,16 +23,8 @@ public interface GiftListContract {
          * Force le rechargement des données
          */
         void forceReload();
-        /**
-         * Affiche le loader
-         */
-        void showLoader();
-        /**
-         * Supprime le loader
-         */
-        void hideLoader();
     }
-    interface UserActionListener {
+    interface UserActionListener extends AbstractContract.UserActionListener {
         /**
          * Action permettant de charger la liste des cadeaux
          * @param roomId        Identifiant de la salle

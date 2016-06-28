@@ -25,10 +25,9 @@
             </intent-filter>
         </service>
         <service
-            android:name=".service.FirebaseInstanceIDListenerService"
-            android:exported="false">
+            android:name=".service.FirebaseInstanceIDListenerService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 

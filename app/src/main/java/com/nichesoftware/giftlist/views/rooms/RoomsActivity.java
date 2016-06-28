@@ -183,12 +183,18 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
                 });
     }
 
+    @Override
+    protected void onDestroy() {
+        actionsListener.doDisconnect();
+        super.onDestroy();
+    }
+
     /**********************************************************************************************/
     /************************************     View contract     ***********************************/
     /**********************************************************************************************/
 
     @Override
-    public void showLoader() {
+    public void showLoader(final String message) {
         setRefreshIndicator(true);
     }
 

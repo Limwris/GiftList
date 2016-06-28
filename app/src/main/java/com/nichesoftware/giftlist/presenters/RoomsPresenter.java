@@ -13,13 +13,8 @@ import java.util.List;
 /**
  * Created by n_che on 25/04/2016.
  */
-public class RoomsPresenter implements RoomsContract.UserActionListener {
+public class RoomsPresenter extends AbstractPresenter implements RoomsContract.UserActionListener {
     private static final String TAG = RoomsPresenter.class.getSimpleName();
-
-    /**
-     * Data provider
-     */
-    private DataProvider dataProvider;
 
     /**
      * View
@@ -51,7 +46,7 @@ public class RoomsPresenter implements RoomsContract.UserActionListener {
         }
 
         // Show loader
-        roomsView.showLoader();
+        roomsView.showLoader(null);
 
 //        if (forceUpdate) {
 //            dataProvider.refreshData();

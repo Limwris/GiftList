@@ -13,13 +13,8 @@ import java.util.List;
 /**
  * Created by n_che on 25/04/2016.
  */
-public class GiftListPresenter implements GiftListContract.UserActionListener {
+public class GiftListPresenter extends AbstractPresenter implements GiftListContract.UserActionListener {
     private static final String TAG = GiftListPresenter.class.getSimpleName();
-
-    /**
-     * Data provider
-     */
-    private DataProvider dataProvider;
 
     /**
      * View
@@ -39,7 +34,7 @@ public class GiftListPresenter implements GiftListContract.UserActionListener {
     @Override
     public void loadGifts(final int roomId, boolean forceUpdate) {
         // Show loader
-        giftListView.showLoader();
+        giftListView.showLoader(null);
 
         dataProvider.getGifts(forceUpdate, roomId, new DataProvider.LoadGiftsCallback() {
             @Override

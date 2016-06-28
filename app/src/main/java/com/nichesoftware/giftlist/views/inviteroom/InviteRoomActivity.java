@@ -68,6 +68,7 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+        actionsListener.doDisconnect();
         super.onDestroy();
     }
 
@@ -86,7 +87,7 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
     }
 
     @Override
-    public void showLoader() {
+    public void showLoader(final String message) {
         progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(getResources().getString(R.string.invite_room_loader_message));

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -16,7 +17,6 @@ import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
-import com.nichesoftware.giftlist.utils.AndroidUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -106,13 +106,16 @@ public class DataProvider {
                         }
 
                         final String gcmToken = PersistenceBroker.getGcmToken(context);
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, String.format("logIn - onSuccess | GCM token = %s", gcmToken));
+                        }
                         // Si le token n'a pas été envoyé, alors le renvoyer au serveur
                         if (!StringUtils.isEmpty(gcmToken)
                                 && !PersistenceBroker.isTokenSent(context)) {
                             if (BuildConfig.DEBUG) {
-                                Log.d(TAG, String.format("logIn - token not sent"));
+                                Log.d(TAG, String.format("logIn - onSuccess | GCM token not sent"));
                             }
-                            sendGcmTokenToServer(gcmToken, null);
+                            sendGcmTokenToServer(gcmToken);
                         }
 
                         callback.onSuccess();
@@ -158,12 +161,15 @@ public class DataProvider {
 
                 // A l'enrôllement, on enregistre aussi le token GCM
                 final String gcmToken = PersistenceBroker.getGcmToken(context);
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("register - onSuccess | GCM token = %s", gcmToken));
+                }
                 // Si le token n'a pas été envoyé, alors le renvoyer au serveur
                 if (!StringUtils.isEmpty(gcmToken) && !PersistenceBroker.isTokenSent(context)) {
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, String.format("register - token not sent"));
+                        Log.d(TAG, String.format("register - onSuccess | GCM token not sent"));
                     }
-                    sendGcmTokenToServer(gcmToken, null);
+                    sendGcmTokenToServer(gcmToken);
                 }
 
                 callback.onSuccess();
@@ -174,6 +180,10 @@ public class DataProvider {
                 callback.onError();
             }
         });
+    }
+
+    public void doDisconnect() {
+        PersistenceBroker.setCurrentUser(context, User.DISCONNECTED_USER);
     }
 
     public void retreiveAvailableContacts(final int roomId,
@@ -324,75 +334,6 @@ public class DataProvider {
 //        }
 //    }
 
-    /**
-     * Récupère les cadeaux associés à une salle
-     * @param forceUpdate   - Flag indiquant l'appel au webservice
-     * @param roomId        - Identifiant de la salle
-     * @param callback      - Callback
-     */
-    public void getGifts(final boolean forceUpdate,
-                        @NonNull final int roomId,
-                         @NonNull final LoadGiftsCallback callback) {
-        final String username = PersistenceBroker.getCurrentUser(context);
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("getGifts [username = %s]", username));
-        }
-
-        final User user = PersistenceBroker.retreiveUser(context);
-        List<Room> rooms = user.getRooms();
-        Room room = getRoomById(rooms, roomId);
-
-        if (username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur est local
-            if (room != null) {
-                callback.onGiftsLoaded(room.getGiftList());
-            } else {
-                // Todo: gestion d'erreur
-                callback.onGiftsLoaded(null);
-            }
-        } else { // Cas d'un utilisateur connecté
-            final String token = PersistenceBroker.retreiveUserToken(context);
-
-            if (room == null) { // Ne devrait jamais arriver...
-                // Todo: Revoir la gestion des erreurs
-                callback.onGiftsLoaded(null);
-            } else {
-                if (forceUpdate) {
-                    serviceApi.getGifts(token, roomId, new ServiceAPI.ServiceCallback<List<Gift>>() {
-                        @Override
-                        public void onLoaded(List<Gift> gifts) {
-                            if (BuildConfig.DEBUG) {
-                                Log.d(TAG, "getGifts - onLoaded");
-                            }
-                            List<Room> rooms = user.getRooms();
-                            Room room = getRoomById(rooms, roomId);
-
-                            if (room != null) {
-                                room.setGiftList(gifts);
-                                user.setRooms(rooms);
-                                PersistenceBroker.saveUser(context, user);
-                                callback.onGiftsLoaded(gifts);
-                            } else {
-                                // Todo: gestion d'erreur
-                                callback.onGiftsLoaded(null);
-                            }
-                        }
-
-                        @Override
-                        public void onError() {
-                            if (BuildConfig.DEBUG) {
-                                Log.d(TAG, "getGifts - onError");
-                            }
-                            // Todo: Revoir la gestion des erreurs
-                            callback.onGiftsLoaded(null);
-                        }
-                    });
-                } else {
-                    callback.onGiftsLoaded(room.getGiftList());
-                }
-            }
-        }
-    }
-
     public void createRoom(@NonNull final String roomName,
                            @NonNull final String occasion,
                            @NonNull final Callback callback) {
@@ -493,6 +434,75 @@ public class DataProvider {
                             callback.onError();
                         }
                     });
+        }
+    }
+
+    /**
+     * Récupère les cadeaux associés à une salle
+     * @param forceUpdate   - Flag indiquant l'appel au webservice
+     * @param roomId        - Identifiant de la salle
+     * @param callback      - Callback
+     */
+    public void getGifts(final boolean forceUpdate,
+                         @NonNull final int roomId,
+                         @NonNull final LoadGiftsCallback callback) {
+        final String username = PersistenceBroker.getCurrentUser(context);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("getGifts [username = %s]", username));
+        }
+
+        final User user = PersistenceBroker.retreiveUser(context);
+        List<Room> rooms = user.getRooms();
+        Room room = getRoomById(rooms, roomId);
+
+        if (username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur est local
+            if (room != null) {
+                callback.onGiftsLoaded(room.getGiftList());
+            } else {
+                // Todo: gestion d'erreur
+                callback.onGiftsLoaded(null);
+            }
+        } else { // Cas d'un utilisateur connecté
+            final String token = PersistenceBroker.retreiveUserToken(context);
+
+            if (room == null) { // Ne devrait jamais arriver...
+                // Todo: Revoir la gestion des erreurs
+                callback.onGiftsLoaded(null);
+            } else {
+                if (forceUpdate) {
+                    serviceApi.getGifts(token, roomId, new ServiceAPI.ServiceCallback<List<Gift>>() {
+                        @Override
+                        public void onLoaded(List<Gift> gifts) {
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "getGifts - onLoaded");
+                            }
+                            List<Room> rooms = user.getRooms();
+                            Room room = getRoomById(rooms, roomId);
+
+                            if (room != null) {
+                                room.setGiftList(gifts);
+                                user.setRooms(rooms);
+                                PersistenceBroker.saveUser(context, user);
+                                callback.onGiftsLoaded(gifts);
+                            } else {
+                                // Todo: gestion d'erreur
+                                callback.onGiftsLoaded(null);
+                            }
+                        }
+
+                        @Override
+                        public void onError() {
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "getGifts - onError");
+                            }
+                            // Todo: Revoir la gestion des erreurs
+                            callback.onGiftsLoaded(null);
+                        }
+                    });
+                } else {
+                    callback.onGiftsLoaded(room.getGiftList());
+                }
+            }
         }
     }
 
@@ -600,89 +610,61 @@ public class DataProvider {
         }
     }
 
-    public interface OnRegistrationCompleted {
-        void onSuccess(final String token);
-        void onError();
-    }
-
-    public void sendGcmTokenToServer(final String gcmToken, final OnRegistrationCompleted onRegistrationCompleted) {
+    public void sendGcmTokenToServer(final String gcmToken) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "sendGcmTokenToServer");
+        }
 
         final String username = PersistenceBroker.getCurrentUser(context);
-        // Cas déconnecté
-        if (username.equals(User.DISCONNECTED_USER)) {
-            if (onRegistrationCompleted != null) {
-                onRegistrationCompleted.onError();
-            }
-        } else {
+        // Cas connecté
+        if (!username.equals(User.DISCONNECTED_USER)) {
             // Sending the registration id to our server
             final String token = PersistenceBroker.retreiveUserToken(context);
             serviceApi.sendRegistrationToServer(token, gcmToken, new ServiceAPI.OnRegistrationCompleted() {
                 @Override
                 public void onSuccess() {
                     if (BuildConfig.DEBUG) {
-                        Log.e(TAG, "Token registered token successfully in server.");
+                        Log.d(TAG, "Token registered token successfully in server.");
                     }
                     PersistenceBroker.setTokenSent(context, true);
-                    if (onRegistrationCompleted != null) {
-                        onRegistrationCompleted.onSuccess(gcmToken);
-                    }
                 }
 
                 @Override
                 public void onError() {
                     if (BuildConfig.DEBUG) {
-                        Log.e(TAG, "Failed to registered token in server.");
+                        Log.d(TAG, "Failed to registered token in server.");
                     }
-                    PersistenceBroker.setTokenSent(context, true);
-                    if (onRegistrationCompleted != null) {
-                        onRegistrationCompleted.onError();
-                    }
+                    PersistenceBroker.setTokenSent(context, false);
                 }
             });
         }
     }
 
-    public void registerGcm(final OnRegistrationCompleted onRegistrationCompleted) {
-        // Invalidate previously saved GCM token
-        PersistenceBroker.invalidateGcmToken(context);
+    public void registerGcm(final String gcmToken) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "GCM Registration Token: " + gcmToken);
+        }
 
-        // Retreive GCM token from google server
-        AndroidUtils.retreiveGcmToken(context, new AndroidUtils.GcmTokenCallback() {
+        new Thread(new Runnable() {
             @Override
-            public void getGcmToken(final String gcmToken) {
+            public void run() {
+                // Invalidate previously saved GCM token
+                PersistenceBroker.invalidateGcmToken(context);
 
-                if (!StringUtils.isEmpty(gcmToken)) {
+                // Save the token locally
+                PersistenceBroker.setGcmToken(context, gcmToken);
+
+                final String username = PersistenceBroker.getCurrentUser(context);
+                // Cas connecté
+                if (!StringUtils.isEmpty(username) && !username.equals(User.DISCONNECTED_USER)) {
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "GCM Registration Token: " + gcmToken);
+                        Log.d(TAG, String.format("registerGcm - token for connected user %s", username));
                     }
-
-                    // Save the token locally
-                    PersistenceBroker.setGcmToken(context, gcmToken);
-
-                    final String username = PersistenceBroker.getCurrentUser(context);
-                    // Cas déconnecté ou non connecté
-                    if (StringUtils.isEmpty(username) || username.equals(User.DISCONNECTED_USER)) {
-                        if (onRegistrationCompleted != null) {
-                            onRegistrationCompleted.onError();
-                        }
-                    } else {
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, String.format("registerGcm - token not sent for connected user %s", username));
-                        }
-                        sendGcmTokenToServer(gcmToken, onRegistrationCompleted);
-                    }
-
-                } else {
-                    if (BuildConfig.DEBUG) {
-                        Log.e(TAG, "Failed to complete token refresh.");
-                    }
-                    if (onRegistrationCompleted != null) {
-                        onRegistrationCompleted.onError();
-                    }
+                    sendGcmTokenToServer(gcmToken);
                 }
 
             }
-        });
+        }).start();
     }
 
     /**

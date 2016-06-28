@@ -11,13 +11,8 @@ import com.nichesoftware.giftlist.utils.StringUtils;
 /**
  * Created by n_che on 08/06/2016.
  */
-public class StartPresenter implements StartContract.UserActionListener {
+public class StartPresenter extends AbstractPresenter implements StartContract.UserActionListener {
     private static final String TAG = StartPresenter.class.getSimpleName();
-
-    /**
-     * Data provider
-     */
-    private DataProvider dataProvider;
 
     /**
      * View
@@ -46,25 +41,6 @@ public class StartPresenter implements StartContract.UserActionListener {
                 @Override
                 public void onSuccess() {
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "startApplication - connected - onSuccess");
-                    }
-                    view.hideLoader();
-                    view.showRoomsActivity();
-                }
-
-                @Override
-                public void onError() {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "startApplication - connected - onError");
-                    }
-                    view.hideLoader();
-                }
-            });
-        } else {
-            dataProvider.logIn(username, password, new DataProvider.Callback() {
-                @Override
-                public void onSuccess() {
-                    if (BuildConfig.DEBUG) {
                         Log.d(TAG, "startApplication - disconnected - onSuccess");
                     }
                     view.hideLoader();
@@ -75,6 +51,25 @@ public class StartPresenter implements StartContract.UserActionListener {
                 public void onError() {
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "startApplication - disconnected - onError");
+                    }
+                    view.hideLoader();
+                }
+            });
+        } else {
+            dataProvider.logIn(username, password, new DataProvider.Callback() {
+                @Override
+                public void onSuccess() {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "startApplication - connected - onSuccess");
+                    }
+                    view.hideLoader();
+                    view.showRoomsActivity();
+                }
+
+                @Override
+                public void onError() {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "startApplication - connected - onError");
                     }
                     view.hideLoader();
                 }
