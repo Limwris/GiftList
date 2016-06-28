@@ -36,7 +36,8 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void authenticate(String username, String password, ServiceCallback<String> callback) {
+    public void authenticate(String username, String password, final String phoneNumber,
+                             ServiceCallback<String> callback) {
         callback.onLoaded("");
     }
 
@@ -99,6 +100,16 @@ public class MockService implements ServiceAPI {
 
     @Override
     public void inviteUserToRoom(String token, int roomId, String username, ServiceCallback<Boolean> callback) {
+        callback.onError();
+    }
+
+    @Override
+    public void acceptionInvitationToRoom(String token, int roomId, ServiceCallback<Boolean> callback) {
+        callback.onError();
+    }
+
+    @Override
+    public void sendRegistrationToServer(String token, String gcmToken, OnRegistrationCompleted callback) {
         callback.onError();
     }
 }
