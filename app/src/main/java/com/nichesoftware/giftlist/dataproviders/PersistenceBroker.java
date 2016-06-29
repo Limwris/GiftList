@@ -178,7 +178,7 @@ public final class PersistenceBroker {
         // On récupère le username courant
         String username = getCurrentUser(context);
         User user = manager.retreiveUser(username);
-        user.isTokenSent();
+        user.setIsTokenSent(isSent);
         saveUser(context, user);
         // Fermeture du gestionnaire
         manager.close();

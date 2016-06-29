@@ -30,16 +30,22 @@ public class FirebaseMessageHandler extends FirebaseMessagingService {
             Log.d(TAG, String.format("onMessageReceived - From %s, data %s", from, data));
         }
 
-        RemoteMessage.Notification notification = remoteMessage.getNotification();
-        createNotification(notification);
+        // Todo: Gestion réception message
+//        RemoteMessage.Notification notification = remoteMessage.getNotification();
+        createNotification(data);
     }
 
     // Creates notification based on title and body received
-    private void createNotification(RemoteMessage.Notification notification) {
+//    private void createNotification(RemoteMessage.Notification notification) {
+    private void createNotification(Map<String, String> data) {
         Context context = getBaseContext();
+        // Todo: Gestion réception message
+//        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+//                .setSmallIcon(R.mipmap.ic_launcher).setContentTitle(notification.getTitle())
+//                .setContentText(notification.getBody());
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.mipmap.ic_launcher).setContentTitle(notification.getTitle())
-                .setContentText(notification.getBody());
+                .setSmallIcon(R.mipmap.ic_launcher).setContentTitle(data.get("title"))
+                .setContentText(data.get("message"));
         NotificationManager mNotificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(MESSAGE_NOTIFICATION_ID, mBuilder.build());
