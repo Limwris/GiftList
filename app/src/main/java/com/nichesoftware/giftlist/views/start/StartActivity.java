@@ -43,6 +43,7 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
         setContentView(R.layout.start_activity);
 
         actionsListener = new StartPresenter(this, Injection.getDataProvider(this));
+        actionsListener.doDisconnect();
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.didacticiel_pager);
         viewPager.setAdapter(new DidacticielPagerAdapter(this));

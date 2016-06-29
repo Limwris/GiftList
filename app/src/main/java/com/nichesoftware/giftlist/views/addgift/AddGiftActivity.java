@@ -89,7 +89,6 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
-        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

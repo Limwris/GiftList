@@ -202,7 +202,6 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
 
     @Override
     protected void onDestroy() {
-        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

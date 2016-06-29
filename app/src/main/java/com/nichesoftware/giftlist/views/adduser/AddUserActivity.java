@@ -115,7 +115,6 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
 
     @Override
     protected void onDestroy() {
-        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

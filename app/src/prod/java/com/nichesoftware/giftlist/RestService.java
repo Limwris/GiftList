@@ -323,7 +323,7 @@ public class RestService implements ServiceAPI {
     @Override
     public void sendRegistrationToServer(final String token, final String gcmToken, final OnRegistrationCompleted callback) {
         RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
-        Call<Boolean> call = restServiceEndpoint.registerDevice(token);
+        Call<Boolean> call = restServiceEndpoint.registerDevice(token, gcmToken);
         call.enqueue(new Callback<Boolean>() {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {

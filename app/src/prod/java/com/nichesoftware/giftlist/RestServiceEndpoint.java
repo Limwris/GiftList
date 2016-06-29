@@ -58,5 +58,6 @@ public interface RestServiceEndpoint {
                                    @Body final AcceptInvitationDto acceptInvitationDto);
 
     @POST("gcm/{registerId}")
-    Call<Boolean> registerDevice(@Path("registerId") final String registerId);
+    Call<Boolean> registerDevice(@Header("X-Auth-Token") String token,
+                                 @Path("registerId") final String registerId);
 }

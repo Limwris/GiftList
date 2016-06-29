@@ -185,7 +185,6 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
 
     @Override
     protected void onDestroy() {
-        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

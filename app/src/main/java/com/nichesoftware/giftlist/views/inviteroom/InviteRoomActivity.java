@@ -68,7 +68,6 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
-        actionsListener.doDisconnect();
         super.onDestroy();
     }
 

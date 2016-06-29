@@ -193,6 +193,9 @@ public class DataProvider {
         }
 
         final String username = PersistenceBroker.getCurrentUser(context);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("retreiveAvailableContacts [username = %s]", username));
+        }
         // Cas déconnecté
         if (username.equals(User.DISCONNECTED_USER)) {
             callback.onError();
@@ -624,7 +627,7 @@ public class DataProvider {
                 @Override
                 public void onSuccess() {
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Token registered token successfully in server.");
+                        Log.d(TAG, "Token registered successfully in server.");
                     }
                     PersistenceBroker.setTokenSent(context, true);
                 }
@@ -632,7 +635,7 @@ public class DataProvider {
                 @Override
                 public void onError() {
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Failed to registered token in server.");
+                        Log.d(TAG, "Failed to register token in server.");
                     }
                     PersistenceBroker.setTokenSent(context, false);
                 }
