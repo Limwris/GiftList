@@ -73,4 +73,6 @@
 
     <!-- Invite Room -->
     <string name="invite_room_loader_message">Enrôllement à la salle en cours&#8230;</string>
+    <string name="invite_room_name_room_text">Bienvenu dans %1$s</string>
+    <string name="invite_room_accept_button">Accepter</string>
 </resources>

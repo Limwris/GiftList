@@ -32,8 +32,9 @@ public interface ServiceAPI {
                                 final ServiceCallback<List<User>> callback);
     void inviteUserToRoom(final String token, int roomId, final String username,
                           final ServiceCallback<Boolean> callback);
-    void acceptionInvitationToRoom(final String token, int roomId,
-                                   final ServiceCallback<Boolean> callback);
+    void acceptInvitationToRoom(final String token, int roomId, final String invitationToken,
+                                final ServiceCallback<Boolean> callback);
+    void getRoomInformation(final String token, int roomId, final ServiceCallback<Room> callback);
 
     /**********************************************************************************************/
     /******************************************   GCM   *******************************************/

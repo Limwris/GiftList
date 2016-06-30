@@ -73,4 +73,6 @@
 
     <!-- Invite Room -->
     <string name="invite_room_loader_message">Enrolling to the room&#8230;</string>
+    <string name="invite_room_name_room_text">Welcome to %1$s</string>
+    <string name="invite_room_accept_button">Accept</string>
 </resources>

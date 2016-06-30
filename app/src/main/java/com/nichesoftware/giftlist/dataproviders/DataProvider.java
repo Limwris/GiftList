@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -386,6 +385,36 @@ public class DataProvider {
 
     }
 
+    public void getRoomInformation(final int roomId,
+                                   @NonNull final CallbackValue<Room> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("getRoomInformation [roomId = %d]", roomId));
+        }
+        final String username = PersistenceBroker.getCurrentUser(context);
+
+        if (!username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur est local
+            final String token = PersistenceBroker.retreiveUserToken(context);
+
+            serviceApi.getRoomInformation(token, roomId, new ServiceAPI.ServiceCallback<Room>() {
+                @Override
+                public void onLoaded(Room value) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "getRoomInformation - onSuccess");
+                    }
+                    callback.onSuccess(value);
+                }
+
+                @Override
+                public void onError() {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "getRoomInformation - onError");
+                    }
+                    callback.onError();
+                }
+            });
+        }
+    }
+
     public void addGift(final int roomId, @NonNull final String name,
                         double price, double amount,
                         @NonNull final Callback callback) {
@@ -587,7 +616,8 @@ public class DataProvider {
         }
     }
 
-    public void acceptInvitationToRoom(final int roomId, @NonNull final Callback callback) {
+    public void acceptInvitationToRoom(final int roomId, @NonNull final String invitationToken,
+                                       @NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("acceptInvitationToRoom [roomId = %d]", roomId));
         }
@@ -598,7 +628,7 @@ public class DataProvider {
             callback.onError();
         } else {
             final String token = PersistenceBroker.retreiveUserToken(context);
-            serviceApi.acceptionInvitationToRoom(token, roomId,
+            serviceApi.acceptInvitationToRoom(token, roomId, invitationToken,
                     new ServiceAPI.ServiceCallback<Boolean>() {
                         @Override
                         public void onLoaded(Boolean value) {

@@ -156,7 +156,7 @@ public class RestService implements ServiceAPI {
             @Override
             public void onResponse(Call<Room> call, Response<Room> response) {
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, String.format("getGifts - response %s", response.raw()));
+                    Log.d(TAG, String.format("createRoom - response %s", response.raw()));
                 }
                 callback.onLoaded(response.body());
             }
@@ -294,13 +294,15 @@ public class RestService implements ServiceAPI {
     }
 
     @Override
-    public void acceptionInvitationToRoom(String token, int roomId, final ServiceCallback<Boolean> callback) {
+    public void acceptInvitationToRoom(String token, int roomId, final String invitationToken,
+                                       final ServiceCallback<Boolean> callback) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("acceptionInvitationToRoom [token = %s]", token));
+            Log.d(TAG, String.format("acceptInvitationToRoom [token = %s]", token));
         }
 
         AcceptInvitationDto acceptInvitationDto = new AcceptInvitationDto();
         acceptInvitationDto.setRoomId(roomId);
+        acceptInvitationDto.setToken(invitationToken);
 
         RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
         Call<Boolean> call = restServiceEndpoint.acceptInvitationToRoom(token, acceptInvitationDto);
@@ -308,13 +310,37 @@ public class RestService implements ServiceAPI {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, String.format("acceptionInvitationToRoom - response %s", response.raw()));
+                    Log.d(TAG, String.format("acceptionInvitatToRoom - response %s", response.raw()));
                 }
                 callback.onLoaded(response.body());
             }
 
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
+                callback.onError();
+            }
+        });
+    }
+
+    @Override
+    public void getRoomInformation(String token, int roomId, final ServiceCallback<Room> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("getRoomInformation [token = %s, roomId = %d]", token, roomId));
+        }
+
+        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        Call<Room> call = restServiceEndpoint.getRoomInformation(token, roomId);
+        call.enqueue(new Callback<Room>() {
+            @Override
+            public void onResponse(Call<Room> call, Response<Room> response) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("getRoomInformation - response %s", response.raw()));
+                }
+                callback.onLoaded(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<Room> call, Throwable t) {
                 callback.onError();
             }
         });

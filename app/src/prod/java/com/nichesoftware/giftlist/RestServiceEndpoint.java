@@ -39,6 +39,10 @@ public interface RestServiceEndpoint {
     @POST("room")
     Call<Room> createRoom(@Header("X-Auth-Token") final String token, @Body final RoomDto roomDto);
 
+    @GET("room/{roomId}")
+    Call<Room> getRoomInformation(@Header("X-Auth-Token") final String token,
+                                  @Path("roomId") final int roomId);
+
     @POST("gift")
     Call<Gift> addGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
 

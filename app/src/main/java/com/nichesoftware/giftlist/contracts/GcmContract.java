@@ -1,5 +1,9 @@
 package com.nichesoftware.giftlist.contracts;
 
+import android.content.Context;
+
+import java.util.Map;
+
 /**
  * Created by n_che on 27/06/2016.
  */
@@ -10,5 +14,11 @@ public interface GcmContract {
          * @param gcmToken
          */
         void registerGcm(final String gcmToken);
+        /**
+         * Process the GCM message when an invitation is sent
+         * @param context
+         * @param data
+         */
+        void doProcessInvitationNotification(final Context context, String data);
     }
 }
