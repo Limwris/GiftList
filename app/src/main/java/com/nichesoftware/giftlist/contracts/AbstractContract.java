@@ -8,7 +8,7 @@ public interface AbstractContract {
         /**
          * Affiche le loader
          */
-        void showLoader(final String message);
+        void showLoader();
         /**
          * Supprime le loader
          */
