@@ -193,7 +193,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
     /**********************************************************************************************/
 
     @Override
-    public void showLoader(final String message) {
+    public void showLoader() {
         setRefreshIndicator(true);
     }
 

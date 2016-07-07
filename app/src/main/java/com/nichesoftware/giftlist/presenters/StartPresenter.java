@@ -30,51 +30,12 @@ public class StartPresenter extends AbstractPresenter implements StartContract.U
     }
 
     @Override
-    public void startApplication(final String username, final String password) {
+    public void startApplication() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "startApplication");
         }
-        view.showLoader("Log in...");
+        view.showRoomsActivity();
 
-        if (StringUtils.isEmpty(username) && StringUtils.isEmpty(password)) {
-            dataProvider.logInDisconnected(new DataProvider.Callback() {
-                @Override
-                public void onSuccess() {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "startApplication - disconnected - onSuccess");
-                    }
-                    view.hideLoader();
-                    view.showRoomsActivity();
-                }
-
-                @Override
-                public void onError() {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "startApplication - disconnected - onError");
-                    }
-                    view.hideLoader();
-                }
-            });
-        } else {
-            dataProvider.logIn(username, password, new DataProvider.Callback() {
-                @Override
-                public void onSuccess() {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "startApplication - connected - onSuccess");
-                    }
-                    view.hideLoader();
-                    view.showRoomsActivity();
-                }
-
-                @Override
-                public void onError() {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "startApplication - connected - onError");
-                    }
-                    view.hideLoader();
-                }
-            });
-        }
     }
 
     @Override
@@ -82,7 +43,7 @@ public class StartPresenter extends AbstractPresenter implements StartContract.U
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "register");
         }
-        view.showLoader("Sign up...");
+        view.showLoader();
 
         dataProvider.register(username, password, new DataProvider.Callback() {
             @Override

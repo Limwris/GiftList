@@ -6,19 +6,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
+import com.nichesoftware.giftlist.contracts.AuthenticationContract;
 import com.nichesoftware.giftlist.contracts.StartContract;
 import com.nichesoftware.giftlist.presenters.StartPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
 
 /**
@@ -26,11 +31,6 @@ import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
  */
 public class StartActivity extends AppCompatActivity implements StartContract.View {
     private static final String TAG = StartActivity.class.getSimpleName();
-
-    /**
-     * Graphical components
-     */
-    private ProgressDialog progressDialog;
 
     /**
      * Listener sur les actions de l'utilisateur
@@ -44,6 +44,18 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
 
         actionsListener = new StartPresenter(this, Injection.getDataProvider(this));
         actionsListener.doDisconnect();
+
+        // Todo: régler problème de la Toolbar n'affichant plus la vue standard de l'action bar
+        // Set up the toolbar.
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
+                ab.setDisplayShowTitleEnabled(true);
+            }
+        }
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.didacticiel_pager);
         viewPager.setAdapter(new DidacticielPagerAdapter(this));
@@ -64,12 +76,13 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int whichButton) {
                                         if (validate(usernameEditText, passwordEditText)) {
+                                            if (dialogInterface != null) {
+                                                dialogInterface.dismiss();
+                                            }
+
                                             actionsListener.register(
                                                     usernameEditText.getText().toString(),
                                                     passwordEditText.getText().toString());
-                                        }
-                                        if (dialogInterface != null) {
-                                            dialogInterface.dismiss();
                                         }
                                     }
                                 })
@@ -88,37 +101,19 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
         findViewById(R.id.didacticiel_log_in).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LayoutInflater inflater = getLayoutInflater();
-                View dialoglayout = inflater.inflate(R.layout.start_log_in_dialog, null);
-                final TextInputEditText usernameEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_log_in_dialog_username_edit_text);
-                final TextInputEditText passwordEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_log_in_dialog_password_edit_text);
+                AuthenticationDialog authenticationDialog = new AuthenticationDialog(StartActivity.this,
+                        new AuthenticationContract.View.OnAuthenticationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                actionsListener.startApplication();
+                            }
 
-                new AlertDialog.Builder(StartActivity.this,
-                        R.style.AppTheme_Dark_Dialog)
-                        .setView(dialoglayout)
-                        .setPositiveButton(R.string.start_dialog_log_in_positive_button,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int whichButton) {
-                                        if (validate(usernameEditText, passwordEditText)) {
-                                            actionsListener.startApplication(
-                                                    usernameEditText.getText().toString(),
-                                                    passwordEditText.getText().toString());
-                                        }
-                                        if (dialogInterface != null) {
-                                            dialogInterface.dismiss();
-                                        }
-                                    }
-                                })
-                        .setNegativeButton(R.string.cancel_button_text,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int whichButton) {
-                                        if (dialogInterface != null) {
-                                            dialogInterface.dismiss();
-                                        }
-                                    }
-                                }).show();
+                            @Override
+                            public void onError() {
+
+                            }
+                        });
+                authenticationDialog.show();
             }
         });
 
@@ -132,7 +127,7 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int  whichButton) {
-                                        actionsListener.startApplication(null, null);
+                                        actionsListener.startApplication();
                                         if (dialogInterface != null) {
                                             dialogInterface.dismiss();
                                         }
@@ -153,9 +148,6 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
 
     @Override
     protected void onDestroy() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
         actionsListener.doDisconnect();
         super.onDestroy();
     }
@@ -174,18 +166,16 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
     }
 
     @Override
-    public void showLoader(final String message) {
-        progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage(message);
-        progressDialog.show();
+    public void showLoader() {
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.animate();
     }
 
     @Override
     public void hideLoader() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     private boolean validate(EditText usernameEditText, EditText passwordEditText) {

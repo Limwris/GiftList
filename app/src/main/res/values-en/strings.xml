@@ -20,9 +20,12 @@
     <string name="not_authenticated_start_positive_button">Start the application</string>
     <string name="start_dialog_username_hint_text">Username</string>
     <string name="start_dialog_password_hint_text">Password</string>
-    <string name="start_dialog_log_in_positive_button">Start the application</string>
     <string name="start_dialog_sign_up_positive_button">Register</string>
     <string name="start_dialog_empty_field_error_text">This field should not be left empty</string>
+
+    <!-- Authentication Dialog -->
+    <string name="authentication_dialog_loading_message">Logging in&#8230;</string>
+    <string name="authentication_dialog_positive_button">Log in</string>
 
     <!-- RoomsActivity-->
     <string name="room_error_view_message">No room has been already created.</string>

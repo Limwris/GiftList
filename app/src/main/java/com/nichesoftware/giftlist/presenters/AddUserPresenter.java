@@ -32,8 +32,7 @@ public class AddUserPresenter extends AbstractPresenter implements AddUserContra
 
     @Override
     public void inviteUserToCurrentRoom(int roomId, String username) {
-        // TODO: pas de chaîne en dur...
-        view.showLoader("Lancement de l'invitation...");
+        view.showLoader();
         dataProvider.inviteUserToRoom(roomId, username, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
@@ -51,8 +50,7 @@ public class AddUserPresenter extends AbstractPresenter implements AddUserContra
 
     @Override
     public void loadContacts(int roomId) {
-        // TODO: pas de chaîne en dur...
-        view.showLoader("Recherche des contacts possédant l'application");
+        view.showLoader();
         dataProvider.retreiveAvailableContacts(roomId,
                 new DataProvider.CallbackValue<List<User>>() {
                     @Override

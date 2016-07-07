@@ -17,8 +17,10 @@ public interface GcmContract {
         /**
          * Process the GCM message when an invitation is sent
          * @param context
+         * @param notification
          * @param data
          */
-        void doProcessInvitationNotification(final Context context, String data);
+        void doProcessInvitationNotification(final Context context,
+                                             final String notification, final String data);
     }
 }

@@ -13,10 +13,8 @@ public interface StartContract {
     interface UserActionListener extends AbstractContract.UserActionListener {
         /**
          * Lance l'application
-         * @param username
-         * @param password
          */
-        void startApplication(final String username, final String password);
+        void startApplication();
         /**
          * Enregistrement
          * @param username

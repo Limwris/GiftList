@@ -237,7 +237,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     /**********************************************************************************************/
 
     @Override
-    public void showLoader(final String message) {
+    public void showLoader() {
         setRefreshIndicator(true);
     }
 

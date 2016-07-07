@@ -32,6 +32,6 @@ public class FirebaseMessageHandler extends FirebaseMessagingService {
         Context context = getBaseContext();
         GcmContract.ActionListener actionListener
                 = new GcmPresenter(Injection.getDataProvider(context));
-        actionListener.doProcessInvitationNotification(context, data.get("data"));
+        actionListener.doProcessInvitationNotification(context, data.get("notification"), data.get("data"));
     }
 }

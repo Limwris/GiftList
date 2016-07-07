@@ -138,10 +138,9 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     }
 
     @Override
-    public void showLoader(final String message) {
+    public void showLoader() {
         progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage(message);
         progressDialog.show();
     }
 

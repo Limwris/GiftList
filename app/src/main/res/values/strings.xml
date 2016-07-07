@@ -20,9 +20,12 @@
     <string name="not_authenticated_start_positive_button">Démarrer l\'application</string>
     <string name="start_dialog_username_hint_text">Identifiant</string>
     <string name="start_dialog_password_hint_text">Mot de passe</string>
-    <string name="start_dialog_log_in_positive_button">Démarrer l\'application</string>
     <string name="start_dialog_sign_up_positive_button">S\'enregistrer</string>
     <string name="start_dialog_empty_field_error_text">Ce champ ne doit pas être vide</string>
+
+    <!-- Authentication Dialog -->
+    <string name="authentication_dialog_loading_message">En cours de connexion&#8230;</string>
+    <string name="authentication_dialog_positive_button">Se connecter</string>
 
     <!-- RoomsActivity-->
     <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>

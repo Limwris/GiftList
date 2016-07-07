@@ -46,11 +46,7 @@ public class RoomsPresenter extends AbstractPresenter implements RoomsContract.U
         }
 
         // Show loader
-        roomsView.showLoader(null);
-
-//        if (forceUpdate) {
-//            dataProvider.refreshData();
-//        }
+        roomsView.showLoader();
 
         dataProvider.getRooms(forceUpdate, new DataProvider.LoadRoomsCallback() {
             @Override

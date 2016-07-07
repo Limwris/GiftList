@@ -137,13 +137,13 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
     }
 
     @Override
-    public void showLoader(String message) {
-
+    public void showLoader() {
+        // Todo
     }
 
     @Override
     public void hideLoader() {
-
+        // Todo
     }
 
     @Override

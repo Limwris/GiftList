@@ -64,14 +64,6 @@ public class DataProvider {
         void onError();
     }
 
-    public void logInDisconnected(@NonNull final Callback callback) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("logInDisconnected"));
-        }
-        PersistenceBroker.setCurrentUser(context, User.DISCONNECTED_USER);
-        callback.onSuccess();
-    }
-
     public void logIn(@NonNull final String username,
                       @NonNull final String password,
                       @NonNull final Callback callback) {

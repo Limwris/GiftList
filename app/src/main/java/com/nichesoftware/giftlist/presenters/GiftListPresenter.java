@@ -34,7 +34,7 @@ public class GiftListPresenter extends AbstractPresenter implements GiftListCont
     @Override
     public void loadGifts(final int roomId, boolean forceUpdate) {
         // Show loader
-        giftListView.showLoader(null);
+        giftListView.showLoader();
 
         dataProvider.getGifts(forceUpdate, roomId, new DataProvider.LoadGiftsCallback() {
             @Override
