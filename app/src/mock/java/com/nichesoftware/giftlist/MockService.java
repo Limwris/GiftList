@@ -68,6 +68,11 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
+    public void leaveRoom(String token, int roomId, ServiceCallback<List<Room>> callback) {
+        callback.onError();
+    }
+
+    @Override
     public void addGift(String token, int roomId, String name, double price, double amount, ServiceCallback<Gift> callback) {
         Gift gift = new Gift();
         gift.setName("PS4");
@@ -104,7 +109,7 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void acceptionInvitationToRoom(String token, int roomId, ServiceCallback<Boolean> callback) {
+    public void acceptInvitationToRoom(String token, int roomId, ServiceCallback<Boolean> callback) {
         callback.onError();
     }
 
