@@ -13,8 +13,8 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.android.NotificationId;
 import com.nichesoftware.giftlist.contracts.GcmContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
-import com.nichesoftware.giftlist.dto.AcceptInvitationDto;
 import com.nichesoftware.giftlist.dto.NotificationDto;
+import com.nichesoftware.giftlist.model.Invitation;
 import com.nichesoftware.giftlist.views.inviteroom.InviteRoomActivity;
 
 
@@ -48,33 +48,35 @@ public class GcmPresenter extends AbstractPresenter implements GcmContract.Actio
     public void doProcessInvitationNotification(final Context context,
                                                 final String notification, final String data) {
         Gson gson = new Gson();
-        AcceptInvitationDto invitationDto = gson.fromJson(data, AcceptInvitationDto.class);
+        Invitation invitation = gson.fromJson(data, Invitation.class);
         NotificationDto notificationDto = gson.fromJson(notification, NotificationDto.class);
 
         Intent intent = new Intent(context, InviteRoomActivity.class);
-        intent.putExtra(InviteRoomActivity.EXTRA_ROOM_ID, invitationDto.getRoomId());
-        intent.putExtra(InviteRoomActivity.EXTRA_TOKEN, invitationDto.getToken());
+        intent.putExtra(InviteRoomActivity.EXTRA_ROOM, invitation.getRoom());
 
-        // Build Notification , setOngoing keeps the notification always in status bar
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle(notificationDto.getTitle())
-                        .setContentText(notificationDto.getBody())
-                        .setOngoing(true);
+        // Si l'utilisateur courant est bien celui qui est invité
+        if (dataProvider.getCurrentUser().equals(invitation.getInvitedUser().getUsername())) {
+            // Build Notification
+            NotificationCompat.Builder notificationBuilder =
+                    new NotificationCompat.Builder(context)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle(notificationDto.getTitle())
+                            .setContentText(notificationDto.getBody())
+                            .setAutoCancel(true);
 
-        // Create pending intent
-        // Mention the Activity which needs to be triggered when user clicks on notification
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            // Create pending intent
+            // Mention the Activity which needs to be triggered when user clicks on notification
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        notificationBuilder.setContentIntent(contentIntent);
+            notificationBuilder.setContentIntent(contentIntent);
 
-        // Gets an instance of the NotificationManager service
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            // Gets an instance of the NotificationManager service
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Builds the notification and issues it.
-        notificationManager.notify(NotificationId.getID(), notificationBuilder.build());
+            // Builds the notification and issues it.
+            notificationManager.notify(NotificationId.getID(), notificationBuilder.build());
+        }
     }
 }

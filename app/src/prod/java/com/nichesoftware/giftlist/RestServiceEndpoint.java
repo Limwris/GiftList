@@ -1,6 +1,5 @@
 package com.nichesoftware.giftlist;
 
-import com.nichesoftware.giftlist.dto.AcceptInvitationDto;
 import com.nichesoftware.giftlist.dto.ContactDto;
 import com.nichesoftware.giftlist.dto.GiftDto;
 import com.nichesoftware.giftlist.dto.InvitationDto;
@@ -15,6 +14,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -39,9 +39,8 @@ public interface RestServiceEndpoint {
     @POST("room")
     Call<Room> createRoom(@Header("X-Auth-Token") final String token, @Body final RoomDto roomDto);
 
-    @GET("room/{roomId}")
-    Call<Room> getRoomInformation(@Header("X-Auth-Token") final String token,
-                                  @Path("roomId") final int roomId);
+    @HTTP(method = "DELETE", path = "room", hasBody = true)
+    Call<List<Room>> leaveRoom(@Header("X-Auth-Token") final String token, @Body final RoomDto roomDto);
 
     @POST("gift")
     Call<Gift> addGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
@@ -57,9 +56,12 @@ public interface RestServiceEndpoint {
     Call<Boolean> inviteUserToRoom(@Header("X-Auth-Token") String token,
                                    @Body final InvitationDto invitationDto);
 
+    @GET("invite")
+    Call<List<Room>> getPendingInvitation(@Header("X-Auth-Token") String token);
+
     @POST("accept")
     Call<Boolean> acceptInvitationToRoom(@Header("X-Auth-Token") String token,
-                                   @Body final AcceptInvitationDto acceptInvitationDto);
+                                   @Body final RoomDto roomDto);
 
     @POST("gcm/{registerId}")
     Call<Boolean> registerDevice(@Header("X-Auth-Token") String token,

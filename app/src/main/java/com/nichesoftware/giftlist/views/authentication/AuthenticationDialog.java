@@ -27,13 +27,13 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
     /**
      * Callback sur le processus d'authentification
      */
-    private OnAuthenticationCallback authenticationCallback;
+    private AuthenticationContract.OnAuthenticationCallback authenticationCallback;
 
-    public AuthenticationDialog(Context context, final OnAuthenticationCallback authenticationCallback) {
+    public AuthenticationDialog(Context context, final AuthenticationContract.OnAuthenticationCallback authenticationCallback) {
         super(context, R.style.AppTheme_Dark_Dialog);
         this.authenticationCallback = authenticationCallback;
 
-        setContentView(R.layout.start_log_in_dialog);
+        setContentView(R.layout.log_in_dialog);
         actionsListener = new AuthenticationPresenter(this,
                 Injection.getDataProvider(getContext()));
 
@@ -47,18 +47,7 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
                     actionsListener.authenticate(
                             usernameEditText.getText().toString(),
                             passwordEditText.getText().toString(),
-                            new AuthenticationContract.UserActionListener.OnAuthenticationCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    authenticationCallback.onSuccess();
-                                }
-
-                                @Override
-                                public void onError() {
-                                    // Todo : Do somehting ?
-                                    authenticationCallback.onError();
-                                }
-                            });
+                            authenticationCallback);
                 }
             }
         });
@@ -109,7 +98,7 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
      * Getter sur la callback sur le processus d'authentification
      * @return
      */
-    public OnAuthenticationCallback getAuthenticationCallback() {
+    public AuthenticationContract.OnAuthenticationCallback getAuthenticationCallback() {
         return authenticationCallback;
     }
 
@@ -117,7 +106,7 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
      * Setter sur la callback sur le processus d'authentification
      * @param authenticationCallback
      */
-    public void setAuthenticationCallback(OnAuthenticationCallback authenticationCallback) {
+    public void setAuthenticationCallback(AuthenticationContract.OnAuthenticationCallback authenticationCallback) {
         this.authenticationCallback = authenticationCallback;
     }
 }

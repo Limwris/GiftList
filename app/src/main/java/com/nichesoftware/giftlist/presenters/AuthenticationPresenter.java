@@ -1,6 +1,5 @@
 package com.nichesoftware.giftlist.presenters;
 
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -32,7 +31,7 @@ public class AuthenticationPresenter extends AbstractPresenter implements Authen
     }
 
     @Override
-    public void authenticate(final String username, final String password, final OnAuthenticationCallback callback) {
+    public void authenticate(final String username, final String password, final AuthenticationContract.OnAuthenticationCallback callback) {
 
         if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
             view.showLoader();

@@ -1,12 +1,16 @@
 package com.nichesoftware.giftlist.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Kattleya on 22/05/2016.
  */
-public class Room {
+public class Room implements Parcelable {
     /**
      * Identifiant unique de la salle
      */
@@ -159,4 +163,38 @@ public class Room {
             return giftList.size();
         }
     }
+    /**********************************************************************************************/
+    /********************************          PARCELABLE          ********************************/
+    /**********************************************************************************************/
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeInt(id);
+        parcel.writeString(roomName);
+        parcel.writeString(occasion);
+    }
+
+    public Room(Parcel in) {
+        this.id = in.readInt();
+        this.roomName = in.readString();
+        this.occasion = in.readString();
+    }
+
+    public static final Parcelable.Creator<Room> CREATOR = new Parcelable.Creator<Room>() {
+
+        @Override
+        public Room createFromParcel(Parcel in) {
+            return new Room(in);
+        }
+
+        @Override
+        public Room[] newArray(int size) {
+            return new Room[size];
+        }
+    };
 }

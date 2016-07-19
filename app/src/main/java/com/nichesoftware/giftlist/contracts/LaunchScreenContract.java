@@ -3,10 +3,10 @@ package com.nichesoftware.giftlist.contracts;
 /**
  * Created by n_che on 08/06/2016.
  */
-public interface StartContract {
+public interface LaunchScreenContract {
     interface View extends AbstractContract.View {
         /**
-         *
+         * Affiche la vue des salles
          */
         void showRoomsActivity();
     }

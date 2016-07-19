@@ -28,8 +28,8 @@ public class InviteRoomPresenter extends AbstractPresenter implements InviteRoom
     }
 
     @Override
-    public void acceptInvitationToRoom(int roomId, final String invitationToken) {
-        dataProvider.acceptInvitationToRoom(roomId, invitationToken, new DataProvider.Callback() {
+    public void acceptInvitationToRoom(int roomId) {
+        dataProvider.acceptInvitationToRoom(roomId, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
                 view.onAcceptInvitationSuccess();
@@ -38,21 +38,6 @@ public class InviteRoomPresenter extends AbstractPresenter implements InviteRoom
             @Override
             public void onError() {
                 view.onAcceptInvitationFailed();
-            }
-        });
-    }
-
-    @Override
-    public void getRoomInformation(int roomId) {
-        dataProvider.getRoomInformation(roomId, new DataProvider.CallbackValue<Room>() {
-            @Override
-            public void onSuccess(Room value) {
-                view.onRoomInformationSuccess(value);
-            }
-
-            @Override
-            public void onError() {
-                view.onRoomInformationFailed();
             }
         });
     }

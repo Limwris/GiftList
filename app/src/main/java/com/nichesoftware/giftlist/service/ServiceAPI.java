@@ -23,6 +23,7 @@ public interface ServiceAPI {
     void getGifts(final String token, final int roomId, final ServiceCallback<List<Gift>> callback);
     void createRoom(final String token, final String roomName,
                     final String occasion, final ServiceCallback<Room> callback);
+    void leaveRoom(final String token, int roomId, final ServiceCallback<List<Room>> callback);
     void addGift(final String token, int roomId, final String name, double price,
                  double amount, final ServiceCallback<Gift> callback);
     void updateGift(final String token, int roomId, int giftId,
@@ -32,9 +33,8 @@ public interface ServiceAPI {
                                 final ServiceCallback<List<User>> callback);
     void inviteUserToRoom(final String token, int roomId, final String username,
                           final ServiceCallback<Boolean> callback);
-    void acceptInvitationToRoom(final String token, int roomId, final String invitationToken,
+    void acceptInvitationToRoom(final String token, int roomId,
                                 final ServiceCallback<Boolean> callback);
-    void getRoomInformation(final String token, int roomId, final ServiceCallback<Room> callback);
 
     /**********************************************************************************************/
     /******************************************   GCM   *******************************************/

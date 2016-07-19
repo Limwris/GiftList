@@ -4,27 +4,26 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.nichesoftware.giftlist.BuildConfig;
-import com.nichesoftware.giftlist.contracts.StartContract;
+import com.nichesoftware.giftlist.contracts.LaunchScreenContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
-import com.nichesoftware.giftlist.utils.StringUtils;
 
 /**
  * Created by n_che on 08/06/2016.
  */
-public class StartPresenter extends AbstractPresenter implements StartContract.UserActionListener {
-    private static final String TAG = StartPresenter.class.getSimpleName();
+public class LaunchScreenPresenter extends AbstractPresenter implements LaunchScreenContract.UserActionListener {
+    private static final String TAG = LaunchScreenPresenter.class.getSimpleName();
 
     /**
      * View
      */
-    private StartContract.View view;
+    private LaunchScreenContract.View view;
 
     /**
      * Constructeur
      * @param view
      * @param dataProvider
      */
-    public StartPresenter(@NonNull StartContract.View view, @NonNull DataProvider dataProvider) {
+    public LaunchScreenPresenter(@NonNull LaunchScreenContract.View view, @NonNull DataProvider dataProvider) {
         this.dataProvider = dataProvider;
         this.view = view;
     }

@@ -3,4 +3,5 @@
     <integer name="num_persons_columns">1</integer>
     <integer name="num_gifts_columns">1</integer>
     <integer name="num_contacts_columns">1</integer>
+    <integer name="login_logo_translation">600</integer>
 </resources>

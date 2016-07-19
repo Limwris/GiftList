@@ -61,7 +61,17 @@ public class GiftListPresenter extends AbstractPresenter implements GiftListCont
 
     @Override
     public void leaveCurrentRoom(int roomId) {
+        dataProvider.leaveRoom(roomId, new DataProvider.Callback() {
+            @Override
+            public void onSuccess() {
+                giftListView.onLeaveRoomSuccess();
+            }
 
+            @Override
+            public void onError() {
+                giftListView.onLeaveRoomError();
+            }
+        });
     }
 
     @Override

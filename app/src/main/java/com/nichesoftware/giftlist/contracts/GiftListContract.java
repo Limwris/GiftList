@@ -23,6 +23,14 @@ public interface GiftListContract {
          * Force le rechargement des données
          */
         void forceReload();
+        /**
+         * La sortie de la salle a réussi
+         */
+        void onLeaveRoomSuccess();
+        /**
+         * La sortie de la salle a échoué
+         */
+        void onLeaveRoomError();
     }
     interface UserActionListener extends AbstractContract.UserActionListener {
         /**

@@ -8,6 +8,9 @@
     <!-- Navigation handler -->
     <string name="navigation_view_header_title">Liste de cadeaux</string>
 
+    <!-- Menu -->
+    <string name="disconnection_menu_item">Se déconnecter</string>
+
     <!-- StartActivity -->
     <string name="sign_up">Enregistrement</string>
     <string name="log_in">Authentification</string>

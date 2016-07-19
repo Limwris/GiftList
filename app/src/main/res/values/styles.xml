@@ -12,6 +12,10 @@
         <item name="android:actionBarStyle">@style/Toolbar</item>
     </style>
 
+    <style name="AppTheme.SplashTheme">
+        <item name="android:windowBackground">@drawable/background_splash</item>
+    </style>
+
     <style name="Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
         <!--<item name="colorControlNormal">@color/colorControlNormal</item>-->
         <!--<item name="homeAsUpIndicator">@drawable/ic_menu</item>-->

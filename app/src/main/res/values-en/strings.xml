@@ -9,6 +9,9 @@
     <!-- Navigation handler -->
     <string name="navigation_view_header_title">Gifts list</string>
 
+    <!-- Menu -->
+    <string name="disconnection_menu_item">Leave</string>
+
     <!-- StartActivity -->
     <string name="sign_up">Sign Up</string>
     <string name="log_in">Log In</string>

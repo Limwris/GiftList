@@ -2,6 +2,7 @@ package com.nichesoftware.giftlist.dataproviders;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
@@ -17,8 +18,10 @@ import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.start.LaunchScreenActivity;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -62,6 +65,13 @@ public class DataProvider {
     public interface CallbackValue<T> {
         void onSuccess(T value);
         void onError();
+    }
+
+    public String getCurrentUser() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "getCurrentUser");
+        }
+        return PersistenceBroker.getCurrentUser(context);
     }
 
     public void logIn(@NonNull final String username,
@@ -175,6 +185,8 @@ public class DataProvider {
 
     public void doDisconnect() {
         PersistenceBroker.setCurrentUser(context, User.DISCONNECTED_USER);
+        Intent intent = new Intent(context, LaunchScreenActivity.class);
+        context.startActivity(intent);
     }
 
     public void retreiveAvailableContacts(final int roomId,
@@ -318,16 +330,6 @@ public class DataProvider {
         }
     }
 
-    /**
-     * Méthode appelée pour forcer le rafraîchissement des données lors du prochain appel
-     */
-//    public void refreshData() {
-//        String username = PersistenceBroker.getCurrentUser(context);
-//        if (!username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur n'est pas local
-//            PersistenceBroker.clearRoomsData(context);
-//        }
-//    }
-
     public void createRoom(@NonNull final String roomName,
                            @NonNull final String occasion,
                            @NonNull final Callback callback) {
@@ -377,34 +379,48 @@ public class DataProvider {
 
     }
 
-    public void getRoomInformation(final int roomId,
-                                   @NonNull final CallbackValue<Room> callback) {
+    public void leaveRoom(final int roomId, @NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("getRoomInformation [roomId = %d]", roomId));
+            Log.d(TAG, String.format("leaveRoom [roomId = %d]", roomId));
         }
         final String username = PersistenceBroker.getCurrentUser(context);
 
-        if (!username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur est local
+        if (username.equals(User.DISCONNECTED_USER)) { // Si l'utilisateur est local
+            User user = PersistenceBroker.retreiveUser(context);
+            List<Room> rooms = user.getRooms();
+
+            for(Iterator<Room> iterator = rooms.iterator(); iterator.hasNext(); ) {
+                Room room = iterator.next();
+                if (room.getId() == roomId) {
+                    iterator.remove();
+                }
+            }
+
+            user.setRooms(rooms);
+            PersistenceBroker.saveUser(context, user);
+            callback.onSuccess();
+        } else {
             final String token = PersistenceBroker.retreiveUserToken(context);
 
-            serviceApi.getRoomInformation(token, roomId, new ServiceAPI.ServiceCallback<Room>() {
+            serviceApi.leaveRoom(token, roomId, new ServiceAPI.ServiceCallback<List<Room>>() {
                 @Override
-                public void onLoaded(Room value) {
+                public void onLoaded(List<Room> value) {
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "getRoomInformation - onSuccess");
+                        Log.d(TAG, "leaveRoom - onSuccess");
                     }
-                    callback.onSuccess(value);
+                    User user = PersistenceBroker.retreiveUser(context);
+                    user.setRooms(value);
+                    PersistenceBroker.saveUser(context, user);
+                    callback.onSuccess();
                 }
 
                 @Override
                 public void onError() {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "getRoomInformation - onError");
-                    }
                     callback.onError();
                 }
             });
         }
+
     }
 
     public void addGift(final int roomId, @NonNull final String name,
@@ -608,8 +624,7 @@ public class DataProvider {
         }
     }
 
-    public void acceptInvitationToRoom(final int roomId, @NonNull final String invitationToken,
-                                       @NonNull final Callback callback) {
+    public void acceptInvitationToRoom(final int roomId, @NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("acceptInvitationToRoom [roomId = %d]", roomId));
         }
@@ -620,7 +635,7 @@ public class DataProvider {
             callback.onError();
         } else {
             final String token = PersistenceBroker.retreiveUserToken(context);
-            serviceApi.acceptInvitationToRoom(token, roomId, invitationToken,
+            serviceApi.acceptInvitationToRoom(token, roomId,
                     new ServiceAPI.ServiceCallback<Boolean>() {
                         @Override
                         public void onLoaded(Boolean value) {

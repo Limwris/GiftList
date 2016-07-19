@@ -21,10 +21,6 @@ public interface RoomsContract {
          * @param roomId   Identifiant de la salle à afficher
          */
         void showRoomDetail(@NonNull int roomId);
-        /**
-         * Force le rechargement des données
-         */
-        void forceReload();
     }
     interface UserActionListener extends AbstractContract.UserActionListener {
         /**

@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -142,11 +143,11 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
         if (requestCode == ADD_ROOM_REQUEST) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                forceReload();
+                actionsListener.loadRooms(false);
             }
         } else if (requestCode == ROOM_DETAIL_REQUEST) {
             if (resultCode == GiftListActivity.RESULT_RELOAD) {
-                forceReload();
+                actionsListener.loadRooms(false);
             }
         }
     }
@@ -158,8 +159,12 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
                 // Open the navigation drawer when the home icon is selected from the toolbar.
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            case R.id.disconnection_menu_item:
+                actionsListener.doDisconnect();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -181,6 +186,19 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
                         return true;
                     }
                 });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.standard_menu, menu);
+        MenuItem item = menu.findItem(R.id.disconnection_menu_item);
+        if (actionsListener.isConnected()) {
+            item.setEnabled(true);
+        } else {
+            // disabled
+            item.setEnabled(false);
+        }
+        return true;
     }
 
     @Override
@@ -245,8 +263,8 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
     }
 
     @Override
-    public void forceReload() {
-        actionsListener.loadRooms(false);
+    public Context getContext() {
+        return this;
     }
 
 

@@ -11,6 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -108,6 +110,30 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.standard_menu, menu);
+        MenuItem item = menu.findItem(R.id.disconnection_menu_item);
+        if (actionsListener.isConnected()) {
+            item.setEnabled(true);
+        } else {
+            // disabled
+            item.setEnabled(false);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.disconnection_menu_item:
+                actionsListener.doDisconnect();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
@@ -169,6 +195,11 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
             }
             adapter.replaceData(vos);
         }
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 
     /**********************************************************************************************/

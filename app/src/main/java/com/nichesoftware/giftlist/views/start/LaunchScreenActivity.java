@@ -1,6 +1,6 @@
 package com.nichesoftware.giftlist.views.start;
 
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,8 +20,8 @@ import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AuthenticationContract;
-import com.nichesoftware.giftlist.contracts.StartContract;
-import com.nichesoftware.giftlist.presenters.StartPresenter;
+import com.nichesoftware.giftlist.contracts.LaunchScreenContract;
+import com.nichesoftware.giftlist.presenters.LaunchScreenPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
@@ -29,21 +29,20 @@ import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
 /**
  * Created by n_che on 08/06/2016.
  */
-public class StartActivity extends AppCompatActivity implements StartContract.View {
-    private static final String TAG = StartActivity.class.getSimpleName();
+public class LaunchScreenActivity extends AppCompatActivity implements LaunchScreenContract.View {
+    private static final String TAG = LaunchScreenActivity.class.getSimpleName();
 
     /**
      * Listener sur les actions de l'utilisateur
      */
-    private StartContract.UserActionListener actionsListener;
+    private LaunchScreenContract.UserActionListener actionsListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start_activity);
+        setContentView(R.layout.launch_activity);
 
-        actionsListener = new StartPresenter(this, Injection.getDataProvider(this));
-        actionsListener.doDisconnect();
+        actionsListener = new LaunchScreenPresenter(this, Injection.getDataProvider(this));
 
         // Todo: régler problème de la Toolbar n'affichant plus la vue standard de l'action bar
         // Set up the toolbar.
@@ -64,11 +63,11 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
             @Override
             public void onClick(View view) {
                 LayoutInflater inflater = getLayoutInflater();
-                View dialoglayout = inflater.inflate(R.layout.start_sign_up_dialog, null);
+                View dialoglayout = inflater.inflate(R.layout.sign_up_dialog, null);
                 final TextInputEditText usernameEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_sign_up_dialog_username_edit_text);
                 final TextInputEditText passwordEditText = (TextInputEditText) dialoglayout.findViewById(R.id.start_sign_up_dialog_password_edit_text);
 
-                new AlertDialog.Builder(StartActivity.this,
+                new AlertDialog.Builder(LaunchScreenActivity.this,
                         R.style.AppTheme_Dark_Dialog)
                         .setView(dialoglayout)
                         .setPositiveButton(R.string.start_dialog_sign_up_positive_button,
@@ -101,8 +100,8 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
         findViewById(R.id.didacticiel_log_in).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AuthenticationDialog authenticationDialog = new AuthenticationDialog(StartActivity.this,
-                        new AuthenticationContract.View.OnAuthenticationCallback() {
+                AuthenticationDialog authenticationDialog = new AuthenticationDialog(LaunchScreenActivity.this,
+                        new AuthenticationContract.OnAuthenticationCallback() {
                             @Override
                             public void onSuccess() {
                                 actionsListener.startApplication();
@@ -120,7 +119,7 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
         findViewById(R.id.didacticiel_not_authenticated_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AlertDialog.Builder(StartActivity.this,
+                new AlertDialog.Builder(LaunchScreenActivity.this,
                         R.style.AppTheme_Dark_Dialog)
                         .setMessage(R.string.not_authenticated_start_message)
                         .setPositiveButton(R.string.not_authenticated_start_positive_button,
@@ -148,7 +147,6 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
 
     @Override
     protected void onDestroy() {
-        actionsListener.doDisconnect();
         super.onDestroy();
     }
 
@@ -198,5 +196,10 @@ public class StartActivity extends AppCompatActivity implements StartContract.Vi
         }
 
         return valid;
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 }

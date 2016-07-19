@@ -1,10 +1,12 @@
 package com.nichesoftware.giftlist.views.giftlist;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -41,8 +43,8 @@ import java.util.List;
 public class GiftListActivity extends AppCompatActivity implements GiftListContract.View {
     private static final String TAG = GiftListActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
-    public static final int RESULT_RELOAD = 100;
-    public static final int ADD_GIFT_REQUEST = 10;  // The request code
+    public static final int RESULT_RELOAD = 100;    // The result codes
+    public static final int ADD_GIFT_REQUEST = 10;  // The request codes
     public static final int ADD_USER_REQUEST = 11;
     public static final int GIFT_DETAIL_REQUEST = 12;
 
@@ -50,6 +52,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
      * Adapter lié à la RecyclerView
      */
     private GiftListAdapter giftListAdapter;
+    private DialogInterface leaveDialog = null;
     /**
      * Listener sur les actions de l'utilisateur
      */
@@ -170,16 +173,24 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.giftlist_menu, menu);
-        MenuItem item = menu.findItem(R.id.gift_list_invite_user);
-//        if (actionsListener.isInvitationAvailable()) {
-//            item.setEnabled(true);
-//            item.getIcon().setAlpha(255);
-//        } else {
-//            // disabled
-//            item.setEnabled(false);
-//            item.getIcon().setAlpha(130);
-//        }
-        return true;
+        MenuItem invitationMenuItem = menu.findItem(R.id.gift_list_invite_user);
+        if (actionsListener.isInvitationAvailable()) {
+            invitationMenuItem.setEnabled(true);
+            invitationMenuItem.getIcon().setAlpha(255);
+        } else {
+            // disabled
+            invitationMenuItem.setEnabled(false);
+            invitationMenuItem.getIcon().setAlpha(130);
+        }
+
+        MenuItem disconnectionMenuItem = menu.findItem(R.id.disconnection_menu_item);
+        if (actionsListener.isConnected()) {
+            disconnectionMenuItem.setEnabled(true);
+        } else {
+            // disabled
+            disconnectionMenuItem.setEnabled(false);
+        }
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -194,6 +205,9 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                 Intent intent = new Intent(this, AddUserActivity.class);
                 intent.putExtra(AddUserActivity.EXTRA_ROOM_ID, roomId);
                 startActivityForResult(intent, ADD_USER_REQUEST);
+                return true;
+            case R.id.disconnection_menu_item:
+                actionsListener.doDisconnect();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -213,12 +227,8 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int  whichButton) {
+                                leaveDialog = dialogInterface;
                                 actionsListener.leaveCurrentRoom(roomId);
-                                if (dialogInterface != null) {
-                                    dialogInterface.dismiss();
-                                }
-                                setResult(RESULT_RELOAD);
-                                finish();
                             }
                         })
                 .setNegativeButton(R.string.cancel_button_text,
@@ -286,6 +296,31 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     @Override
     public void forceReload() {
         actionsListener.loadGifts(roomId, true);
+    }
+
+    @Override
+    public void onLeaveRoomSuccess() {
+        if (leaveDialog != null) {
+            leaveDialog.dismiss();
+        }
+        leaveDialog = null;
+        setResult(RESULT_RELOAD);
+        finish();
+    }
+
+    @Override
+    public void onLeaveRoomError() {
+        if (leaveDialog != null) {
+            leaveDialog.dismiss();
+        }
+        leaveDialog = null;
+        // Todo
+        Snackbar.make(findViewById(android.R.id.content), "Echec...", Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 
     /**********************************************************************************************/
