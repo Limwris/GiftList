@@ -310,6 +310,17 @@ public class DataProvider {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "getRooms - onLoaded");
                         }
+
+                        // Todo: Revoir peut-être la façon de gérer ce paramètre
+                        // Rg pour compléter le modèle
+                        for (Room room : rooms) {
+                            for (Gift gift : room.getGiftList()) {
+                                if (gift.getAmountByUser().containsKey(username)) {
+                                    gift.setAmount(gift.getAmountByUser().get(username));
+                                }
+                            }
+                        }
+
                         user.setRooms(rooms);
                         PersistenceBroker.saveUser(context, user);
                         callback.onRoomsLoaded(rooms);
@@ -440,6 +451,7 @@ public class DataProvider {
             if (room != null) {
                 Gift gift = new Gift();
                 gift.setName(name);
+                gift.setAmount(amount);
                 gift.setPrice(price);
                 gift.getAmountByUser().put(username, amount);
                 room.addGift(gift);
@@ -516,6 +528,14 @@ public class DataProvider {
                             if (BuildConfig.DEBUG) {
                                 Log.d(TAG, "getGifts - onLoaded");
                             }
+                            // Todo: Revoir peut-être la façon de gérer ce paramètre
+                            // Rg pour compléter le modèle
+                            for (Gift gift : gifts) {
+                                if (gift.getAmountByUser().containsKey(username)) {
+                                    gift.setAmount(gift.getAmountByUser().get(username));
+                                }
+                            }
+
                             List<Room> rooms = user.getRooms();
                             Room room = getRoomById(rooms, roomId);
 
@@ -562,6 +582,7 @@ public class DataProvider {
             if (room != null) {
                 Gift gift = room.getGiftById(giftId);
                 gift.getAmountByUser().put(username, amount);
+                gift.setAmount(amount);
                 room.addGift(gift);
             }
             user.setRooms(rooms);

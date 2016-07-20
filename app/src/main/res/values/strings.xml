@@ -47,7 +47,8 @@
     <string name="description_medaillon_list_person">Médaillon affichant une image représentant la personne.</string>
 
     <!-- GiftlisActivity -->
-    <string name="gift_description">Prix: %1$,.2f €</string>
+    <string name="gift_price_description">%1$,.2f €</string>
+    <string name="gift_amount_description">Participation: %1$,.2f €</string>
     <string name="gift_error_view_message">Aucun cadeau n\'a été proposé pour cette salle.</string>
     <string name="gift_list_leave_room_menu_item">Quitter la salle</string>
     <string name="gift_list_invite_user_menu_item">Inviter un utilisateur</string>

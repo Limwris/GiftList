@@ -328,7 +328,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
 
             viewHolder.name.setText(room.getRoomName());
             // The first parameter of getQuantityString is used to decide which format to use (single or plural)
-            viewHolder.giftDescription.setText(context.getResources().getQuantityString(R.plurals.gift_description, 0, 0, room.getGiftListSize()));
+            viewHolder.giftDescription.setText(context.getResources().getQuantityString(R.plurals.gift_description, room.getBoughtGiftListSize(), room.getBoughtGiftListSize(), room.getGiftListSize()));
         }
 
         public void replaceData(List<Room> rooms) {
@@ -374,8 +374,8 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
             public ViewHolder(View itemView, RoomItemListener listener) {
                 super(itemView);
                 roomItemListener = listener;
-                name = (TextView) itemView.findViewById(R.id.person_name);
-                giftDescription = (TextView) itemView.findViewById(R.id.person_gift_description);
+                name = (TextView) itemView.findViewById(R.id.room_name);
+                giftDescription = (TextView) itemView.findViewById(R.id.room_gift_description);
                 itemView.findViewById(R.id.mainHolder).setOnClickListener(this);
             }
 

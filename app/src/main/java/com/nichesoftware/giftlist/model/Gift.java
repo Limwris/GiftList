@@ -16,9 +16,13 @@ public class Gift implements Parcelable {
      */
     private int id;
     /**
-     * Montant du cadeau
+     * Prix du cadeau
      */
     private double price;
+    /**
+     * Montant du cadeau
+     */
+    private double amount;
     /**
      * Nom du cadeau
      */
@@ -57,7 +61,7 @@ public class Gift implements Parcelable {
     }
 
     /**
-     * Getter sur le montant du cadeau
+     * Getter sur le prix du cadeau
      * @return price
      */
     public double getPrice() {
@@ -65,11 +69,27 @@ public class Gift implements Parcelable {
     }
 
     /**
-     * Setter sur le montant du cadeau
+     * Setter sur le prix du cadeau
      * @param price
      */
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    /**
+     * Getter sur le montant du cadeau
+     * @return price
+     */
+    public double getAmount() {
+        return amount;
+    }
+
+    /**
+     * Setter sur le montant du cadeau
+     * @param amount
+     */
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
     /**

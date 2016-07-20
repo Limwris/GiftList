@@ -20,10 +20,6 @@ public interface GiftListContract {
          */
         void showGiftDetail(final Gift gift);
         /**
-         * Force le rechargement des données
-         */
-        void forceReload();
-        /**
          * La sortie de la salle a réussi
          */
         void onLeaveRoomSuccess();

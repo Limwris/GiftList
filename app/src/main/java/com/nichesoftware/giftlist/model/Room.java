@@ -156,6 +156,10 @@ public class Room implements Parcelable {
         return null;
     }
 
+    /**
+     * Méthode qui retourne le nombre de cadeaux
+     * @return
+     */
     public int getGiftListSize() {
         if (giftList == null) {
             return 0;
@@ -163,6 +167,25 @@ public class Room implements Parcelable {
             return giftList.size();
         }
     }
+
+    /**
+     * Méthode qui retourne le nombre de cadeaux déjà achetés
+     * @return
+     */
+    public int getBoughtGiftListSize() {
+        if (giftList == null) {
+            return 0;
+        } else {
+            int boughtCounter = 0;
+            for (Gift gift : giftList) {
+                if (gift.isBought()) {
+                    boughtCounter++;
+                }
+            }
+            return boughtCounter;
+        }
+    }
+
     /**********************************************************************************************/
     /********************************          PARCELABLE          ********************************/
     /**********************************************************************************************/

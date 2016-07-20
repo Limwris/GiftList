@@ -1,6 +1,5 @@
 package com.nichesoftware.giftlist.views.giftlist;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -242,6 +241,10 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                         }).show();
     }
 
+    private void forceReload() {
+        actionsListener.loadGifts(roomId, true);
+    }
+
     /**********************************************************************************************/
     /************************************     View contract     ***********************************/
     /**********************************************************************************************/
@@ -291,11 +294,6 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         intent.putExtra(GiftDetailActivity.PARCELABLE_GIFT_KEY, gift);
         intent.putExtra(GiftDetailActivity.EXTRA_ROOM_ID, roomId);
         startActivityForResult(intent, GIFT_DETAIL_REQUEST);
-    }
-
-    @Override
-    public void forceReload() {
-        actionsListener.loadGifts(roomId, true);
     }
 
     @Override
@@ -373,7 +371,8 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
             Gift gift = gifts.get(position);
 
             viewHolder.name.setText(gift.getName());
-            viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_description), gift.getPrice()));
+            viewHolder.price.setText(String.format(context.getResources().getString(R.string.gift_price_description), gift.getPrice()));
+            viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_amount_description), gift.getAmount()));
         }
 
         public void replaceData(List<Gift> gifts) {
@@ -402,9 +401,14 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
             public TextView name;
 
             /**
-             * Montant du cadeau
+             * Participation du cadeau
              */
             public TextView amount;
+
+            /**
+             * Prix du cadeau
+             */
+            public TextView price;
 
             /**
              * Listener sur le clic de la personne
@@ -421,6 +425,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                 giftItemListener = listener;
 
                 name = (TextView) itemView.findViewById(R.id.gift_name);
+                price = (TextView) itemView.findViewById(R.id.gift_price);
                 amount = (TextView) itemView.findViewById(R.id.gift_amount);
                 itemView.findViewById(R.id.mainHolder).setOnClickListener(this);
             }

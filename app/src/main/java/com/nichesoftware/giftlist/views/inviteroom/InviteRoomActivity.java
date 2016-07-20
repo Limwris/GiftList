@@ -57,11 +57,6 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
-            ActionBar ab = getSupportActionBar();
-            if (ab != null) {
-                ab.setDisplayHomeAsUpEnabled(true);
-                ab.setHomeAsUpIndicator(R.drawable.ic_back_up_navigation);
-            }
         }
 
         TextView message = (TextView) findViewById(R.id.invite_room_name_text_view);
@@ -75,36 +70,6 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
                 actionsListener.acceptInvitationToRoom(room.getId());
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.standard_menu, menu);
-        MenuItem item = menu.findItem(R.id.disconnection_menu_item);
-        if (actionsListener.isConnected()) {
-            item.setEnabled(true);
-        } else {
-            // disabled
-            item.setEnabled(false);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.disconnection_menu_item:
-                actionsListener.doDisconnect();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
     @Override
