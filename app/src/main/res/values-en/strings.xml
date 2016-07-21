@@ -76,7 +76,10 @@
     <string name="description_medaillon_list_contacts">Medaillon depicting the contact.</string>
 
     <!-- Gift Detail -->
-    <string name="gift_detail_name_hint_text">Gift\'s name</string>
+    <string name="gift_detail_amount_hint_text">Amount of your participation</string>
+    <string name="gift_detail_modify_button_text">Modify</string>
+    <string name="gift_detail_nan_error_text">This field should be a valid number</string>
+    <string name="gift_detail_too_high_error_text">Your participation can not exceed the price which is %1$,.2f €</string>
 
     <!-- Invite Room -->
     <string name="invite_room_loader_message">Enrolling to the room&#8230;</string>

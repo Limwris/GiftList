@@ -10,6 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
@@ -70,6 +74,30 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
                 ab.setHomeAsUpIndicator(R.drawable.ic_back_up_navigation);
             }
         }
+
+        TextView giftNameTextView = (TextView) findViewById(R.id.gift_detail_name);
+        giftNameTextView.setText(gift.getName());
+        final EditText giftAmountEditText = (EditText) findViewById(R.id.gift_detail_amount);
+
+        Button modifyButton = (Button) findViewById(R.id.gift_detail_modify_button);
+        modifyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+                    double amount = Double.valueOf(giftAmountEditText.getText().toString());
+                    if (amount > gift.getPrice()) {
+                        giftAmountEditText.setError(String.format(getString(R.string.gift_detail_too_high_error_text), gift.getPrice()));
+                    } else {
+                        actionsListener.updateGift(gift, roomId, amount);
+                    }
+                } catch (NumberFormatException e) {
+                    giftAmountEditText.setError(getString(R.string.gift_detail_nan_error_text));
+                }
+
+
+            }
+        });
     }
 
     @Override
