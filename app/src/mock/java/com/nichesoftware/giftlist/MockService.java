@@ -36,18 +36,19 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void authenticate(String username, String password, final String phoneNumber,
-                             ServiceCallback<String> callback) {
+    public void authenticate(final String username, final String password, final String phoneNumber,
+                             final ServiceCallback<String> callback) {
         callback.onLoaded("");
     }
 
     @Override
-    public void register(String username, String password, String phoneNumber, ServiceCallback<String> callback) {
+    public void register(final String username, final String password, final String phoneNumber,
+                         final ServiceCallback<String> callback) {
         callback.onLoaded("");
     }
 
     @Override
-    public void getAllRooms(final String token, ServiceCallback<List<Room>> callback) {
+    public void getAllRooms(final String token, final ServiceCallback<List<Room>> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("getAllRooms [token = %s]", token));
         }
@@ -55,7 +56,8 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void getGifts(String token, int roomId, ServiceCallback<List<Gift>> callback) {
+    public void getGifts(final String token, int roomId,
+                         final ServiceCallback<List<Gift>> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("getGifts [token = %s, roomId = %d]", token, roomId));
         }
@@ -63,26 +65,29 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void createRoom(String token, String roomName, String occasion, ServiceCallback<Room> callback) {
+    public void createRoom(final String token, final String roomName, final String occasion,
+                           final ServiceCallback<Room> callback) {
         callback.onLoaded(new Room(0, "Test", "Test"));
     }
 
     @Override
-    public void leaveRoom(String token, int roomId, ServiceCallback<List<Room>> callback) {
+    public void leaveRoom(final String token, int roomId,
+                          final ServiceCallback<List<Room>> callback) {
         callback.onError();
     }
 
     @Override
-    public void addGift(String token, int roomId, String name, double price, double amount, ServiceCallback<Gift> callback) {
+    public void addGift(final String token, int roomId, final String name, double price,
+                        double amount, final String filePath, ServiceCallback<Gift> callback) {
         Gift gift = new Gift();
         gift.setName("PS4");
         gift.setPrice(250);
         callback.onLoaded(gift);
-
     }
 
     @Override
-    public void updateGift(String token, int roomId, int giftId, double amount, ServiceCallback<Gift> callback) {
+    public void updateGift(final String token, int roomId, int giftId, double amount,
+                           final ServiceCallback<Gift> callback) {
         Gift gift = new Gift();
         gift.setName("PS4");
         gift.setPrice(250);
@@ -92,7 +97,7 @@ public class MockService implements ServiceAPI {
     @Override
     public void retreiveAvailableUsers(final String token, final int roomId,
                                        final List<String> phoneNumber,
-                                       ServiceCallback<List<User>> callback) {
+                                       final ServiceCallback<List<User>> callback) {
         List<User> users = new ArrayList<>();
         User user1 = new User();
         user1.setUsername("User1");
@@ -104,17 +109,26 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void inviteUserToRoom(String token, int roomId, String username, ServiceCallback<Boolean> callback) {
+    public void inviteUserToRoom(final String token, int roomId, final String username,
+                                 final ServiceCallback<Boolean> callback) {
         callback.onError();
     }
 
     @Override
-    public void acceptInvitationToRoom(String token, int roomId, ServiceCallback<Boolean> callback) {
+    public void acceptInvitationToRoom(final String token, int roomId,
+                                       final ServiceCallback<Boolean> callback) {
         callback.onError();
     }
 
     @Override
-    public void sendRegistrationToServer(String token, String gcmToken, OnRegistrationCompleted callback) {
+    public void getImageFile(final String token, int giftId,
+                             final ServiceCallback<String> callback) {
+        callback.onError();
+    }
+
+    @Override
+    public void sendRegistrationToServer(final String token, final String gcmToken,
+                                         final OnRegistrationCompleted callback) {
         callback.onError();
     }
 }
