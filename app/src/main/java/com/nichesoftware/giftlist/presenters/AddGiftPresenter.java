@@ -27,8 +27,9 @@ public class AddGiftPresenter extends AbstractPresenter implements AddGiftContra
     }
 
     @Override
-    public void addGift(int roomId, String name, double price, double amount) {
-        dataProvider.addGift(roomId, name, price, amount,
+    public void addGift(int roomId, String name, double price, double amount,
+                        final String filePath) {
+        dataProvider.addGift(roomId, name, price, amount, filePath,
                 new DataProvider.Callback() {
                     @Override
                     public void onSuccess() {

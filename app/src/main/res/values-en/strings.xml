@@ -63,12 +63,17 @@
     <string name="add_room_empty_field_error_text">This field should not be left empty</string>
 
     <!-- Add Gift -->
-    <string name="add_gift_create_button_text">Add the gift</string>
+    <string name="add_gift_add_image_button_text">Add an image</string>
     <string name="add_gift_name_hint_text">Name</string>
     <string name="add_gift_price_hint_text">Price</string>
     <string name="add_gift_amount_hint_text">Allocated amount</string>
+    <string name="add_gift_description_hint_text">Description</string>
+    <string name="add_gift_add_image_title_dialog">Add an image</string>
+    <string name="add_gift_add_image_select_gallery_text">Select a gallery picture</string>
+    <string name="add_gift_add_image_take_camera_picture_text">Take a camera picture</string>
     <string name="add_gift_empty_field_error_text">This field should not be left empty</string>
     <string name="add_gift_nan_error_text">This field should be a valid number</string>
+    <string name="add_gift_menu_item">Add the gift</string>
 
     <!-- Add User -->
     <string name="add_user_invite_button_text">Invite</string>

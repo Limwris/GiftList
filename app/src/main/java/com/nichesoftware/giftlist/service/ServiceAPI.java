@@ -25,7 +25,7 @@ public interface ServiceAPI {
                     final String occasion, final ServiceCallback<Room> callback);
     void leaveRoom(final String token, int roomId, final ServiceCallback<List<Room>> callback);
     void addGift(final String token, int roomId, final String name, double price,
-                 double amount, final ServiceCallback<Gift> callback);
+                 double amount, final String filePath, final ServiceCallback<Gift> callback);
     void updateGift(final String token, int roomId, int giftId,
                  double amount, final ServiceCallback<Gift> callback);
     void retreiveAvailableUsers(final String token, final int roomId,
@@ -35,6 +35,7 @@ public interface ServiceAPI {
                           final ServiceCallback<Boolean> callback);
     void acceptInvitationToRoom(final String token, int roomId,
                                 final ServiceCallback<Boolean> callback);
+    void getImageFile(final String token, int giftId, final ServiceCallback<String> callback);
 
     /**********************************************************************************************/
     /******************************************   GCM   *******************************************/

@@ -1,8 +1,9 @@
 package com.nichesoftware.giftlist;
 
+import android.os.Environment;
 import android.util.Log;
 
-import com.nichesoftware.giftlist.dto.AcceptInvitationDto;
+import com.google.gson.Gson;
 import com.nichesoftware.giftlist.dto.ContactDto;
 import com.nichesoftware.giftlist.dto.GiftDto;
 import com.nichesoftware.giftlist.dto.InvitationDto;
@@ -13,16 +14,20 @@ import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Created by n_che on 25/04/2016.
@@ -41,7 +46,7 @@ public class RestService implements ServiceAPI {
         userDto.setUsername(username);
         userDto.setPassword(password);
         userDto.setPhoneNumber(phoneNumber);
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<String> call = restServiceEndpoint.authenticate(userDto);
         call.enqueue(new Callback<String>() {
             @Override
@@ -71,7 +76,7 @@ public class RestService implements ServiceAPI {
         userDto.setPassword(password);
         userDto.setPhoneNumber(phoneNumber);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<String> call = restServiceEndpoint.register(userDto);
         call.enqueue(new Callback<String>() {
             @Override
@@ -95,7 +100,7 @@ public class RestService implements ServiceAPI {
             Log.d(TAG, String.format("getAllRooms [token = %s]", token));
         }
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<List<Room>> call = restServiceEndpoint.getAllRooms(token);
         call.enqueue(new Callback<List<Room>>() {
             @Override
@@ -122,7 +127,7 @@ public class RestService implements ServiceAPI {
         RoomDto roomDto = new RoomDto();
         roomDto.setRoomId(roomId);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<List<Gift>> call = restServiceEndpoint.getGifts(token, roomDto);
         call.enqueue(new Callback<List<Gift>>() {
             @Override
@@ -150,7 +155,7 @@ public class RestService implements ServiceAPI {
         roomDto.setRoomName(roomName);
         roomDto.setOccasion(occasion);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<Room> call = restServiceEndpoint.createRoom(token, roomDto);
         call.enqueue(new Callback<Room>() {
             @Override
@@ -177,7 +182,7 @@ public class RestService implements ServiceAPI {
         RoomDto roomDto = new RoomDto();
         roomDto.setRoomId(roomId);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<List<Room>> call = restServiceEndpoint.leaveRoom(token, roomDto);
         call.enqueue(new Callback<List<Room>>() {
             @Override
@@ -199,8 +204,8 @@ public class RestService implements ServiceAPI {
     }
 
     @Override
-    public void addGift(String token, int roomId, String name, double price, double amount,
-                        final ServiceCallback<Gift> callback) {
+    public void addGift(final String token, int roomId, String name, double price, double amount,
+                        final String filePath, final ServiceCallback<Gift> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("addGift [token = %s, name = %s, price = %s]", token, name, price));
         }
@@ -210,9 +215,23 @@ public class RestService implements ServiceAPI {
         giftDto.setName(name);
         giftDto.setPrice(price);
         giftDto.setAmount(amount);
+        Gson gson = new Gson();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), gson.toJson(giftDto));
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
-        Call<Gift> call = restServiceEndpoint.addGift(token, giftDto);
+        MultipartBody.Part fileBody = null;
+        if (filePath != null && !filePath.isEmpty()) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                // create RequestBody instance from file
+                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+                // MultipartBody.Part is used to send also the actual file name
+                fileBody = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+            }
+        }
+
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
+        Call<Gift> call = restServiceEndpoint.addGift(token, fileBody, requestBody);
         call.enqueue(new Callback<Gift>() {
             @Override
             public void onResponse(Call<Gift> call, Response<Gift> response) {
@@ -241,7 +260,7 @@ public class RestService implements ServiceAPI {
         giftDto.setRoomId(roomId);
         giftDto.setAmount(amount);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<Gift> call = restServiceEndpoint.updateGift(token, giftDto);
         call.enqueue(new Callback<Gift>() {
             @Override
@@ -271,7 +290,7 @@ public class RestService implements ServiceAPI {
         contactDto.setRoomId(roomId);
         contactDto.setPhoneNumbers(phoneNumbers);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<List<User>> call = restServiceEndpoint.retreiveAvailableContacts(token, contactDto);
         if (BuildConfig.DEBUG) {
             for (String phoneNumber : phoneNumbers) {
@@ -305,7 +324,7 @@ public class RestService implements ServiceAPI {
         invitationDto.setRoomId(roomId);
         invitationDto.setUsername(username);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<Boolean> call = restServiceEndpoint.inviteUserToRoom(token, invitationDto);
         call.enqueue(new Callback<Boolean>() {
             @Override
@@ -333,7 +352,7 @@ public class RestService implements ServiceAPI {
         RoomDto roomDto = new RoomDto();
         roomDto.setRoomId(roomId);
 
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<Boolean> call = restServiceEndpoint.acceptInvitationToRoom(token, roomDto);
         call.enqueue(new Callback<Boolean>() {
             @Override
@@ -352,8 +371,89 @@ public class RestService implements ServiceAPI {
     }
 
     @Override
+    public void getImageFile(final String token, final int giftId,
+                             final ServiceCallback<String> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("getImageFile [token = %s, giftId = %d]", token, giftId));
+        }
+
+        RestServiceEndpoint restServiceEndpoint =
+                ServiceGenerator.createService(RestServiceEndpoint.class);
+        Call<ResponseBody> call = restServiceEndpoint.getImageFile(token, giftId);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, String.format("getImageFile - response %s", response.raw()));
+                }
+                final String filename = Environment.getExternalStorageDirectory()
+                        + File.separator + giftId + ".jpg";
+                if (response.isSuccessful() && writeResponseBodyToDisk(response.body(), filename)) {
+                    callback.onLoaded(filename);
+                } else {
+                    callback.onError();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onError();
+            }
+        });
+    }
+
+    private boolean writeResponseBodyToDisk(ResponseBody body, final String filename) {
+        try {
+            File image = new File(filename);
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                byte[] fileReader = new byte[4096];
+
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+
+                inputStream = body.byteStream();
+                outputStream = new FileOutputStream(image);
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+
+                    outputStream.write(fileReader, 0, read);
+
+                    fileSizeDownloaded += read;
+
+                    Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
+                }
+
+                outputStream.flush();
+
+                return true;
+            } catch (IOException e) {
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    @Override
     public void sendRegistrationToServer(final String token, final String gcmToken, final OnRegistrationCompleted callback) {
-        RestServiceEndpoint restServiceEndpoint = getRetrofit().create(RestServiceEndpoint.class);
+        RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<Boolean> call = restServiceEndpoint.registerDevice(token, gcmToken);
         call.enqueue(new Callback<Boolean>() {
             @Override
@@ -371,25 +471,5 @@ public class RestService implements ServiceAPI {
                 callback.onError();
             }
         });
-    }
-
-    private Retrofit getRetrofit() {
-        Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
-                .baseUrl(ServiceConstant.BASE_URL)
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create());
-
-        if (BuildConfig.DEBUG) {
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            // set your desired log level
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-            OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-            // add your other interceptors …
-            // add logging as last interceptor
-            httpClient.addInterceptor(logging);  // <-- this is the important line!
-            retrofitBuilder.client(httpClient.build());
-        }
-
-        return retrofitBuilder.build();
     }
 }

@@ -311,19 +311,35 @@ public class DataProvider {
                             Log.d(TAG, "getRooms - onLoaded");
                         }
 
-                        // Todo: Revoir peut-être la façon de gérer ce paramètre
+                        // Todo: Revoir peut-être la façon de gérer ces paramètres
                         // Rg pour compléter le modèle
-                        for (Room room : rooms) {
-                            for (Gift gift : room.getGiftList()) {
-                                if (gift.getAmountByUser().containsKey(username)) {
-                                    gift.setAmount(gift.getAmountByUser().get(username));
+                        if (rooms != null) {
+                            for (Room room : rooms) {
+                                for (final Gift gift : room.getGiftList()) {
+                                    if (gift.getAmountByUser().containsKey(username)) {
+                                        gift.setAmount(gift.getAmountByUser().get(username));
+                                    }
+                                    getImageFile(gift.getId(), new DataProvider.CallbackValue<String>() {
+                                        @Override
+                                        public void onSuccess(String value) {
+                                            gift.setImagePath(value);
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            // Nothing
+                                        }
+                                    });
                                 }
                             }
-                        }
 
-                        user.setRooms(rooms);
-                        PersistenceBroker.saveUser(context, user);
-                        callback.onRoomsLoaded(rooms);
+                            user.setRooms(rooms);
+                            PersistenceBroker.saveUser(context, user);
+                            callback.onRoomsLoaded(rooms);
+                        } else {
+                            // Todo: Revoir la gestion des erreurs
+                            callback.onRoomsLoaded(null);
+                        }
                     }
 
                     @Override
@@ -435,7 +451,7 @@ public class DataProvider {
     }
 
     public void addGift(final int roomId, @NonNull final String name,
-                        double price, double amount,
+                        double price, double amount, final String filePath,
                         @NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("addGift [name = %s, price = %f]", name, price));
@@ -461,7 +477,7 @@ public class DataProvider {
             callback.onSuccess();
         } else {
             final String token = PersistenceBroker.retreiveUserToken(context);
-            serviceApi.addGift(token, roomId, name, price, amount,
+            serviceApi.addGift(token, roomId, name, price, amount, filePath,
                     new ServiceAPI.ServiceCallback<Gift>() {
                         @Override
                         public void onLoaded(Gift value) {
@@ -530,20 +546,36 @@ public class DataProvider {
                             }
                             // Todo: Revoir peut-être la façon de gérer ce paramètre
                             // Rg pour compléter le modèle
-                            for (Gift gift : gifts) {
-                                if (gift.getAmountByUser().containsKey(username)) {
-                                    gift.setAmount(gift.getAmountByUser().get(username));
+                            if (gifts != null) {
+                                for (final Gift gift : gifts) {
+                                    if (gift.getAmountByUser().containsKey(username)) {
+                                        gift.setAmount(gift.getAmountByUser().get(username));
+                                    }
+                                    getImageFile(gift.getId(), new DataProvider.CallbackValue<String>() {
+                                        @Override
+                                        public void onSuccess(String value) {
+                                            gift.setImagePath(value);
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            // Nothing
+                                        }
+                                    });
                                 }
-                            }
 
-                            List<Room> rooms = user.getRooms();
-                            Room room = getRoomById(rooms, roomId);
+                                List<Room> rooms = user.getRooms();
+                                Room room = getRoomById(rooms, roomId);
 
-                            if (room != null) {
-                                room.setGiftList(gifts);
-                                user.setRooms(rooms);
-                                PersistenceBroker.saveUser(context, user);
-                                callback.onGiftsLoaded(gifts);
+                                if (room != null) {
+                                    room.setGiftList(gifts);
+                                    user.setRooms(rooms);
+                                    PersistenceBroker.saveUser(context, user);
+                                    callback.onGiftsLoaded(gifts);
+                                } else {
+                                    // Todo: gestion d'erreur
+                                    callback.onGiftsLoaded(null);
+                                }
                             } else {
                                 // Todo: gestion d'erreur
                                 callback.onGiftsLoaded(null);
@@ -612,6 +644,36 @@ public class DataProvider {
                             if (BuildConfig.DEBUG) {
                                 Log.d(TAG, "updateGift - onError");
                             }
+                            callback.onError();
+                        }
+                    });
+        }
+    }
+
+    public void getImageFile(final int giftId, @NonNull final CallbackValue<String> callback) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("getImageFile [giftId = %d]", giftId));
+        }
+
+        final String user = PersistenceBroker.getCurrentUser(context);
+        // Cas déconnecté
+        if (user.equals(User.DISCONNECTED_USER)) {
+            callback.onError();
+        } else {
+            final String token = PersistenceBroker.retreiveUserToken(context);
+            serviceApi.getImageFile(token, giftId,
+                    new ServiceAPI.ServiceCallback<String>() {
+                        @Override
+                        public void onLoaded(String value) {
+                            if (StringUtils.isEmpty(value)) {
+                                callback.onError();
+                            } else {
+                                callback.onSuccess(value);
+                            }
+                        }
+
+                        @Override
+                        public void onError() {
                             callback.onError();
                         }
                     });

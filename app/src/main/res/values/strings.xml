@@ -63,12 +63,17 @@
     <string name="add_room_empty_field_error_text">Ce champ ne doit pas être vide</string>
 
     <!-- Add Gift -->
-    <string name="add_gift_create_button_text">Ajouter le cadeau</string>
+    <string name="add_gift_add_image_button_text">Ajouter une image</string>
     <string name="add_gift_name_hint_text">Nom du cadeau</string>
     <string name="add_gift_price_hint_text">Prix</string>
     <string name="add_gift_amount_hint_text">Montant affecté</string>
+    <string name="add_gift_description_hint_text">Description</string>
+    <string name="add_gift_add_image_title_dialog">Ajouter une image</string>
+    <string name="add_gift_add_image_select_gallery_text">Sélectionner une image dans la gallerie</string>
+    <string name="add_gift_add_image_take_camera_picture_text">Prendre une photographie</string>
     <string name="add_gift_empty_field_error_text">Ce champ ne doit pas être vide</string>
     <string name="add_gift_nan_error_text">Ce champ doit être un chiffre valide</string>
+    <string name="add_gift_menu_item">Ajouter le cadeau</string>
 
     <!-- Add User -->
     <string name="add_user_invite_button_text">Inviter</string>

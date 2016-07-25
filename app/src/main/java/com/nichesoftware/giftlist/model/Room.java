@@ -148,6 +148,9 @@ public class Room implements Parcelable {
      * @return room  - cadeau correspondant à l'identifiant passé en paramètre, nul sinon
      */
     public Gift getGiftById(final int giftId) {
+        if (giftList == null) {
+            giftList = new ArrayList<>();
+        }
         for (Gift gift : giftList) {
             if (gift.getId() == giftId) {
                 return gift;
@@ -174,11 +177,12 @@ public class Room implements Parcelable {
      */
     public int getBoughtGiftListSize() {
         if (giftList == null) {
+            giftList = new ArrayList<>();
             return 0;
         } else {
             int boughtCounter = 0;
             for (Gift gift : giftList) {
-                if (gift.isBought()) {
+                if (gift != null && gift.isBought()) {
                     boughtCounter++;
                 }
             }

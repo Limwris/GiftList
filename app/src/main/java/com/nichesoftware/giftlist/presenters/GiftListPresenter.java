@@ -54,7 +54,8 @@ public class GiftListPresenter extends AbstractPresenter implements GiftListCont
     @Override
     public void openGiftDetail(Gift gift) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("Le cadeau [id=%s, nom=%s, amount=%f] a été cliqué...", gift.getId(), gift.getName(), gift.getPrice()));
+            Log.d(TAG, String.format("Le cadeau [id=%s, nom=%s, amount=%f] a été cliqué...",
+                    gift.getId(), gift.getName(), gift.getPrice()));
         }
         giftListView.showGiftDetail(gift);
     }

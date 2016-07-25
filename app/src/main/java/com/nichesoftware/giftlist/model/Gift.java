@@ -11,6 +11,27 @@ import java.util.Map;
  * Created by n_che on 25/04/2016.
  */
 public class Gift implements Parcelable {
+
+    /**
+     * Constructeur
+     */
+    public Gift() {
+        // Nothing
+    }
+
+    /**
+     * Indique si la cadeau a été acheté
+     * @return isBought
+     */
+    public boolean isBought() {
+        double amount = 0;
+        for (Map.Entry<String, Double> entry : amountByUser.entrySet()) {
+            amount += entry.getValue();
+        }
+        return amount >= price;
+    }
+
+    // Fields ----------------------------------------------------------------------------------------------------------
     /**
      * Identifiant unique du cadeau
      */
@@ -35,22 +56,12 @@ public class Gift implements Parcelable {
      * Montants alloués par utilisateur au cadeau
      */
     private Map<String, Double> amountByUser = new HashMap<>();
-
     /**
-     * Constructeur
+     * URI de l'image associé au cadeau
      */
-    public Gift() {
-        // Nothing
-    }
+    private String imagePath;
 
-    /**
-     * Setter sur l'identifiant unique du cadeau
-     * @return id
-     */
-    public void setId(@NonNull final int id) {
-        this.id = id;
-    }
-
+    // Getter ----------------------------------------------------------------------------------------------------------
     /**
      * Getter sur l'identifiant unique du cadeau
      * @return id
@@ -69,27 +80,11 @@ public class Gift implements Parcelable {
     }
 
     /**
-     * Setter sur le prix du cadeau
-     * @param price
-     */
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    /**
      * Getter sur le montant du cadeau
      * @return price
      */
     public double getAmount() {
         return amount;
-    }
-
-    /**
-     * Setter sur le montant du cadeau
-     * @param amount
-     */
-    public void setAmount(double amount) {
-        this.amount = amount;
     }
 
     /**
@@ -101,39 +96,11 @@ public class Gift implements Parcelable {
     }
 
     /**
-     * Setter sur le nom du cadeau
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
      * Getter sur l'url pointant vers un site proposant le cadeau
      * @return url
      */
     public String getUrl() {
         return url;
-    }
-
-    /**
-     * Setter sur l'url pointant vers un site proposant le cadeau
-     * @param url
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    /**
-     * Indique si la cadeau a été acheté
-     * @return isBought
-     */
-    public boolean isBought() {
-        double amount = 0;
-        for (Map.Entry<String, Double> entry : amountByUser.entrySet()) {
-            amount += entry.getValue();
-        }
-        return amount >= price;
     }
 
     /**
@@ -145,11 +112,68 @@ public class Gift implements Parcelable {
     }
 
     /**
+     * Getter sur l'URI de l'image associé au cadeau
+     * @return imagePath
+     */
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    // Setter ----------------------------------------------------------------------------------------------------------
+    /**
+     * Setter sur l'identifiant unique du cadeau
+     * @return id
+     */
+    public void setId(@NonNull final int id) {
+        this.id = id;
+    }
+
+    /**
+     * Setter sur le prix du cadeau
+     * @param price
+     */
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    /**
+     * Setter sur le montant du cadeau
+     * @param amount
+     */
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    /**
+     * Setter sur le nom du cadeau
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Setter sur l'url pointant vers un site proposant le cadeau
+     * @param url
+     */
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    /**
      * Setter sur les montants alloués par utilisateur au cadeau
      * @param amountByUser
      */
     public void setAmountByUser(Map<String, Double> amountByUser) {
         this.amountByUser = amountByUser;
+    }
+
+    /**
+     * Setter sur l'URI de l'image associé au cadeau
+     * @param imagePath
+     */
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     /**********************************************************************************************/

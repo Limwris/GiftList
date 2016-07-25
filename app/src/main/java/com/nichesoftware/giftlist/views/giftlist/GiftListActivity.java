@@ -3,6 +3,8 @@ package com.nichesoftware.giftlist.views.giftlist;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -20,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.BuildConfig;
@@ -28,11 +31,13 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
+import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
 import com.nichesoftware.giftlist.views.adduser.AddUserActivity;
 import com.nichesoftware.giftlist.views.giftdetail.GiftDetailActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -361,9 +366,9 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             this.context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View noteView = inflater.inflate(R.layout.gift_list_item_view, parent, false);
+            View giftView = inflater.inflate(R.layout.gift_list_item_view, parent, false);
 
-            return new ViewHolder(noteView, giftItemListener);
+            return new ViewHolder(giftView, giftItemListener);
         }
 
         @Override
@@ -373,6 +378,17 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
             viewHolder.name.setText(gift.getName());
             viewHolder.price.setText(String.format(context.getResources().getString(R.string.gift_price_description), gift.getPrice()));
             viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_amount_description), gift.getAmount()));
+            if (!StringUtils.isEmpty(gift.getImagePath())) {
+                File imageFile = new File(gift.getImagePath());
+                if (imageFile.exists()) {
+                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+                    viewHolder.image.setImageBitmap(bitmap);
+                } else {
+                    viewHolder.image.setImageResource(R.drawable.placeholder);
+                }
+            } else {
+                viewHolder.image.setImageResource(R.drawable.placeholder);
+            }
         }
 
         public void replaceData(List<Gift> gifts) {
@@ -411,6 +427,11 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
             public TextView price;
 
             /**
+             * Image associée au cadeau
+             */
+            public ImageView image;
+
+            /**
              * Listener sur le clic de la personne
              */
             private GiftItemListener giftItemListener;
@@ -427,6 +448,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                 name = (TextView) itemView.findViewById(R.id.gift_name);
                 price = (TextView) itemView.findViewById(R.id.gift_price);
                 amount = (TextView) itemView.findViewById(R.id.gift_amount);
+                image = (ImageView) itemView.findViewById(R.id.gift_image);
                 itemView.findViewById(R.id.mainHolder).setOnClickListener(this);
             }
 
