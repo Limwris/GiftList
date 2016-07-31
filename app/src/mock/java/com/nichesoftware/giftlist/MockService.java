@@ -77,20 +77,20 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void addGift(final String token, int roomId, final String name, double price,
-                        double amount, final String filePath, ServiceCallback<Gift> callback) {
+    public void addGift(String token, int roomId, String name, double price, double amount, String description, String filePath, ServiceCallback<Gift> callback) {
         Gift gift = new Gift();
         gift.setName("PS4");
         gift.setPrice(250);
+        gift.setDescription("Une console de jeu");
         callback.onLoaded(gift);
     }
 
     @Override
-    public void updateGift(final String token, int roomId, int giftId, double amount,
-                           final ServiceCallback<Gift> callback) {
+    public void updateGift(String token, int roomId, int giftId, double amount, String description, String filePath, ServiceCallback<Gift> callback) {
         Gift gift = new Gift();
         gift.setName("PS4");
-        gift.setPrice(250);
+        gift.setPrice(229);
+        gift.setDescription("Une console de jeu (modifiée)");
         callback.onLoaded(gift);
     }
 
@@ -121,9 +121,8 @@ public class MockService implements ServiceAPI {
     }
 
     @Override
-    public void getImageFile(final String token, int giftId,
-                             final ServiceCallback<String> callback) {
-        callback.onError();
+    public String getGiftImageUrl(final int giftId) {
+        return null;
     }
 
     @Override
