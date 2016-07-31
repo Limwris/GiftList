@@ -153,8 +153,11 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
                 try {
                     double amount = Double.valueOf(giftAmountEditText.getText().toString());
                     final String description = descriptionEditText.getText().toString();
-                    if (amount > gift.getPrice()) {
-                        giftAmountEditText.setError(String.format(getString(R.string.gift_detail_too_high_error_text), gift.getPrice()));
+                    if (amount > gift.remainder(actionsListener.getCurrentUsername())) {
+                        giftAmountEditText.setError(
+                                String.format(getString(R.string.gift_detail_too_high_error_text),
+                                        gift.remainder(actionsListener.getCurrentUsername()))
+                        );
                     } else {
                         if (isImageChanged) {
                             if (BuildConfig.DEBUG) {
@@ -294,6 +297,10 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
 
     @Override
     public void onUpdateGiftSuccess() {
+        // Force Picasso to reload data for this file
+        final String filePath = Injection.getDataProvider(this).getGiftImageUrl(gift.getId());
+        Picasso.with(this).invalidate(filePath);
+        Picasso.with(this).load(filePath).fit().centerCrop().into(giftImageView);
         Intent intent = new Intent();
         intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
         setResult(RESULT_OK, intent);
@@ -303,7 +310,7 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     @Override
     public void onUpdateGiftFailed() {
         // Todo
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinatorLayout), "Failed", Snackbar.LENGTH_SHORT);
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed", Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 

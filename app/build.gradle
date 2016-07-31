@@ -116,7 +116,7 @@ dependencies {
     // MultiDex
     compile group: 'com.android.support', name: 'multidex', version: '1.0.1'
     // Picasso
-    compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.0'
+    compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.2'
 
     testCompile new StringBuffer('junit:junit:').append(rootProject.ext.junitVersion).toString()
     testCompile new StringBuffer('org.mockito:mockito-all:').append(rootProject.ext.mockitoVersion).toString()

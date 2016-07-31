@@ -60,12 +60,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
         <Button
             android:id="@+id/authentication_dialog_cancel_button"
             android:text="@string/cancel_button_text"
             android:layout_weight="1"
             android:layout_width="0dp"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_height="match_parent" />
 
         <Button
@@ -73,6 +75,7 @@
             android:text="@string/authentication_dialog_positive_button"
             android:layout_weight="1"
             android:layout_width="0dp"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_height="match_parent" />
     </LinearLayout>
 

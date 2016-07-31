@@ -31,6 +31,16 @@ public class Gift implements Parcelable {
         return amount >= price;
     }
 
+    public double remainder(final String username) {
+        double remainder = price;
+        for (Map.Entry<String, Double> entry : amountByUser.entrySet()) {
+            if (!entry.getKey().equals(username)) {
+                remainder -= entry.getValue();
+            }
+        }
+        return remainder;
+    }
+
     // Fields ----------------------------------------------------------------------------------------------------------
     /**
      * Identifiant unique du cadeau

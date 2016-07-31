@@ -24,5 +24,6 @@ public interface AbstractContract {
     interface UserActionListener {
         void doDisconnect();
         boolean isConnected();
+        String getCurrentUsername();
     }
 }

@@ -1,6 +1,7 @@
 package com.nichesoftware.giftlist;
 
 import com.nichesoftware.giftlist.dto.ContactDto;
+import com.nichesoftware.giftlist.dto.GCMRegistrationDto;
 import com.nichesoftware.giftlist.dto.GiftDto;
 import com.nichesoftware.giftlist.dto.InvitationDto;
 import com.nichesoftware.giftlist.dto.RoomDto;
@@ -23,7 +24,6 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -78,9 +78,9 @@ public interface RestServiceEndpoint {
     Call<Boolean> acceptInvitationToRoom(@Header("X-Auth-Token") String token,
                                          @Body final RoomDto roomDto);
 
-    @POST("gcm/{registerId}")
+    @POST("gcm")
     Call<Boolean> registerDevice(@Header("X-Auth-Token") String token,
-                                 @Path("registerId") final String registerId);
+                                 @Body final GCMRegistrationDto registrationDto);
 
     @Multipart
     @POST("upload")

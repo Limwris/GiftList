@@ -33,7 +33,7 @@ public final class PersistenceBroker {
     public static String getCurrentUser(final Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_GIFLIST_FILE,
                 Context.MODE_PRIVATE);
-        return sharedPref.getString(USER_KEY, null);
+        return sharedPref.getString(USER_KEY, User.DISCONNECTED_USER);
     }
 
     /**

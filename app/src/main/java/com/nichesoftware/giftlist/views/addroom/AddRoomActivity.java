@@ -142,7 +142,7 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
     @Override
     public void onCreateRoomFailed() {
         // Todo
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinatorLayout), "Failed", Snackbar.LENGTH_SHORT);
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed", Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 

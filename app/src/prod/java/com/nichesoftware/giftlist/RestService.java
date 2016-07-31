@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.nichesoftware.giftlist.dto.ContactDto;
+import com.nichesoftware.giftlist.dto.GCMRegistrationDto;
 import com.nichesoftware.giftlist.dto.GiftDto;
 import com.nichesoftware.giftlist.dto.InvitationDto;
 import com.nichesoftware.giftlist.dto.RoomDto;
@@ -286,7 +287,6 @@ public class RestService implements ServiceAPI {
         Gson gson = new Gson();
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), gson.toJson(giftDto));
 
-        MultipartBody.Part fileBody = null;
         if (!StringUtils.isEmpty(filePath)) {
             File file = new File(filePath);
             if (file.exists()) {
@@ -294,7 +294,7 @@ public class RestService implements ServiceAPI {
                 RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
                 // MultipartBody.Part is used to send also the actual file name
-                fileBody = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+                MultipartBody.Part fileBody = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
                 Call<Void> uploadFileCall = restServiceEndpoint.updateGifFile(token, fileBody, requestBody);
                 uploadFileCall.enqueue(new Callback<Void>() {
@@ -412,14 +412,21 @@ public class RestService implements ServiceAPI {
 
     @Override
     public void sendRegistrationToServer(final String token, final String gcmToken, final OnRegistrationCompleted callback) {
+        GCMRegistrationDto dto = new GCMRegistrationDto();
+        dto.setRegisterId(gcmToken);
+
         RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
-        Call<Boolean> call = restServiceEndpoint.registerDevice(token, gcmToken);
+        Call<Boolean> call = restServiceEndpoint.registerDevice(token, dto);
         call.enqueue(new Callback<Boolean>() {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                final Boolean result = response.body();
-                if (result) {
-                    callback.onSuccess();
+                if (response.isSuccessful()) {
+                    final Boolean result = response.body();
+                    if (result) {
+                        callback.onSuccess();
+                    } else {
+                        callback.onError();
+                    }
                 } else {
                     callback.onError();
                 }

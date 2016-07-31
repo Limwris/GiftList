@@ -296,7 +296,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
 
     @Override
     public void onCreateGiftFailed() {
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinatorLayout), "Failed", Snackbar.LENGTH_SHORT);
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed", Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 
