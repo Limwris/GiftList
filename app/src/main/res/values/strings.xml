@@ -47,6 +47,7 @@
     <string name="description_medaillon_list_person">Médaillon affichant une image représentant la personne.</string>
 
     <!-- GiftlisActivity -->
+    <string name="gift_list_title">Liste des cadeaux</string>
     <string name="gift_price_description">%1$,.2f €</string>
     <string name="gift_amount_description">Participation: %1$,.2f €</string>
     <string name="gift_error_view_message">Aucun cadeau n\'a été proposé pour cette salle.</string>
@@ -57,12 +58,14 @@
     <string name="leave_room_dialog_message">Voulez-vous quitter cette salle ? Vous ne serez plus en mesure d\'y participer de nouveau à moins d\'y être invité.</string>
 
     <!-- Add Room -->
+    <string name="add_room_title">Création d\'une nouvelle salle</string>
     <string name="add_room_create_button_text">Créer la salle</string>
     <string name="add_room_name_hint_text">Nom de la salle</string>
     <string name="add_room_occasion_hint_text">Occasion</string>
     <string name="add_room_empty_field_error_text">Ce champ ne doit pas être vide</string>
 
     <!-- Add Gift -->
+    <string name="add_gift_title">Ajout d\'un nouveau cadeau</string>
     <string name="add_gift_add_image_button_text">Ajouter une image</string>
     <string name="add_gift_name_hint_text">Nom du cadeau</string>
     <string name="add_gift_price_hint_text">Prix</string>
@@ -76,18 +79,20 @@
     <string name="add_gift_menu_item">Ajouter le cadeau</string>
 
     <!-- Add User -->
-    <string name="add_user_invite_button_text">Inviter</string>
+    <string name="add_user_title">Invitation dans la salle</string>
+    <string name="add_user_menu_item">Inviter les utilisateurs</string>
     <string name="add_user_error_view_message">Aucun contact n\'a installé l\'application de gestion de listes de cadeaux.</string>
     <string name="description_medaillon_list_contacts">Médaillon affichant une image représentant le contact.</string>
 
     <!-- Gift Detail -->
+    <string name="gift_detail_title">Détail du cadeau</string>
     <string name="gift_detail_amount_hint_text">Montant de la participation</string>
+    <string name="gift_detail_description_hint_text">Description</string>
     <string name="gift_detail_modify_button_text">Modifier</string>
     <string name="gift_detail_nan_error_text">Ce champ doit être un chiffre valide</string>
     <string name="gift_detail_too_high_error_text">Votre participation ne peut dépasser le prix du cadeau qui est de %1$,.2f €</string>
 
     <!-- Invite Room -->
-    <string name="invite_room_loader_message">Enrôllement à la salle en cours&#8230;</string>
-    <string name="invite_room_name_room_text">Bienvenu dans %1$s</string>
+    <string name="invite_room_name_room_text">Bienvenue dans %1$s</string>
     <string name="invite_room_accept_button">Accepter</string>
 </resources>

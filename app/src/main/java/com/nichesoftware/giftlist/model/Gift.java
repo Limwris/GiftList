@@ -49,6 +49,10 @@ public class Gift implements Parcelable {
      */
     private String name;
     /**
+     * Description du cadeau
+     */
+    private String description;
+    /**
      * Url pointant vers un site proposant le cadeau
      */
     private String url;
@@ -56,10 +60,6 @@ public class Gift implements Parcelable {
      * Montants alloués par utilisateur au cadeau
      */
     private Map<String, Double> amountByUser = new HashMap<>();
-    /**
-     * URI de l'image associé au cadeau
-     */
-    private String imagePath;
 
     // Getter ----------------------------------------------------------------------------------------------------------
     /**
@@ -96,6 +96,14 @@ public class Gift implements Parcelable {
     }
 
     /**
+     * Getter sur la description du cadeau
+     * @return description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
      * Getter sur l'url pointant vers un site proposant le cadeau
      * @return url
      */
@@ -109,14 +117,6 @@ public class Gift implements Parcelable {
      */
     public Map<String, Double> getAmountByUser() {
         return amountByUser;
-    }
-
-    /**
-     * Getter sur l'URI de l'image associé au cadeau
-     * @return imagePath
-     */
-    public String getImagePath() {
-        return imagePath;
     }
 
     // Setter ----------------------------------------------------------------------------------------------------------
@@ -153,6 +153,14 @@ public class Gift implements Parcelable {
     }
 
     /**
+     * Setter sur la description du cadeau
+     * @param description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
      * Setter sur l'url pointant vers un site proposant le cadeau
      * @param url
      */
@@ -168,14 +176,6 @@ public class Gift implements Parcelable {
         this.amountByUser = amountByUser;
     }
 
-    /**
-     * Setter sur l'URI de l'image associé au cadeau
-     * @param imagePath
-     */
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
     /**********************************************************************************************/
     /********************************          PARCELABLE          ********************************/
     /**********************************************************************************************/
@@ -189,7 +189,9 @@ public class Gift implements Parcelable {
     public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeInt(id);
         parcel.writeDouble(price);
+        parcel.writeDouble(amount);
         parcel.writeString(name);
+        parcel.writeString(description);
         parcel.writeString(url);
         parcel.writeInt(amountByUser.size());
         for (Map.Entry<String, Double> entry : amountByUser.entrySet()) {
@@ -201,7 +203,9 @@ public class Gift implements Parcelable {
     public Gift(Parcel in) {
         this.id = in.readInt();
         this.price = in.readDouble();
+        this.amount = in.readDouble();
         this.name = in.readString();
+        this.description = in.readString();
         this.url = in.readString();
         int count = in.readInt();
         for (int i = 0; i < count; i++) {

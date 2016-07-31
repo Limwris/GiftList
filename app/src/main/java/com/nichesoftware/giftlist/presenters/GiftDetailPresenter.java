@@ -30,14 +30,15 @@ public class GiftDetailPresenter extends AbstractPresenter implements GiftDetail
     }
 
     @Override
-    public void updateGift(Gift gift, int roomId, double allocatedAmount) {
+    public void updateGift(Gift gift, int roomId, double allocatedAmount,
+                           final String description, final String filePath) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "updateGift");
         }
         view.showLoader();
 
-        dataProvider.updateGift(roomId, gift.getId(),
-                allocatedAmount, new DataProvider.Callback() {
+        dataProvider.updateGift(roomId, gift.getId(), allocatedAmount, description, filePath,
+                new DataProvider.Callback() {
                     @Override
                     public void onSuccess() {
                         view.hideLoader();

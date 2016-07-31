@@ -96,16 +96,16 @@ tasks.matching {it instanceof Test}.all {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile group: 'com.android.support',  name: 'appcompat-v7', version: rootProject.ext.supportLibVersion
-    compile group: 'com.android.support',  name: 'recyclerview-v7', version: rootProject.ext.supportLibVersion
-    compile group: 'com.android.support',  name: 'cardview-v7', version: rootProject.ext.supportLibVersion
-    compile group: 'com.android.support',  name: 'design', version: rootProject.ext.supportLibVersion
-    compile group: 'com.android.support',  name: 'support-vector-drawable', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',     name: 'appcompat-v7',            version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',     name: 'recyclerview-v7',         version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',     name: 'cardview-v7',             version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',     name: 'design',                  version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support',     name: 'support-vector-drawable', version: rootProject.ext.supportLibVersion
     // Retrofit
-    compile group: 'com.squareup.retrofit2',  name: 'retrofit', version: rootProject.ext.retrofitVersion
-    compile group: 'com.squareup.retrofit2',  name: 'converter-gson', version: rootProject.ext.retrofitVersion
-    compile group: 'com.squareup.retrofit2', name: 'converter-scalars', version: rootProject.ext.retrofitVersion
-    compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
+    compile group: 'com.squareup.retrofit2',  name: 'retrofit',                version: rootProject.ext.retrofitVersion
+    compile group: 'com.squareup.retrofit2',  name: 'converter-gson',          version: rootProject.ext.retrofitVersion
+    compile group: 'com.squareup.retrofit2',  name: 'converter-scalars',       version: rootProject.ext.retrofitVersion
+    compile group: 'com.squareup.okhttp3',    name: 'logging-interceptor',     version: '3.2.0'
     // CircularImageView
     compile 'de.hdodenhof:circleimageview:2.0.0'
     // googlei18n / libphonenumber
@@ -115,6 +115,8 @@ dependencies {
     compile group: "com.google.android.gms", name: 'play-services', version: rootProject.ext.playServicesVersion
     // MultiDex
     compile group: 'com.android.support', name: 'multidex', version: '1.0.1'
+    // Picasso
+    compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.0'
 
     testCompile new StringBuffer('junit:junit:').append(rootProject.ext.junitVersion).toString()
     testCompile new StringBuffer('org.mockito:mockito-all:').append(rootProject.ext.mockitoVersion).toString()

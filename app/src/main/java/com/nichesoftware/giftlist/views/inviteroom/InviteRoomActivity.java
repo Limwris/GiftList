@@ -1,15 +1,12 @@
 package com.nichesoftware.giftlist.views.inviteroom;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.Injection;
@@ -29,11 +26,6 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
      * Model
      */
     private Room room;
-
-    /**
-     * Graphical components
-     */
-    private ProgressDialog progressDialog;
 
     /**
      * Listener sur les actions de l'utilisateur
@@ -74,9 +66,6 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
 
     @Override
     protected void onDestroy() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
         super.onDestroy();
     }
 
@@ -96,18 +85,14 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
 
     @Override
     public void showLoader() {
-        progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        // Todo
-        progressDialog.setMessage(getResources().getString(R.string.invite_room_loader_message));
-        progressDialog.show();
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
+        progressBar.animate();
+        findViewById(R.id.toolbar_progressBar_container).setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
+        findViewById(R.id.toolbar_progressBar_container).setVisibility(View.INVISIBLE);
     }
 
     @Override

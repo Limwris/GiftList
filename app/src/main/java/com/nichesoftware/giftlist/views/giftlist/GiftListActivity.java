@@ -3,8 +3,6 @@ package com.nichesoftware.giftlist.views.giftlist;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -31,13 +29,12 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
-import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
 import com.nichesoftware.giftlist.views.adduser.AddUserActivity;
 import com.nichesoftware.giftlist.views.giftdetail.GiftDetailActivity;
+import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +80,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle(getString(R.string.gift_list_title));
                 ab.setHomeAsUpIndicator(R.drawable.ic_back_up_navigation);
             }
         }
@@ -378,17 +376,11 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
             viewHolder.name.setText(gift.getName());
             viewHolder.price.setText(String.format(context.getResources().getString(R.string.gift_price_description), gift.getPrice()));
             viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_amount_description), gift.getAmount()));
-            if (!StringUtils.isEmpty(gift.getImagePath())) {
-                File imageFile = new File(gift.getImagePath());
-                if (imageFile.exists()) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-                    viewHolder.image.setImageBitmap(bitmap);
-                } else {
-                    viewHolder.image.setImageResource(R.drawable.placeholder);
-                }
-            } else {
-                viewHolder.image.setImageResource(R.drawable.placeholder);
-            }
+
+            Picasso.with(context)
+                    .load(Injection.getDataProvider(context).getGiftImageUrl(gift.getId()))
+                    .fit().centerCrop().placeholder(R.drawable.placeholder)
+                    .into(viewHolder.image);
         }
 
         public void replaceData(List<Gift> gifts) {

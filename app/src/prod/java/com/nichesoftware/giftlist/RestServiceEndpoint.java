@@ -57,6 +57,12 @@ public interface RestServiceEndpoint {
     @PUT("gift")
     Call<Gift> updateGift(@Header("X-Auth-Token") final String token, @Body final GiftDto giftDto);
 
+    @Multipart
+    @POST("giftfile")
+    Call<Void> updateGifFile(@Header("X-Auth-Token") final String token,
+                       @Part MultipartBody.Part file,
+                       @Part("body") final RequestBody giftDto);
+
     @POST("contacts")
     Call<List<User>> retreiveAvailableContacts(@Header("X-Auth-Token") final String token,
                                                @Body final ContactDto contactDto);

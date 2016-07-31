@@ -11,7 +11,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  */
 public class ServiceGenerator {
     public static final String API_BASE_URL = "http://192.168.1.65:8080/giftlist/";
-
+    public static final String GIFT_IMAGE_URL = "http://192.168.1.65:8090/uploads/%s.jpg";
 
     private static Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
             .baseUrl(API_BASE_URL)
@@ -32,6 +32,7 @@ public class ServiceGenerator {
 
         return httpClient;
     }
+
     public static <S> S createService(Class<S> serviceClass) {
         Retrofit retrofit = retrofitBuilder.client(getHttpClientBuilder().build()).build();
         return retrofit.create(serviceClass);

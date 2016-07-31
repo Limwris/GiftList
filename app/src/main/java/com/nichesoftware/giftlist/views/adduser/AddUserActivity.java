@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.RelativeLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.BuildConfig;
@@ -28,9 +28,12 @@ import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.AddUserPresenter;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by n_che on 22/06/2016.
@@ -74,22 +77,18 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle(getString(R.string.add_user_title));
                 ab.setHomeAsUpIndicator(R.drawable.ic_back_up_navigation);
             }
         }
 
-        findViewById(R.id.add_user_invite_button).setOnClickListener(new View.OnClickListener() {
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.add_user_recycler_view);
+        adapter = new ContactsAdapter(new ArrayList<AddUserVO>(0), new ContactsAdapter.ItemChangeListener() {
             @Override
-            public void onClick(View view) {
-                List<User> selectedUsers = getSelectedUsers();
-                for (User user : selectedUsers) {
-                    actionsListener.inviteUserToCurrentRoom(roomId, user.getUsername());
-                }
+            public void onItemChanged() {
+                invalidateOptionsMenu();
             }
         });
-
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adapter = new ContactsAdapter(new ArrayList<AddUserVO>(0));
         recyclerView.setAdapter(adapter);
         int numColumns = getResources().getInteger(R.integer.num_contacts_columns);
 
@@ -99,27 +98,49 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         actionsListener.loadContacts(roomId);
     }
 
-    private List<User> getSelectedUsers() {
-        List<User> users = new ArrayList<>();
+    private void doInviteUsers() {
         for (AddUserVO vo : adapter.getList()) {
             if (vo.isChecked()) {
-                users.add(vo.getUser());
+                actionsListener.inviteUserToCurrentRoom(roomId, vo.getUser().getUsername());
             }
         }
-        return users;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.standard_menu, menu);
-        MenuItem item = menu.findItem(R.id.disconnection_menu_item);
+        getMenuInflater().inflate(R.menu.add_user_menu, menu);
+        MenuItem disconnectionItem = menu.findItem(R.id.disconnection_menu_item);
+        MenuItem addItem = menu.findItem(R.id.add_user_menu_item);
         if (actionsListener.isConnected()) {
-            item.setEnabled(true);
+            disconnectionItem.setEnabled(true);
         } else {
             // disabled
-            item.setEnabled(false);
+            disconnectionItem.setEnabled(false);
         }
+        // Disable addItem by default (no item has been checked)
+        addItem.setEnabled(false);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem addItem = menu.findItem(R.id.add_user_menu_item);
+        if (isItemChecked()) {
+            addItem.setEnabled(true);
+        } else {
+            // disabled
+            addItem.setEnabled(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean isItemChecked() {
+        for (AddUserVO vo : adapter.getList()) {
+            if (vo.isChecked()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -127,6 +148,9 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         switch (item.getItemId()) {
             case R.id.disconnection_menu_item:
                 actionsListener.doDisconnect();
+                return true;
+            case R.id.add_user_menu_item:
+                doInviteUsers();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -158,18 +182,21 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
 
     @Override
     public void onUserAddedFailed() {
+        // Todo
         Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinatorLayout), "Failed", Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 
     @Override
     public void showLoader() {
-        // Todo
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
+        progressBar.animate();
+        findViewById(R.id.toolbar_progressBar).setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
-        // Todo
+        findViewById(R.id.toolbar_progressBar).setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -179,14 +206,14 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         }
 
         ErrorView errorView = (ErrorView) findViewById(R.id.error_view);
-        RelativeLayout container = (RelativeLayout) findViewById(R.id.main_view);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.add_user_recycler_view);
         if (users == null || users.isEmpty()) {
             errorView.setMessage(getResources().getString(R.string.add_user_error_view_message));
             errorView.setVisibility(View.VISIBLE);
-            container.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.GONE);
         } else {
             errorView.setVisibility(View.GONE);
-            container.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.VISIBLE);
             List<AddUserVO> vos = new ArrayList<>();
             for (User user : users) {
                 AddUserVO vo = new AddUserVO();
@@ -219,28 +246,41 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         private Context context;
 
         /**
+         * If an item state has been changed (checked, or not checked)
+         */
+        interface ItemChangeListener {
+            void onItemChanged();
+        }
+        private ItemChangeListener itemChangeListener;
+
+        /**
          * Constructeur
          * @param users
          */
-        public ContactsAdapter(List<AddUserVO> users) {
+        public ContactsAdapter(List<AddUserVO> users, ItemChangeListener itemChangeListener) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "ContactsAdapter");
             }
             setList(users);
+            this.itemChangeListener = itemChangeListener;
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             this.context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View noteView = inflater.inflate(R.layout.contacts_item_view, parent, false);
+            View itemView = inflater.inflate(R.layout.contacts_item_view, parent, false);
 
-            return new ViewHolder(noteView);
+            return new ViewHolder(itemView);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
             final AddUserVO vo = users.get(position);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, String.format("onBindViewHolder - User [username: %s, phone: %s]",
+                        vo.getUser().getUsername(), vo.getUser().getPhoneNumber()));
+            }
 
             viewHolder.name.setText(vo.getUser().getUsername());
 
@@ -252,8 +292,15 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     vo.setIsChecked(isChecked);
+                    if (itemChangeListener != null) {
+                        itemChangeListener.onItemChanged();
+                    }
                 }
             });
+
+            Picasso.with(context)
+                    .load(Injection.getDataProvider(context).getContactImageUrl(vo.getUser().getPhoneNumber()))
+                    .placeholder(R.drawable.person_placeholder).into(viewHolder.contactBadge);
         }
 
         public void replaceData(List<AddUserVO> users) {
@@ -279,7 +326,6 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-//        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
             /**
              * Nom de l'utilisateur
@@ -289,6 +335,10 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
              * Checkbox de sélection de l'utilisateur
              */
             public CheckBox checkBox;
+            /**
+             * Badge
+             */
+            CircleImageView contactBadge;
 
 
             /**
@@ -300,20 +350,8 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
 
                 name = (TextView) itemView.findViewById(R.id.add_user_contact_name);
                 checkBox = (CheckBox) itemView.findViewById(R.id.add_user_checkbox);
-//                itemView.findViewById(R.id.mainHolder).setOnClickListener(this);
+                contactBadge = (CircleImageView) itemView.findViewById(R.id.add_user_badge);
             }
-
-//            @Override
-//            public void onClick(View view) {
-//                int position = getAdapterPosition();
-//                if (BuildConfig.DEBUG) {
-//                    Log.d(TAG, "Clic détecté dans la liste à la position: " + position);
-//                }
-//
-//                AddUserVO vo = getItem(position);
-//                vo.setIsChecked(!vo.isChecked());
-//                notifyItemChanged(position);
-//            }
         }
     }
 }

@@ -15,3 +15,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# Problem whn assembling...
+-dontwarn com.squareup.picasso.*
+-dontwarn okio.Okio
+-dontwarn retrofit2.*
+-dontwarn okio.DeflaterSink

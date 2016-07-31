@@ -1,9 +1,11 @@
 package com.nichesoftware.giftlist.dataproviders;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
@@ -17,10 +19,13 @@ import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
+import com.nichesoftware.giftlist.utils.FileUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.start.LaunchScreenActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -80,8 +85,6 @@ public class DataProvider {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("logIn [username = %s, password = %s]", username, password));
         }
-        // A l'authent, on clean les données sur les salles
-        PersistenceBroker.clearRoomsData(context);
 
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         final String phoneNumber = telephonyManager.getLine1Number();
@@ -114,7 +117,7 @@ public class DataProvider {
                         if (!StringUtils.isEmpty(gcmToken)
                                 && !PersistenceBroker.isTokenSent(context)) {
                             if (BuildConfig.DEBUG) {
-                                Log.d(TAG, String.format("logIn - onSuccess | GCM token not sent"));
+                                Log.d(TAG, "logIn - onSuccess | GCM token not sent");
                             }
                             sendGcmTokenToServer(gcmToken);
                         }
@@ -135,8 +138,6 @@ public class DataProvider {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("register [username = %s, password = %s]", username, password));
         }
-        // A l'enregistrement, on nettoie les données sur les salles
-        PersistenceBroker.clearRoomsData(context);
 
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         final String phoneNumber = telephonyManager.getLine1Number();
@@ -168,7 +169,7 @@ public class DataProvider {
                 // Si le token n'a pas été envoyé, alors le renvoyer au serveur
                 if (!StringUtils.isEmpty(gcmToken) && !PersistenceBroker.isTokenSent(context)) {
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, String.format("register - onSuccess | GCM token not sent"));
+                        Log.d(TAG, "register - onSuccess | GCM token not sent");
                     }
                     sendGcmTokenToServer(gcmToken);
                 }
@@ -184,15 +185,17 @@ public class DataProvider {
     }
 
     public void doDisconnect() {
+        PersistenceBroker.clearRoomsData(context);
         PersistenceBroker.setCurrentUser(context, User.DISCONNECTED_USER);
         Intent intent = new Intent(context, LaunchScreenActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
 
     public void retreiveAvailableContacts(final int roomId,
                                           @NonNull final CallbackValue<List<User>> callback) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("retreiveAvailableContacts"));
+            Log.d(TAG, "retreiveAvailableContacts");
         }
 
         final String username = PersistenceBroker.getCurrentUser(context);
@@ -224,7 +227,7 @@ public class DataProvider {
 
     private List<String> fetchContacts() {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("fetchContacts"));
+            Log.d(TAG, "fetchContacts");
         }
 
         List<String> phoneNumbers = new ArrayList<>();
@@ -288,7 +291,7 @@ public class DataProvider {
      * @param callback   - Callback
      */
     public void getRooms(final boolean forceUpdate,
-            @NonNull final LoadRoomsCallback callback) {
+                         @NonNull final LoadRoomsCallback callback) {
         final String username = PersistenceBroker.getCurrentUser(context);
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("getRooms [username = %s]", username));
@@ -315,21 +318,10 @@ public class DataProvider {
                         // Rg pour compléter le modèle
                         if (rooms != null) {
                             for (Room room : rooms) {
-                                for (final Gift gift : room.getGiftList()) {
+                                for (Gift gift : room.getGiftList()) {
                                     if (gift.getAmountByUser().containsKey(username)) {
                                         gift.setAmount(gift.getAmountByUser().get(username));
                                     }
-                                    getImageFile(gift.getId(), new DataProvider.CallbackValue<String>() {
-                                        @Override
-                                        public void onSuccess(String value) {
-                                            gift.setImagePath(value);
-                                        }
-
-                                        @Override
-                                        public void onError() {
-                                            // Nothing
-                                        }
-                                    });
                                 }
                             }
 
@@ -370,10 +362,10 @@ public class DataProvider {
             int idRoom = 0;
             User user = PersistenceBroker.retreiveUser(context);
             List<Room> rooms = user.getRooms();
-            if (rooms != null) {
-                idRoom = rooms.get(rooms.size() - 1).getId() + 1;
-            } else {
+            if (rooms == null || rooms.isEmpty()) {
                 rooms = new ArrayList<>();
+            } else {
+                idRoom = rooms.get(rooms.size() - 1).getId() + 1;
             }
             Room room = new Room(idRoom, roomName, occasion);
             rooms.add(room);
@@ -419,6 +411,23 @@ public class DataProvider {
             for(Iterator<Room> iterator = rooms.iterator(); iterator.hasNext(); ) {
                 Room room = iterator.next();
                 if (room.getId() == roomId) {
+                    // Suppression des images associées aux cadeaux de cette salle
+                    for (Gift gift : room.getGiftList()) {
+                        final String filePath = FileUtils.getPathOfFileName(context,
+                                String.format(Locale.getDefault(), "%d%s", gift.getId(),
+                                        FileUtils.JPEG_EXTENSION));
+                        try {
+                            if (BuildConfig.DEBUG) {
+                                Log.e(TAG, String.format(Locale.getDefault(),
+                                        "leaveRoom - delete gift pic [file: %s]", filePath));
+                            }
+                            FileUtils.remove(filePath);
+                        } catch (IOException ignored) {
+                            if (BuildConfig.DEBUG) {
+                                Log.e(TAG, "leaveRoom - delete failed...");
+                            }
+                        }
+                    }
                     iterator.remove();
                 }
             }
@@ -451,8 +460,8 @@ public class DataProvider {
     }
 
     public void addGift(final int roomId, @NonNull final String name,
-                        double price, double amount, final String filePath,
-                        @NonNull final Callback callback) {
+                        double price, double amount, final String description,
+                        final String filePath, @NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("addGift [name = %s, price = %f]", name, price));
         }
@@ -466,18 +475,31 @@ public class DataProvider {
             Room room = getRoomById(rooms, roomId);
             if (room != null) {
                 Gift gift = new Gift();
+                // Utilisation du timestamp pour créer un ID unique
+                gift.setId((int) (new Date().getTime()/1000));
                 gift.setName(name);
                 gift.setAmount(amount);
                 gift.setPrice(price);
                 gift.getAmountByUser().put(username, amount);
                 room.addGift(gift);
+
+                if (!StringUtils.isEmpty(filePath)) {
+                    final String imagePath = FileUtils.getPathOfFileName(context,
+                            String.format(Locale.getDefault(),
+                            "%d%s", gift.getId(), FileUtils.JPEG_EXTENSION));
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, String.format("addGift - disconnected [imagePath = %s]",
+                                imagePath));
+                    }
+                    FileUtils.savePicToLocalFolder(filePath, imagePath);
+                }
             }
             user.setRooms(rooms);
             PersistenceBroker.saveUser(context, user);
             callback.onSuccess();
         } else {
             final String token = PersistenceBroker.retreiveUserToken(context);
-            serviceApi.addGift(token, roomId, name, price, amount, filePath,
+            serviceApi.addGift(token, roomId, name, price, amount, description, filePath,
                     new ServiceAPI.ServiceCallback<Gift>() {
                         @Override
                         public void onLoaded(Gift value) {
@@ -547,21 +569,10 @@ public class DataProvider {
                             // Todo: Revoir peut-être la façon de gérer ce paramètre
                             // Rg pour compléter le modèle
                             if (gifts != null) {
-                                for (final Gift gift : gifts) {
+                                for (Gift gift : gifts) {
                                     if (gift.getAmountByUser().containsKey(username)) {
                                         gift.setAmount(gift.getAmountByUser().get(username));
                                     }
-                                    getImageFile(gift.getId(), new DataProvider.CallbackValue<String>() {
-                                        @Override
-                                        public void onSuccess(String value) {
-                                            gift.setImagePath(value);
-                                        }
-
-                                        @Override
-                                        public void onError() {
-                                            // Nothing
-                                        }
-                                    });
                                 }
 
                                 List<Room> rooms = user.getRooms();
@@ -598,8 +609,9 @@ public class DataProvider {
         }
     }
 
-    public void updateGift(final int roomId, int giftId,
-                        double amount, @NonNull final Callback callback) {
+    public void updateGift(final int roomId, int giftId, double amount,
+                           final String description, final String filePath,
+                           @NonNull final Callback callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("updateGift [giftId = %s, amount = %f]", giftId, amount));
         }
@@ -615,14 +627,25 @@ public class DataProvider {
                 Gift gift = room.getGiftById(giftId);
                 gift.getAmountByUser().put(username, amount);
                 gift.setAmount(amount);
-                room.addGift(gift);
+                room.updateGift(gift);
+
+                if (!StringUtils.isEmpty(filePath)) {
+                    final String imagePath = FileUtils.getPathOfFileName(context,
+                            String.format(Locale.getDefault(),
+                                    "%d%s", gift.getId(), FileUtils.JPEG_EXTENSION));
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, String.format("updateGift - disconnected [imagePath = %s]",
+                                imagePath));
+                    }
+                    FileUtils.savePicToLocalFolder(filePath, imagePath);
+                }
             }
             user.setRooms(rooms);
             PersistenceBroker.saveUser(context, user);
             callback.onSuccess();
         } else {
             final String token = PersistenceBroker.retreiveUserToken(context);
-            serviceApi.updateGift(token, roomId, giftId, amount,
+            serviceApi.updateGift(token, roomId, giftId, amount, description, filePath,
                     new ServiceAPI.ServiceCallback<Gift>() {
                         @Override
                         public void onLoaded(Gift value) {
@@ -644,36 +667,6 @@ public class DataProvider {
                             if (BuildConfig.DEBUG) {
                                 Log.d(TAG, "updateGift - onError");
                             }
-                            callback.onError();
-                        }
-                    });
-        }
-    }
-
-    public void getImageFile(final int giftId, @NonNull final CallbackValue<String> callback) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("getImageFile [giftId = %d]", giftId));
-        }
-
-        final String user = PersistenceBroker.getCurrentUser(context);
-        // Cas déconnecté
-        if (user.equals(User.DISCONNECTED_USER)) {
-            callback.onError();
-        } else {
-            final String token = PersistenceBroker.retreiveUserToken(context);
-            serviceApi.getImageFile(token, giftId,
-                    new ServiceAPI.ServiceCallback<String>() {
-                        @Override
-                        public void onLoaded(String value) {
-                            if (StringUtils.isEmpty(value)) {
-                                callback.onError();
-                            } else {
-                                callback.onSuccess(value);
-                            }
-                        }
-
-                        @Override
-                        public void onError() {
                             callback.onError();
                         }
                     });
@@ -765,7 +758,7 @@ public class DataProvider {
 
     public void registerGcm(final String gcmToken) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "GCM Registration Token: " + gcmToken);
+            Log.d(TAG, String.format(Locale.getDefault(), "GCM Registration Token: %s", gcmToken));
         }
 
         new Thread(new Runnable() {
@@ -790,7 +783,75 @@ public class DataProvider {
         }).start();
     }
 
-    /**
+    public String getGiftImageUrl(int giftId) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format(Locale.getDefault(), "getGiftImageUrl [giftId: %d]", giftId));
+        }
+
+        final String user = PersistenceBroker.getCurrentUser(context);
+        // Cas déconnecté
+        if (user.equals(User.DISCONNECTED_USER)) {
+            final String filePath = FileUtils.getPathOfFileName(context,
+                    String.format(Locale.getDefault(), "%d%s", giftId, FileUtils.JPEG_EXTENSION));
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, String.format(Locale.getDefault(),
+                        "getGiftImageUrl - disconnected [path: %s]", filePath));
+            }
+            return FileUtils.getContentUriFileName(context,
+                    String.format(Locale.getDefault(), "%d%s", giftId, FileUtils.JPEG_EXTENSION));
+        } else {
+            return serviceApi.getGiftImageUrl(giftId);
+        }
+    }
+
+    public Uri getContactImageUrl(final String phoneNumber) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format(Locale.getDefault(),
+                    "getContactImageUrl [phone number: %s]", phoneNumber));
+        }
+        long contactId = getContactIdFromPhoneNumber(phoneNumber);
+        if (contactId > 0) {
+            Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, String.format(Locale.getDefault(),
+                        "getContactImageUrl [uri: %s]", contactUri.toString()));
+            }
+            return Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
+        }
+
+        return null;
+    }
+
+    private long getContactIdFromPhoneNumber(final String phoneNumber) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "getContactIdFromPhoneNumber");
+        }
+
+        ContentResolver contentResolver = context.getContentResolver();
+
+        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                Uri.encode(phoneNumber));
+        Cursor cursor = contentResolver.query(uri,
+                new String[] { ContactsContract.PhoneLookup._ID },
+                null, null, null);
+
+        if (cursor != null && cursor.moveToNext()) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "getContactIdFromPhoneNumber - contact found");
+            }
+            long contactId = cursor.getLong(cursor.getColumnIndex(ContactsContract.PhoneLookup._ID));
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, String.format(Locale.getDefault(),
+                        "getContactIdFromPhoneNumber - contact found with id %d", contactId));
+            }
+            return contactId;
+        }
+
+        return -1;
+    }
+
+
+            /**
      * Indique si c'est l'utilisateur hors connexion
      * @return
      */

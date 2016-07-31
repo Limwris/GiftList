@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/toolbar_progressBar_container"
+        android:background="?attr/colorPrimary">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:layout_marginBottom="-6dp"
+            app:theme="@style/Toolbar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        <ProgressBar
+            android:id="@+id/toolbar_progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:indeterminateOnly="true"
+            android:visibility="invisible"
+            tools:visibility="visible"
+            android:layout_marginBottom="-1dp"
+            android:layout_marginTop="-2dp"
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+    </LinearLayout>
+</merge>

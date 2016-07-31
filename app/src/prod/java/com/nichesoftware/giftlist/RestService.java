@@ -1,6 +1,6 @@
 package com.nichesoftware.giftlist;
 
-import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -13,18 +13,15 @@ import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
+import com.nichesoftware.giftlist.utils.StringUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -205,7 +202,8 @@ public class RestService implements ServiceAPI {
 
     @Override
     public void addGift(final String token, int roomId, String name, double price, double amount,
-                        final String filePath, final ServiceCallback<Gift> callback) {
+                        final String description, final String filePath,
+                        final ServiceCallback<Gift> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("addGift [token = %s, name = %s, price = %s]", token, name, price));
         }
@@ -213,13 +211,14 @@ public class RestService implements ServiceAPI {
         GiftDto giftDto = new GiftDto();
         giftDto.setRoomId(roomId);
         giftDto.setName(name);
+        giftDto.setDescription(description);
         giftDto.setPrice(price);
         giftDto.setAmount(amount);
         Gson gson = new Gson();
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), gson.toJson(giftDto));
 
         MultipartBody.Part fileBody = null;
-        if (filePath != null && !filePath.isEmpty()) {
+        if (!StringUtils.isEmpty(filePath)) {
             File file = new File(filePath);
             if (file.exists()) {
                 // create RequestBody instance from file
@@ -250,7 +249,8 @@ public class RestService implements ServiceAPI {
 
     @Override
     public void updateGift(String token, int roomId, int giftId, double amount,
-                           final ServiceCallback<Gift> callback) {
+                           final String description, final String filePath,
+                           @NonNull final ServiceCallback<Gift> callback) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("updateGift [token = %s, giftId = %s, amount = %s]", token, giftId, amount));
         }
@@ -258,6 +258,7 @@ public class RestService implements ServiceAPI {
         GiftDto giftDto = new GiftDto();
         giftDto.setId(giftId);
         giftDto.setRoomId(roomId);
+        giftDto.setDescription(description);
         giftDto.setAmount(amount);
 
         RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
@@ -268,7 +269,11 @@ public class RestService implements ServiceAPI {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, String.format("updateGift - response %s", response.raw()));
                 }
-                callback.onLoaded(response.body());
+                if (response.isSuccessful()) {
+                    callback.onLoaded(response.body());
+                } else {
+                    callback.onError();
+                }
             }
 
             @Override
@@ -276,6 +281,41 @@ public class RestService implements ServiceAPI {
                 callback.onError();
             }
         });
+
+        // Upload file now...
+        Gson gson = new Gson();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), gson.toJson(giftDto));
+
+        MultipartBody.Part fileBody = null;
+        if (!StringUtils.isEmpty(filePath)) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                // create RequestBody instance from file
+                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+                // MultipartBody.Part is used to send also the actual file name
+                fileBody = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+                Call<Void> uploadFileCall = restServiceEndpoint.updateGifFile(token, fileBody, requestBody);
+                uploadFileCall.enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, String.format("updateGiftFile - response %s", response.raw()));
+                        }
+                        // Do nothing
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "updateGiftFile - onFailure");
+                        }
+                        // Do nothing
+                    }
+                });
+            }
+        }
     }
 
     @Override
@@ -371,87 +411,6 @@ public class RestService implements ServiceAPI {
     }
 
     @Override
-    public void getImageFile(final String token, final int giftId,
-                             final ServiceCallback<String> callback) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("getImageFile [token = %s, giftId = %d]", token, giftId));
-        }
-
-        RestServiceEndpoint restServiceEndpoint =
-                ServiceGenerator.createService(RestServiceEndpoint.class);
-        Call<ResponseBody> call = restServiceEndpoint.getImageFile(token, giftId);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, String.format("getImageFile - response %s", response.raw()));
-                }
-                final String filename = Environment.getExternalStorageDirectory()
-                        + File.separator + giftId + ".jpg";
-                if (response.isSuccessful() && writeResponseBodyToDisk(response.body(), filename)) {
-                    callback.onLoaded(filename);
-                } else {
-                    callback.onError();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callback.onError();
-            }
-        });
-    }
-
-    private boolean writeResponseBodyToDisk(ResponseBody body, final String filename) {
-        try {
-            File image = new File(filename);
-
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
-
-            try {
-                byte[] fileReader = new byte[4096];
-
-                long fileSize = body.contentLength();
-                long fileSizeDownloaded = 0;
-
-                inputStream = body.byteStream();
-                outputStream = new FileOutputStream(image);
-
-                while (true) {
-                    int read = inputStream.read(fileReader);
-
-                    if (read == -1) {
-                        break;
-                    }
-
-                    outputStream.write(fileReader, 0, read);
-
-                    fileSizeDownloaded += read;
-
-                    Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
-                }
-
-                outputStream.flush();
-
-                return true;
-            } catch (IOException e) {
-                return false;
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-            }
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    @Override
     public void sendRegistrationToServer(final String token, final String gcmToken, final OnRegistrationCompleted callback) {
         RestServiceEndpoint restServiceEndpoint = ServiceGenerator.createService(RestServiceEndpoint.class);
         Call<Boolean> call = restServiceEndpoint.registerDevice(token, gcmToken);
@@ -471,5 +430,10 @@ public class RestService implements ServiceAPI {
                 callback.onError();
             }
         });
+    }
+
+    @Override
+    public String getGiftImageUrl(final int giftId) {
+        return String.format(Locale.getDefault(), ServiceGenerator.GIFT_IMAGE_URL, giftId);
     }
 }

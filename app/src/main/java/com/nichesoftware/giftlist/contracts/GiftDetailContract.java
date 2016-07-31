@@ -17,6 +17,7 @@ public interface GiftDetailContract {
         void onUpdateGiftFailed();
     }
     interface UserActionListener extends AbstractContract.UserActionListener {
-        void updateGift(final Gift gift, int roomId, double allocatedAmount);
+        void updateGift(final Gift gift, int roomId, double allocatedAmount,
+                        final String description, final String filePath);
     }
 }

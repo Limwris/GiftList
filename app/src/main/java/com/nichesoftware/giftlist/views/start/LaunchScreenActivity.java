@@ -161,19 +161,21 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
         }
         Intent intent = new Intent(this, RoomsActivity.class);
         startActivity(intent);
+        if (actionsListener.isConnected()) {
+            finish();
+        }
     }
 
     @Override
     public void showLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.VISIBLE);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
         progressBar.animate();
+        findViewById(R.id.toolbar_progressBar).setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
+        findViewById(R.id.toolbar_progressBar).setVisibility(View.INVISIBLE);
     }
 
     private boolean validate(EditText usernameEditText, EditText passwordEditText) {

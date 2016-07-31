@@ -23,7 +23,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:contentDescription="@string/description_medaillon_list_contacts"
-            android:src="@drawable/logo"
+            android:src="@drawable/person_placeholder"
             auto:civ_border_width="1dp"
             auto:civ_border_color="#FF888888" />
 

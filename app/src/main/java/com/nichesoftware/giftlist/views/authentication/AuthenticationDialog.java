@@ -83,14 +83,14 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
 
     @Override
     public void showLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
         progressBar.setVisibility(View.VISIBLE);
         progressBar.animate();
     }
 
     @Override
     public void hideLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
         progressBar.setVisibility(View.INVISIBLE);
     }
 

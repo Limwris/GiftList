@@ -1,6 +1,5 @@
 package com.nichesoftware.giftlist.views.addroom;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -12,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
@@ -29,7 +29,6 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
     private EditText roomNameEditText;
     private EditText occasionEditText;
     private AppCompatButton button;
-    private ProgressDialog progressDialog;
 
     /*
      * Listener sur les actions de l'utilisateur
@@ -51,6 +50,7 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle(getString(R.string.add_room_title));
                 ab.setHomeAsUpIndicator(R.drawable.ic_back_up_navigation);
             }
         }
@@ -104,9 +104,6 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
 
     @Override
     protected void onDestroy() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
         super.onDestroy();
     }
 
@@ -144,22 +141,21 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
 
     @Override
     public void onCreateRoomFailed() {
+        // Todo
         Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinatorLayout), "Failed", Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 
     @Override
     public void showLoader() {
-        progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.show();
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
+        progressBar.animate();
+        findViewById(R.id.toolbar_progressBar).setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
+        findViewById(R.id.toolbar_progressBar).setVisibility(View.INVISIBLE);
     }
 
     @Override

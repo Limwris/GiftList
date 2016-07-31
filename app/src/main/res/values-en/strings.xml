@@ -47,6 +47,7 @@
     <string name="description_medaillon_list_person">Medaillon depicting the room.</string>
 
     <!-- GiftlisActivity -->
+    <string name="gift_list_title">Gifts\' list</string>
     <string name="gift_price_description">%1$,.2f €</string>
     <string name="gift_amount_description">Participation: %1$,.2f €</string>
     <string name="gift_error_view_message">Empty room ! Be the first to propose a gift.</string>
@@ -57,12 +58,14 @@
     <string name="leave_room_dialog_message">Do you want to leave this room ? You won\'t be able to participate anymore unless you got invited again.</string>
 
     <!-- Add Room -->
+    <string name="add_room_title">Create a new room</string>
     <string name="add_room_create_button_text">Create room</string>
     <string name="add_room_name_hint_text">Room name</string>
     <string name="add_room_occasion_hint_text">Occasion</string>
     <string name="add_room_empty_field_error_text">This field should not be left empty</string>
 
     <!-- Add Gift -->
+    <string name="add_gift_title">Add a new gift</string>
     <string name="add_gift_add_image_button_text">Add an image</string>
     <string name="add_gift_name_hint_text">Name</string>
     <string name="add_gift_price_hint_text">Price</string>
@@ -76,18 +79,20 @@
     <string name="add_gift_menu_item">Add the gift</string>
 
     <!-- Add User -->
-    <string name="add_user_invite_button_text">Invite</string>
+    <string name="add_user_title">Invitation in the room</string>
+    <string name="add_user_menu_item">Invite users</string>
     <string name="add_user_error_view_message">None of your contacts have installed this application.</string>
     <string name="description_medaillon_list_contacts">Medaillon depicting the contact.</string>
 
     <!-- Gift Detail -->
+    <string name="gift_detail_title">Gift\'s detail</string>
     <string name="gift_detail_amount_hint_text">Amount of your participation</string>
+    <string name="gift_detail_description_hint_text">Description</string>
     <string name="gift_detail_modify_button_text">Modify</string>
     <string name="gift_detail_nan_error_text">This field should be a valid number</string>
     <string name="gift_detail_too_high_error_text">Your participation can not exceed the price which is %1$,.2f €</string>
 
     <!-- Invite Room -->
-    <string name="invite_room_loader_message">Enrolling to the room&#8230;</string>
     <string name="invite_room_name_room_text">Welcome to %1$s</string>
     <string name="invite_room_accept_button">Accept</string>
 </resources>

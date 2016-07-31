@@ -16,6 +16,6 @@ public interface AddGiftContract {
     }
     interface UserActionListener extends AbstractContract.UserActionListener {
         void addGift(int roomid, final String name, double price, double amount,
-                     final String filePath);
+                     final String description, final String filePath);
     }
 }

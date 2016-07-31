@@ -17,6 +17,10 @@ public class GiftDto {
      */
     private String name;
     /**
+     * Description du cadeau
+     */
+    private String description;
+    /**
      * Montant alloué par l'utilisateur au cadeau
      */
     private double amount;
@@ -73,6 +77,22 @@ public class GiftDto {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Getter sur la description du cadeau
+     * @return description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Setter sur la description du cadeau
+     * @param description
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**

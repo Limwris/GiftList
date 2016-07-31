@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary" />
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/toolbar_progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:indeterminateOnly="true"
         android:visibility="invisible"
