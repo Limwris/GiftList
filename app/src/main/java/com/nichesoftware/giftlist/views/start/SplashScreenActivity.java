@@ -12,43 +12,57 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.SplashScreenContract;
 import com.nichesoftware.giftlist.presenters.SplashScreenPresenter;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
- * Created by Kattleya on 18/07/2016.
+ * Splash screen
  */
 public class SplashScreenActivity extends AppCompatActivity implements SplashScreenContract.View {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = SplashScreenActivity.class.getSimpleName();
-
     private static final int STARTUP_DELAY = 300;
     private static final int ANIM_ITEM_DURATION = 1000;
 
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Listener sur les actions de l'utilisateur
      */
     private SplashScreenContract.UserActionListener actionsListener;
 
+    /**
+     * Unbinder Butter Knife
+     */
+    private Unbinder mButterKnifeUnbinder;
+
+    /**
+     * Graphical components
+     */
+    @BindView(R.id.login_logo)
+    ImageView mLogoImageView;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onCreate");
-        }
+        Log.d(TAG, "onCreate");
         setTheme(R.style.AppTheme); // Supprime le windowBackground
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
+        mButterKnifeUnbinder = ButterKnife.bind(this);
 
         actionsListener = new SplashScreenPresenter(this,
                 Injection.getDataProvider(this));
+
         /**
          * Animations
          */
-        ImageView logoImageView = (ImageView) findViewById(R.id.login_logo);
-        ViewCompat.animate(logoImageView)
+        ViewCompat.animate(mLogoImageView)
                 .translationY(-getContext().getResources().getInteger(R.integer.login_logo_translation))
                 .setStartDelay(STARTUP_DELAY)
                 .setDuration(ANIM_ITEM_DURATION).setInterpolator(
@@ -68,15 +82,22 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashScr
 
             }
         }).start();
-
-
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mButterKnifeUnbinder.unbind();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                  Implement methods                                         //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
     public void doShowDisconnectedActivity() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "doShowDisconnectedActivity");
-        }
+        Log.d(TAG, "doShowDisconnectedActivity");
+
         final Intent intent = new Intent(this, LaunchScreenActivity.class);
         startActivity(intent);
         finish();
@@ -84,9 +105,8 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashScr
 
     @Override
     public void doShowConnectedActivity() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "doShowConnectedActivity");
-        }
+        Log.d(TAG, "doShowConnectedActivity");
+
         final Intent intent = new Intent(this, RoomsActivity.class);
         startActivity(intent);
         finish();
