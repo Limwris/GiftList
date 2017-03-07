@@ -32,33 +32,73 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import butterknife.BindView;
+import butterknife.OnClick;
+
 /**
- * Created by n_che on 09/06/2016.
+ * Add gift screen
  */
 public class AddGiftActivity extends AppCompatActivity implements AddGiftContract.View {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddGiftActivity.class.getSimpleName();
     public static final String PARCELABLE_ROOM_ID_KEY = "PARCELABLE_ROOM_ID_KEY";
 
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Model
      */
     private int roomId;
     private String imagePath;
     private boolean isImageChanged;
+
+    /**
+     * Listener sur les actions de l'utilisateur
+     */
+    
+    private AddGiftContract.UserActionListener actionsListener;
     /**
      * Graphical components
      */
-    private EditText nameEditText;
-    private EditText priceEditText;
-    private EditText amountEditText;
-    private EditText descriptionEditText;
-    private ImageView imageView;
+    @BindView(R.id.add_gift_name_edit_text)
+    EditText mNameEditText;
+    @BindView(R.id.add_gift_price_edit_text)
+    EditText mPriceEditText;
+    @BindView(R.id.add_gift_amount_edit_text)
+    EditText mAmountEditText;
+    @BindView(R.id.add_gift_description_edit_text)
+    EditText descriptionEditText;
+    @BindView(R.id.add_gift_image)
+    ImageView imageView;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.toolbar_progressBar)
+    ProgressBar mProgressBar;
+    // Add image dialog
     private Dialog addImageDialog;
 
-    /*
-     * Listener sur les actions de l'utilisateur
-     */
-    private AddGiftContract.UserActionListener actionsListener;
+    @OnClick(R.id.add_gift_add_image_button)
+    void onAddGiftButtonClick() {
+        addImageDialog = new AppCompatDialog(AddGiftActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        addImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
+        addImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        PictureUtils.selectGalleryPicture(AddGiftActivity.this);
+                    }
+                });
+        addImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        PictureUtils.takePicture(AddGiftActivity.this, imagePath);
+                    }
+                });
+        addImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
+        addImageDialog.setCanceledOnTouchOutside(true);
+        addImageDialog.show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,9 +114,8 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
         actionsListener = new AddGiftPresenter(this, Injection.getDataProvider(this));
 
         // Set up the toolbar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
@@ -88,57 +127,20 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
         // Create the File where the photo should go
         try {
             imagePath = PictureUtils.createImageFile().getAbsolutePath();
-
-            findViewById(R.id.add_gift_add_image_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    addImageDialog = new AppCompatDialog(AddGiftActivity.this,
-                            R.style.AppTheme_Dark_Dialog);
-                    addImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
-                    addImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
-                            .setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    PictureUtils.selectGalleryPicture(AddGiftActivity.this);
-                                }
-                            });
-                    addImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
-                            .setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    PictureUtils.takePicture(AddGiftActivity.this, imagePath);
-                                }
-                            });
-                    addImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
-                    addImageDialog.setCanceledOnTouchOutside(true);
-                    addImageDialog.show();
-                }
-            });
         } catch (IOException e) {
             // Error occurred while creating the File
-            if(BuildConfig.DEBUG) {
                 Log.e(TAG, "captureImage - Error occurred while creating the File {}", e);
-            }
         }
-
-        nameEditText = (EditText) findViewById(R.id.add_gift_name_edit_text);
-        priceEditText = (EditText) findViewById(R.id.add_gift_price_edit_text);
-        amountEditText = (EditText) findViewById(R.id.add_gift_amount_edit_text);
-        descriptionEditText = (EditText) findViewById(R.id.add_gift_description_edit_text);
-        imageView = (ImageView) findViewById(R.id.add_gift_image);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("onActivityResult - with resultCode: %d and requestCode: %d", resultCode, requestCode));
-        }
+
         if (requestCode == PictureUtils.ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST
                 && resultCode == AppCompatActivity.RESULT_OK) {
-            if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST");
-            }
             if (addImageDialog != null) {
                 addImageDialog.dismiss();
             }
@@ -154,9 +156,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
             isImageChanged = true;
         } else if (requestCode == PictureUtils.ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST
                 && resultCode == AppCompatActivity.RESULT_OK) {
-            if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST");
-            }
             if (addImageDialog != null) {
                 addImageDialog.dismiss();
             }
@@ -208,9 +208,9 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
             onCreateGiftFailed();
             return;
         }
-        final String name = nameEditText.getText().toString();
-        final double price = Double.valueOf(priceEditText.getText().toString());
-        final double amount = Double.valueOf(amountEditText.getText().toString());
+        final String name = mNameEditText.getText().toString();
+        final double price = Double.valueOf(mPriceEditText.getText().toString());
+        final double amount = Double.valueOf(mAmountEditText.getText().toString());
         final String description = descriptionEditText.getText().toString();
         if (isImageChanged) {
             actionsListener.addGift(roomId, name, price, amount, description, imagePath);
@@ -224,59 +224,34 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
         int targetW = imageView.getWidth();
         int targetH = imageView.getHeight();
 
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(filepath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(filepath, bmOptions);
+        Bitmap bitmap = PictureUtils.getBitmap(filepath, targetW, targetH);
         imageView.setImageBitmap(bitmap);
 
-        // Todo: mettre l'image à la bonne taille (400px x 400 px)
-        OutputStream fOut = null;
-        try {
-            fOut = new FileOutputStream(imagePath);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-            fOut.flush();
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
-        } finally {
-            if (fOut != null) try { fOut.close(); } catch (IOException ignored) { } // do not forget to close the stream
-        }
+        PictureUtils.saveBitmap(bitmap, imagePath);
     }
 
     private boolean validate() {
         boolean valid = true;
 
-        final String roomName = nameEditText.getText().toString();
+        final String roomName = mNameEditText.getText().toString();
         if (StringUtils.isEmpty(roomName)) {
-            nameEditText.setError(getString(R.string.add_gift_empty_field_error_text));
+            mNameEditText.setError(getString(R.string.add_gift_empty_field_error_text));
             valid = false;
         } else {
-            nameEditText.setError(null);
+            mNameEditText.setError(null);
         }
 
         try {
-            Double.valueOf(priceEditText.getText().toString());
+            Double.valueOf(mPriceEditText.getText().toString());
         } catch (NumberFormatException e) {
-            priceEditText.setError(getString(R.string.add_gift_nan_error_text));
+            mPriceEditText.setError(getString(R.string.add_gift_nan_error_text));
             valid = false;
         }
 
         try {
-            Double.valueOf(amountEditText.getText().toString());
+            Double.valueOf(mAmountEditText.getText().toString());
         } catch (NumberFormatException e) {
-            amountEditText.setError(getString(R.string.add_gift_nan_error_text));
+            mAmountEditText.setError(getString(R.string.add_gift_nan_error_text));
             valid = false;
         }
 
@@ -302,14 +277,13 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
 
     @Override
     public void showLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
-        progressBar.animate();
-        findViewById(R.id.toolbar_progressBar).setVisibility(View.VISIBLE);
+        mProgressBar.animate();
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
-        findViewById(R.id.toolbar_progressBar).setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
