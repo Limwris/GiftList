@@ -21,8 +21,9 @@
         android:layout_height="50dp"
         android:background="#c16f12">
 
-        <TextView
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/didacticiel_sign_up"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:gravity="center"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -35,8 +36,9 @@
             android:layout_height="30dp"
             android:background="@android:color/black"/>
 
-        <TextView
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/didacticiel_log_in"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:gravity="center"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -56,8 +58,9 @@
         android:layout_height="50dp"
         android:background="#c16f12">
 
-        <TextView
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/didacticiel_not_authenticated_start"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:gravity="center"
             android:layout_width="0dp"
             android:layout_height="match_parent"
