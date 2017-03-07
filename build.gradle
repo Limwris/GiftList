@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:2.3.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -26,10 +26,10 @@ ext {
     minSdkVersion = 16
     targetSdkVersion = 21
     compileSdkVersion = 23
-    buildToolsVersion = "23.0.2"
+    buildToolsVersion = "25.0.2"
     retrofitVersion = "2.0.1"
     playServicesVersion = "9.0.0"
-    supportLibVersion = "23.2.0"
+    supportLibVersion = "24.2.1"
     junitVersion = "4.12"
     mockitoVersion = "1.10.19"
     powerMockVersion = "1.6.3"

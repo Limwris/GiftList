@@ -66,8 +66,8 @@ android {
         }
     }
 
-    // Remove mockRelease as it's not needed.
     android.variantFilter { variant ->
+        // Remove mockRelease as it's not needed.
         if(variant.buildType.name.equals('release')
                 && variant.getFlavors().get(0).name.equals('mock')) {
             variant.setIgnore(true);
@@ -101,6 +101,8 @@ dependencies {
     compile group: 'com.android.support',     name: 'cardview-v7',             version: rootProject.ext.supportLibVersion
     compile group: 'com.android.support',     name: 'design',                  version: rootProject.ext.supportLibVersion
     compile group: 'com.android.support',     name: 'support-vector-drawable', version: rootProject.ext.supportLibVersion
+    // MultiDex
+    compile group: 'com.android.support',     name: 'multidex',                version: "1.0.1"
     // Retrofit
     compile group: 'com.squareup.retrofit2',  name: 'retrofit',                version: rootProject.ext.retrofitVersion
     compile group: 'com.squareup.retrofit2',  name: 'converter-gson',          version: rootProject.ext.retrofitVersion
@@ -113,8 +115,6 @@ dependencies {
     // Firebase (GCM)
     compile group: 'com.google.firebase', name: 'firebase-messaging', version: rootProject.ext.playServicesVersion
     compile group: "com.google.android.gms", name: 'play-services', version: rootProject.ext.playServicesVersion
-    // MultiDex
-    compile group: 'com.android.support', name: 'multidex', version: '1.0.1'
     // Picasso
     compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.2'
 
@@ -153,3 +153,16 @@ build.dependsOn 'incrementVersion'
 
 // Le plug-in de services Google pour Gradle charge le fichier google-services.json
 apply plugin: 'com.google.gms.google-services'
+
+// Disable google-services plugin for a given flavor
+//+ (@see http://stackoverflow.com/questions/37693732/can-i-disable-firebase-plugin-for-specific-flavor)
+android.applicationVariants.all { variant ->
+    if (variant.name.contains("mock")) {
+        project.tasks.each { t ->
+            if (t.name.contains("GoogleServices")) {
+                // Remove google services plugin
+                variant.getVariantData().resourceGenTask.getTaskDependencies().values.remove(t);
+            }
+        }
+    }
+}
