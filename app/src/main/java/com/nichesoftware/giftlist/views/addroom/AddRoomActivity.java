@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,34 +18,61 @@ import com.nichesoftware.giftlist.contracts.AddRoomContract;
 import com.nichesoftware.giftlist.presenters.AddRoomPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 /**
- * Created by n_che on 27/04/2016.
+ * Add room screen
  */
 public class AddRoomActivity extends AppCompatActivity implements AddRoomContract.View {
+    // Fields   ------------------------------------------------------------------------------------
     /**
-     * Graphical components
+     * Unbinder Butter Knife
      */
-    private EditText roomNameEditText;
-    private EditText occasionEditText;
-    private AppCompatButton button;
+    private Unbinder mButterKnifeUnbinder;
 
-    /*
+    /**
      * Listener sur les actions de l'utilisateur
      */
     private AddRoomContract.UserActionListener actionsListener;
+
+    /**
+     * Graphical components
+     */
+    @BindView(R.id.add_room_name_edit_text)
+    EditText mRoomNameEditText;
+    @BindView(R.id.add_room_occasion_edit_text)
+    EditText mOccasionEditText;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.toolbar_progressBar)
+    ProgressBar mProgressBar;
+
+    @OnClick(R.id.add_room_create_button)
+    void onAddRoomButtonClick() {
+        if (!validate()) {
+            onCreateRoomFailed();
+            return;
+        }
+        final String roomName = mRoomNameEditText.getText().toString();
+        final String occasion = mOccasionEditText.getText().toString();
+        actionsListener.addRoom(roomName, occasion);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.add_room_activity);
+        mButterKnifeUnbinder = ButterKnife.bind(this);
 
         actionsListener = new AddRoomPresenter(this, Injection.getDataProvider(this));
 
-        // Set up the toolbar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
+        // Set up the toolbar
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
@@ -54,22 +80,6 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
                 ab.setHomeAsUpIndicator(R.drawable.ic_back_up_navigation);
             }
         }
-
-        roomNameEditText = (EditText) findViewById(R.id.add_room_name_edit_text);
-        occasionEditText = (EditText) findViewById(R.id.add_room_occasion_edit_text);
-        button = (AppCompatButton) findViewById(R.id.add_room_create_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!validate()) {
-                    onCreateRoomFailed();
-                    return;
-                }
-                final String roomName = roomNameEditText.getText().toString();
-                final String occasion = occasionEditText.getText().toString();
-                actionsListener.addRoom(roomName, occasion);
-            }
-        });
     }
 
     @Override
@@ -105,25 +115,26 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mButterKnifeUnbinder.unbind();
     }
 
     private boolean validate() {
         boolean valid = true;
 
-        final String roomName = roomNameEditText.getText().toString();
+        final String roomName = mRoomNameEditText.getText().toString();
         if (StringUtils.isEmpty(roomName)) {
-            roomNameEditText.setError(getString(R.string.add_room_empty_field_error_text));
+            mRoomNameEditText.setError(getString(R.string.add_room_empty_field_error_text));
             valid = false;
         } else {
-            roomNameEditText.setError(null);
+            mRoomNameEditText.setError(null);
         }
 
-        final String occasion = occasionEditText.getText().toString();
+        final String occasion = mOccasionEditText.getText().toString();
         if (StringUtils.isEmpty(occasion)) {
-            occasionEditText.setError(getString(R.string.add_room_empty_field_error_text));
+            mOccasionEditText.setError(getString(R.string.add_room_empty_field_error_text));
             valid = false;
         } else {
-            occasionEditText.setError(null);
+            mOccasionEditText.setError(null);
         }
 
         return valid;
@@ -148,14 +159,13 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
 
     @Override
     public void showLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
-        progressBar.animate();
-        findViewById(R.id.toolbar_progressBar).setVisibility(View.VISIBLE);
+        mProgressBar.animate();
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
-        findViewById(R.id.toolbar_progressBar).setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
