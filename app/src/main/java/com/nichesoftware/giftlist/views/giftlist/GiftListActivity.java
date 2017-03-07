@@ -12,21 +12,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.transition.TransitionManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
@@ -36,16 +28,20 @@ import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
 import com.nichesoftware.giftlist.views.adduser.AddUserActivity;
 import com.nichesoftware.giftlist.views.giftdetail.GiftDetailActivity;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 
 /**
  * Created by n_che on 25/04/2016.
  */
 public class GiftListActivity extends AppCompatActivity implements GiftListContract.View {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
     public static final int RESULT_RELOAD = 100;    // The result codes
@@ -53,34 +49,68 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     public static final int ADD_USER_REQUEST = 11;
     public static final int GIFT_DETAIL_REQUEST = 12;
 
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Adapter lié à la RecyclerView
      */
-    private GiftListAdapter giftListAdapter;
-    private DialogInterface leaveDialog = null;
+    private GiftListAdapter mGiftListAdapter;
+
+    /**
+     * Dialog
+     */
+    private DialogInterface mLeaveDialog = null;
+
     /**
      * Listener sur les actions de l'utilisateur
      */
     private GiftListContract.UserActionListener actionsListener;
+
     /**
      * Listener sur le clic d'un cadeau
      */
-    private GiftItemListener giftItemListener;
+    private GiftItemListener mGiftItemListener;
+
     /**
      * Identifiant de la salle
      */
     private int roomId;
+
+    /**
+     * Unbinder Butter Knife
+     */
+    private Unbinder mButterKnifeUnbinder;
+
+    /**
+     * Graphical components
+     */
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.recycler_view)
+    RecyclerView mRecyclerView;
+    @BindView(R.id.refresh_layout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindView(R.id.error_view)
+    ErrorView mErrorView;
+
+    @OnClick(R.id.fab_add_gift)
+    void onAddGiftClick() {
+        Log.d(TAG, "onClick FAB");
+
+        Intent intent = new Intent(this, AddGiftActivity.class);
+        intent.putExtra(AddGiftActivity.PARCELABLE_ROOM_ID_KEY, roomId);
+        startActivityForResult(intent, ADD_GIFT_REQUEST);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.gift_list_activity);
+        mButterKnifeUnbinder = ButterKnife.bind(this);
 
-        // Set up the toolbar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
+        // Set up the toolbar
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
@@ -91,44 +121,27 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
 
         actionsListener = new GiftListPresenter(this, Injection.getDataProvider(this));
 
-        findViewById(R.id.fab_add_gift).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "onClick FAB");
-                }
-                Intent intent = new Intent(GiftListActivity.this, AddGiftActivity.class);
-                intent.putExtra(AddGiftActivity.PARCELABLE_ROOM_ID_KEY, roomId);
-                startActivityForResult(intent, ADD_GIFT_REQUEST);
-            }
-        });
-
-        giftItemListener = new GiftItemListener() {
+        mGiftItemListener = new GiftItemListener() {
             @Override
             public void onGiftClick(Gift clickedGift) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Clic détecté sur le cadeau " + clickedGift.getName());
-                }
+                Log.d(TAG, "Clic détecté sur le cadeau " + clickedGift.getName());
                 actionsListener.openGiftDetail(clickedGift);
             }
         };
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        giftListAdapter = new GiftListAdapter(new ArrayList<Gift>(0), giftItemListener);
-        recyclerView.setAdapter(giftListAdapter);
+        mGiftListAdapter = new GiftListAdapter(new ArrayList<Gift>(0), mGiftItemListener);
+        mRecyclerView.setAdapter(mGiftListAdapter);
         int numColumns = getResources().getInteger(R.integer.num_gifts_columns);
 
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, numColumns));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, numColumns));
 
         // Pull-to-refresh
-        SwipeRefreshLayout swipeRefreshLayout =
-                (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
-        swipeRefreshLayout.setColorSchemeColors(
+        mSwipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.colorPrimary),
                 ContextCompat.getColor(this, R.color.colorAccent),
                 ContextCompat.getColor(this, R.color.colorPrimaryDark));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 actionsListener.loadGifts(roomId, true);
@@ -138,6 +151,12 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         // Get the requested note id
         int roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
         initView(roomId);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mButterKnifeUnbinder.unbind();
     }
 
     @Override
@@ -158,16 +177,6 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                 forceReload();
             }
         }
-    }
-
-    /**
-     * Initialisation de la vue
-     * @param roomId
-     */
-    private void initView(@Nullable final int roomId) {
-        this.roomId = roomId;
-        // Charge les cadeaux à l'ouverture de l'activité
-        actionsListener.loadGifts(roomId, false);
     }
 
     @Override
@@ -220,9 +229,18 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    Private methods                                         //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Initialisation de la vue
+     * @param roomId
+     */
+    private void initView(@Nullable final int roomId) {
+        this.roomId = roomId;
+        // Charge les cadeaux à l'ouverture de l'activité
+        actionsListener.loadGifts(roomId, false);
     }
 
     private void doShowLeaveRoomDialog() {
@@ -233,7 +251,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int  whichButton) {
-                                leaveDialog = dialogInterface;
+                                mLeaveDialog = dialogInterface;
                                 actionsListener.leaveCurrentRoom(roomId);
                             }
                         })
@@ -252,9 +270,9 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         actionsListener.loadGifts(roomId, true);
     }
 
-    /**********************************************************************************************/
-    /************************************     View contract     ***********************************/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                  Implement methods                                         //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void showLoader() {
@@ -267,30 +285,25 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     }
 
     private void setRefreshIndicator(final boolean doShow) {
-        final SwipeRefreshLayout swipeRefreshLayout =
-                (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
-
         // Make sure setRefreshing() is called after the layout is done with everything else.
-        swipeRefreshLayout.post(new Runnable() {
+        mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                swipeRefreshLayout.setRefreshing(doShow);
+                mSwipeRefreshLayout.setRefreshing(doShow);
             }
         });
     }
 
     @Override
     public void showGifts(List<Gift> gifts) {
-        ErrorView errorView = (ErrorView) findViewById(R.id.error_view);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         if (gifts.isEmpty()) {
-            errorView.setMessage(getResources().getString(R.string.gift_error_view_message));
-            errorView.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
+            mErrorView.setMessage(getResources().getString(R.string.gift_error_view_message));
+            mErrorView.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
         } else {
-            errorView.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
-            giftListAdapter.replaceData(gifts);
+            mErrorView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mGiftListAdapter.replaceData(gifts);
         }
     }
 
@@ -305,20 +318,20 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
 
     @Override
     public void onLeaveRoomSuccess() {
-        if (leaveDialog != null) {
-            leaveDialog.dismiss();
+        if (mLeaveDialog != null) {
+            mLeaveDialog.dismiss();
         }
-        leaveDialog = null;
+        mLeaveDialog = null;
         setResult(RESULT_RELOAD);
         finish();
     }
 
     @Override
     public void onLeaveRoomError() {
-        if (leaveDialog != null) {
-            leaveDialog.dismiss();
+        if (mLeaveDialog != null) {
+            mLeaveDialog.dismiss();
         }
-        leaveDialog = null;
+        mLeaveDialog = null;
         // Todo
         Snackbar.make(findViewById(android.R.id.content), "Echec...", Snackbar.LENGTH_LONG).show();
     }
@@ -328,263 +341,14 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         return this;
     }
 
-    /**********************************************************************************************/
-    /********************************     Adapter & ViewHolder     ********************************/
-    /**********************************************************************************************/
-
-    private static class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHolder> {
-
-        /**
-         * Données (liste de cadeaux)
-         */
-        private List<Gift> gifts;
-
-        /**
-         * Listener sur le clic d'un cadeau
-         */
-        private GiftItemListener giftItemListener;
-
-        /**
-         * Context
-         */
-        private Context context;
-
-        /**
-         * Position de l'élément où sont affichées les informations supplémentaires
-         */
-        private int expandedPosition;
-
-        /**
-         * Constructeur
-         * @param gifts
-         */
-        public GiftListAdapter(List<Gift> gifts, GiftItemListener giftItemListener) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "GiftListAdapter");
-            }
-            expandedPosition = -1;
-            setList(gifts);
-            this.giftItemListener = giftItemListener;
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "GiftListAdapter - itemListener: " + giftItemListener);
-            }
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            this.context = parent.getContext();
-            LayoutInflater inflater = LayoutInflater.from(context);
-            View giftView = inflater.inflate(R.layout.gift_list_item_view, parent, false);
-
-            return new ViewHolder(giftView, giftItemListener);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder viewHolder, int position) {
-            Gift gift = gifts.get(position);
-            final List<GiftListDetailVO> VOs = new ArrayList<>();
-            double remainder = gift.getPrice();
-            for (Map.Entry<String, Double> entry : gift.getAmountByUser().entrySet()) {
-                GiftListDetailVO vo = new GiftListDetailVO();
-                vo.setUsername(entry.getKey());
-                double participation = entry.getValue();
-                vo.setParticipation(participation);
-                VOs.add(vo);
-
-                remainder-=participation;
-            }
-
-            final boolean isExpanded = (viewHolder.getAdapterPosition()==expandedPosition);
-            if (!isExpanded) {
-                viewHolder.detailRecyclerView.setVisibility(View.GONE);
-            }
-
-            viewHolder.name.setText(gift.getName());
-            viewHolder.price.setText(String.format(context.getResources().getString(R.string.gift_price_description), gift.getPrice()));
-            viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_amount_description), gift.getAmount()));
-            viewHolder.remainder.setText(String.format(context.getResources().getString(R.string.gift_remainder_description), remainder));
-            viewHolder.seeMoreButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    viewHolder.detailRecyclerView.setAdapter(new GiftListDetailAdapter(VOs));
-                    viewHolder.detailRecyclerView.setVisibility(View.VISIBLE);
-                    expandedPosition = isExpanded ? -1:viewHolder.getAdapterPosition();
-                    TransitionManager.beginDelayedTransition(viewHolder.detailRecyclerView);
-                    notifyDataSetChanged();
-                }
-            });
-
-            Picasso.with(context)
-                    .load(Injection.getDataProvider(context).getGiftImageUrl(gift.getId()))
-                    .fit().centerCrop().placeholder(R.drawable.placeholder)
-                    .into(viewHolder.image);
-        }
-
-        public void replaceData(List<Gift> gifts) {
-            setList(gifts);
-            notifyDataSetChanged();
-        }
-
-        private void setList(List<Gift> gifts) {
-            this.gifts = gifts;
-        }
-
-        @Override
-        public int getItemCount() {
-            return gifts.size();
-        }
-
-        public Gift getItem(int position) {
-            return gifts.get(position);
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            /**
-             * Nom du cadeau
-             */
-            public TextView name;
-
-            /**
-             * Participation du cadeau
-             */
-            public TextView amount;
-
-            /**
-             * Restant au cadeau
-             */
-            public TextView remainder;
-
-            /**
-             * Prix du cadeau
-             */
-            public TextView price;
-
-            /**
-             * Image associée au cadeau
-             */
-            public ImageView image;
-
-            public RecyclerView detailRecyclerView;
-            public Button seeMoreButton;
-
-            /**
-             * Listener sur le clic de la personne
-             */
-            private GiftItemListener giftItemListener;
-
-
-            /**
-             * Constructeur
-             * @param itemView
-             */
-            public ViewHolder(final View itemView, GiftItemListener listener) {
-                super(itemView);
-                giftItemListener = listener;
-
-                name = (TextView) itemView.findViewById(R.id.gift_name);
-                price = (TextView) itemView.findViewById(R.id.gift_price);
-                amount = (TextView) itemView.findViewById(R.id.gift_amount);
-                remainder = (TextView) itemView.findViewById(R.id.gift_remainder);
-                image = (ImageView) itemView.findViewById(R.id.gift_image);
-                seeMoreButton = (Button) itemView.findViewById(R.id.gift_list_see_more_button);
-
-                detailRecyclerView = (RecyclerView) itemView.findViewById(R.id.gift_list_details);
-                detailRecyclerView.setHasFixedSize(true);
-                detailRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-
-                itemView.findViewById(R.id.gift_list_detail_button).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        int position = getAdapterPosition();
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "Clic détecté dans la liste à la position: " + position);
-                        }
-                        Gift gift = getItem(position);
-                        if (giftItemListener != null) {
-                            giftItemListener.onGiftClick(gift);
-                        }
-                    }
-                });
-
-            }
-        }
-    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                       Inner class                                          //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Interface du listener du clic sur un cadeau
      */
     public interface GiftItemListener {
         void onGiftClick(Gift clickedGift);
-    }
-
-    private static class GiftListDetailAdapter extends RecyclerView.Adapter<GiftListDetailAdapter.ViewHolder> {
-
-        /**
-         * Données (liste de cadeaux)
-         */
-        private List<GiftListDetailVO> VOs;
-
-        /**
-         * Context
-         */
-        private Context context;
-
-        /**
-         * Constructeur
-         * @param VOs
-         */
-        public GiftListDetailAdapter(List<GiftListDetailVO> VOs) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "GiftListDetailAdapter");
-            }
-            this.VOs = VOs;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            this.context = parent.getContext();
-            LayoutInflater inflater = LayoutInflater.from(context);
-            View giftDetailView = inflater.inflate(R.layout.gift_list_detail_item_view, parent, false);
-
-            return new ViewHolder(giftDetailView);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int position) {
-            GiftListDetailVO vo = VOs.get(position);
-
-            viewHolder.name.setText(vo.getUsername());
-            viewHolder.amount.setText(String.format(context.getResources().getString(R.string.gift_list_detail_amount_description), vo.getParticipation()));
-        }
-
-        @Override
-        public int getItemCount() {
-            return VOs.size();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            /**
-             * Nom du cadeau
-             */
-            public TextView name;
-
-            /**
-             * Participation du cadeau
-             */
-            public TextView amount;
-
-
-            /**
-             * Constructeur
-             * @param itemView
-             */
-            public ViewHolder(View itemView) {
-                super(itemView);
-
-                name = (TextView) itemView.findViewById(R.id.gift_list_detail_username);
-                amount = (TextView) itemView.findViewById(R.id.gift_list_detail_participation);
-            }
-        }
     }
 }
