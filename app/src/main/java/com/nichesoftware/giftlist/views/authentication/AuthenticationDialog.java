@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatDialog;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.nichesoftware.giftlist.Injection;
@@ -13,12 +12,19 @@ import com.nichesoftware.giftlist.contracts.AuthenticationContract;
 import com.nichesoftware.giftlist.presenters.AuthenticationPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 /**
- * Created by Kattleya on 07/07/2016.
+ * Authentication dialog
  */
 public class AuthenticationDialog extends AppCompatDialog implements AuthenticationContract.View {
+    // Constants   ---------------------------------------------------------------------------------
     private final static String TAG = AuthenticationDialog.class.getSimpleName();
 
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Listener sur les actions de l'utilisateur
      */
@@ -29,70 +35,97 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
      */
     private AuthenticationContract.OnAuthenticationCallback authenticationCallback;
 
+    /**
+     * Unbinder Butter Knife
+     */
+    private Unbinder mButterKnifeUnbinder;
+
+    /**
+     * Graphical components
+     */
+    @BindView(R.id.start_log_in_dialog_username_edit_text)
+    TextInputEditText mUsernameEditText;
+    @BindView(R.id.start_log_in_dialog_password_edit_text)
+    TextInputEditText mPasswordEditText;
+    @BindView(R.id.toolbar_progressBar)
+    ProgressBar mProgressBar;
+
+    @OnClick(R.id.authentication_dialog_ok_button)
+    void onOkButtonClick() {
+        if (validate()) {
+            actionsListener.authenticate(
+                    mUsernameEditText.getText().toString(),
+                    mPasswordEditText.getText().toString(),
+                    authenticationCallback);
+        }
+    }
+
+    @OnClick(R.id.authentication_dialog_cancel_button)
+    void onCancelButtonClick() {
+        dismiss();
+    }
+
     public AuthenticationDialog(Context context, final AuthenticationContract.OnAuthenticationCallback authenticationCallback) {
         super(context, R.style.AppTheme_Dark_Dialog);
         this.authenticationCallback = authenticationCallback;
 
         setContentView(R.layout.log_in_dialog);
+        mButterKnifeUnbinder = ButterKnife.bind(this);
+
         actionsListener = new AuthenticationPresenter(this,
                 Injection.getDataProvider(getContext()));
-
-        final TextInputEditText usernameEditText = (TextInputEditText) findViewById(R.id.start_log_in_dialog_username_edit_text);
-        final TextInputEditText passwordEditText = (TextInputEditText) findViewById(R.id.start_log_in_dialog_password_edit_text);
-
-        findViewById(R.id.authentication_dialog_ok_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (validate(usernameEditText, passwordEditText)) {
-                    actionsListener.authenticate(
-                            usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString(),
-                            authenticationCallback);
-                }
-            }
-        });
-        findViewById(R.id.authentication_dialog_cancel_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
     }
 
-    private boolean validate(EditText usernameEditText, EditText passwordEditText) {
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mButterKnifeUnbinder.unbind();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    Private methods                                         //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private boolean validate() {
         boolean valid = true;
 
-        final String username = usernameEditText.getText().toString();
+        final String username = mUsernameEditText.getText().toString();
         if (StringUtils.isEmpty(username)) {
-            usernameEditText.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
+            mUsernameEditText.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
             valid = false;
         } else {
-            usernameEditText.setError(null);
+            mUsernameEditText.setError(null);
         }
 
-        final String password = passwordEditText.getText().toString();
+        final String password = mPasswordEditText.getText().toString();
         if (StringUtils.isEmpty(password)) {
-            passwordEditText.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
+            mPasswordEditText.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
             valid = false;
         } else {
-            passwordEditText.setError(null);
+            mPasswordEditText.setError(null);
         }
 
         return valid;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                  Implement methods                                         //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public void showLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
-        progressBar.setVisibility(View.VISIBLE);
-        progressBar.animate();
+        mProgressBar.setVisibility(View.VISIBLE);
+        mProgressBar.animate();
     }
 
     @Override
     public void hideLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                  Getters & setters                                         //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Getter sur la callback sur le processus d'authentification
