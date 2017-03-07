@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -20,7 +19,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddGiftContract;
@@ -28,12 +26,12 @@ import com.nichesoftware.giftlist.presenters.AddGiftPresenter;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 /**
  * Add gift screen
@@ -52,9 +50,13 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     private boolean isImageChanged;
 
     /**
+     * Unbinder Butter Knife
+     */
+    private Unbinder mButterKnifeUnbinder;
+    /**
      * Listener sur les actions de l'utilisateur
      */
-    
+
     private AddGiftContract.UserActionListener actionsListener;
     /**
      * Graphical components
@@ -74,30 +76,30 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     @BindView(R.id.toolbar_progressBar)
     ProgressBar mProgressBar;
     // Add image dialog
-    private Dialog addImageDialog;
+    private Dialog mAddImageDialog;
 
     @OnClick(R.id.add_gift_add_image_button)
     void onAddGiftButtonClick() {
-        addImageDialog = new AppCompatDialog(AddGiftActivity.this,
+        mAddImageDialog = new AppCompatDialog(AddGiftActivity.this,
                 R.style.AppTheme_Dark_Dialog);
-        addImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
-        addImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
+        mAddImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
+        mAddImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         PictureUtils.selectGalleryPicture(AddGiftActivity.this);
                     }
                 });
-        addImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
+        mAddImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         PictureUtils.takePicture(AddGiftActivity.this, imagePath);
                     }
                 });
-        addImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
-        addImageDialog.setCanceledOnTouchOutside(true);
-        addImageDialog.show();
+        mAddImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
+        mAddImageDialog.setCanceledOnTouchOutside(true);
+        mAddImageDialog.show();
     }
 
     @Override
@@ -105,6 +107,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.add_gift_activity);
+        mButterKnifeUnbinder = ButterKnife.bind(this);
 
         /**
          * Récupération du cadeau
@@ -129,20 +132,29 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
             imagePath = PictureUtils.createImageFile().getAbsolutePath();
         } catch (IOException e) {
             // Error occurred while creating the File
-                Log.e(TAG, "captureImage - Error occurred while creating the File {}", e);
+            Log.e(TAG, "captureImage - Error occurred while creating the File {}", e);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mAddImageDialog != null) {
+            mAddImageDialog.dismiss();
+        }
+        super.onDestroy();
+        mButterKnifeUnbinder.unbind();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-            Log.d(TAG, String.format("onActivityResult - with resultCode: %d and requestCode: %d", resultCode, requestCode));
+        Log.d(TAG, String.format("onActivityResult - with resultCode: %d and requestCode: %d", resultCode, requestCode));
 
         if (requestCode == PictureUtils.ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST
                 && resultCode == AppCompatActivity.RESULT_OK) {
-                Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST");
-            if (addImageDialog != null) {
-                addImageDialog.dismiss();
+            Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST");
+            if (mAddImageDialog != null) {
+                mAddImageDialog.dismiss();
             }
             if (data == null) {
                 //Display an error
@@ -156,9 +168,9 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
             isImageChanged = true;
         } else if (requestCode == PictureUtils.ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST
                 && resultCode == AppCompatActivity.RESULT_OK) {
-                Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST");
-            if (addImageDialog != null) {
-                addImageDialog.dismiss();
+            Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST");
+            if (mAddImageDialog != null) {
+                mAddImageDialog.dismiss();
             }
             setPic(imagePath);
             isImageChanged = true;
@@ -196,11 +208,6 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     private void doAddGift() {
