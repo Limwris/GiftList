@@ -28,6 +28,7 @@ ext {
     compileSdkVersion = 23
     buildToolsVersion = "25.0.2"
     retrofitVersion = "2.0.1"
+    butterKnifeVersion = "8.5.1"
     playServicesVersion = "9.0.0"
     supportLibVersion = "24.2.1"
     junitVersion = "4.12"

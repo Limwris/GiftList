@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -16,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -33,19 +31,24 @@ import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 import com.squareup.picasso.Picasso;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 /**
- * Created by n_che on 09/06/2016.
+ * Gift detail screen
  */
 public class GiftDetailActivity extends AppCompatActivity implements GiftDetailContract.View {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftDetailActivity.class.getSimpleName();
     public static final String PARCELABLE_GIFT_KEY = "PARCELABLE_GIFT_KEY";
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
 
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Model
      */
@@ -55,16 +58,81 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     private boolean isImageChanged;
 
     /**
-     * Graphical components
-     */
-    private ImageView giftImageView;
-    private EditText descriptionEditText;
-    private Dialog addImageDialog;
-
-    /*
      * Listener sur les actions de l'utilisateur
      */
     private GiftDetailContract.UserActionListener actionsListener;
+
+    /**
+     * Unbinder Butter Knife
+     */
+    private Unbinder mButterKnifeUnbinder;
+
+    /**
+     * Graphical components
+     */
+    @BindView(R.id.gift_detail_image)
+    ImageView mGiftImageView;
+    @BindView(R.id.gift_detail_description_edit_text)
+    EditText mDescriptionEditText;
+    @BindView(R.id.gift_detail_amount)
+    EditText mGiftAmountEditText;
+    @BindView(R.id.gift_detail_name)
+    TextView mGiftNameTextView;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.toolbar_progressBar)
+    ProgressBar mProgressBar;
+    // Add image dialog
+    private Dialog mAddImageDialog;
+
+    @OnClick(R.id.gift_detail_image)
+    void onGiftImageClick() {
+        mAddImageDialog = new AppCompatDialog(GiftDetailActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        mAddImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
+        mAddImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        PictureUtils.selectGalleryPicture(GiftDetailActivity.this);
+                    }
+                });
+        mAddImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        PictureUtils.takePicture(GiftDetailActivity.this, imagePath);
+                    }
+                });
+        mAddImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
+        mAddImageDialog.setCanceledOnTouchOutside(true);
+        mAddImageDialog.show();
+    }
+
+    @OnClick(R.id.gift_detail_modify_button)
+    void onModifyButtonClick() {
+        try {
+            double amount = Double.valueOf(mGiftAmountEditText.getText().toString());
+            final String description = mDescriptionEditText.getText().toString();
+            if (amount > gift.remainder(actionsListener.getCurrentUsername())) {
+                mGiftAmountEditText.setError(
+                        String.format(getString(R.string.gift_detail_too_high_error_text),
+                                gift.remainder(actionsListener.getCurrentUsername()))
+                );
+            } else {
+                if (isImageChanged) {
+                    Log.d(TAG, String.format(Locale.getDefault(),
+                            "onClick - imageChange: %s", imagePath));
+                    actionsListener.updateGift(gift, roomId, amount, description, imagePath);
+                } else {
+                    Log.d(TAG, "onClick - image did not change");
+                    actionsListener.updateGift(gift, roomId, amount, description, null);
+                }
+            }
+        } catch (NumberFormatException e) {
+            mGiftAmountEditText.setError(getString(R.string.gift_detail_nan_error_text));
+        }
+    }
 
 
     @Override
@@ -72,6 +140,7 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.gift_detail_activity);
+        mButterKnifeUnbinder = ButterKnife.bind(this);
 
         /**
          * Récupération du cadeau
@@ -85,9 +154,8 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         actionsListener = new GiftDetailPresenter(this, Injection.getDataProvider(this));
 
         // Set up the toolbar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
@@ -96,88 +164,32 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
             }
         }
 
-        TextView giftNameTextView = (TextView) findViewById(R.id.gift_detail_name);
-        giftNameTextView.setText(gift.getName());
-        final EditText giftAmountEditText = (EditText) findViewById(R.id.gift_detail_amount);
-        giftAmountEditText.setText(String.valueOf(gift.getAmount()));
-        giftImageView = (ImageView) findViewById(R.id.gift_detail_image);
-        descriptionEditText = (EditText) findViewById(R.id.gift_detail_description_edit_text);
+        mGiftNameTextView.setText(gift.getName());
+        mGiftAmountEditText.setText(String.valueOf(gift.getAmount()));
+
         if (!StringUtils.isEmpty(gift.getDescription())) {
-            descriptionEditText.setText(gift.getDescription());
+            mDescriptionEditText.setText(gift.getDescription());
         }
 
         Picasso.with(this).load(Injection.getDataProvider(this).getGiftImageUrl(gift.getId()))
-                .fit().centerCrop().placeholder(R.drawable.placeholder).into(giftImageView);
+                .fit().centerCrop().placeholder(R.drawable.placeholder).into(mGiftImageView);
 
         // Create the File where the photo should go
         try {
             imagePath = PictureUtils.createImageFile().getAbsolutePath();
-
-            giftImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    addImageDialog = new AppCompatDialog(GiftDetailActivity.this,
-                            R.style.AppTheme_Dark_Dialog);
-                    addImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
-                    addImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
-                            .setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    PictureUtils.selectGalleryPicture(GiftDetailActivity.this);
-                                }
-                            });
-                    addImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
-                            .setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    PictureUtils.takePicture(GiftDetailActivity.this, imagePath);
-                                }
-                            });
-                    addImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
-                    addImageDialog.setCanceledOnTouchOutside(true);
-                    addImageDialog.show();
-                }
-            });
         } catch (IOException ignored) {
             // Error occurred while creating the File
-            if(BuildConfig.DEBUG) {
-                Log.e(TAG, "captureImage - Error occurred while creating the File {}", ignored);
-            }
+            Log.e(TAG, "captureImage - Error occurred while creating the File {}", ignored);
         }
+    }
 
-        Button modifyButton = (Button) findViewById(R.id.gift_detail_modify_button);
-        modifyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try {
-                    double amount = Double.valueOf(giftAmountEditText.getText().toString());
-                    final String description = descriptionEditText.getText().toString();
-                    if (amount > gift.remainder(actionsListener.getCurrentUsername())) {
-                        giftAmountEditText.setError(
-                                String.format(getString(R.string.gift_detail_too_high_error_text),
-                                        gift.remainder(actionsListener.getCurrentUsername()))
-                        );
-                    } else {
-                        if (isImageChanged) {
-                            if (BuildConfig.DEBUG) {
-                                Log.d(TAG, String.format(Locale.getDefault(),
-                                        "onClick - imageChange: %s", imagePath));
-                            }
-                            actionsListener.updateGift(gift, roomId, amount, description, imagePath);
-                        } else {
-                            if (BuildConfig.DEBUG) {
-                                Log.d(TAG, "onClick - image did not change");
-                            }
-                            actionsListener.updateGift(gift, roomId, amount, description, null);
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    giftAmountEditText.setError(getString(R.string.gift_detail_nan_error_text));
-                }
-
-            }
-        });
+    @Override
+    protected void onDestroy() {
+        if (mAddImageDialog != null) {
+            mAddImageDialog.dismiss();
+        }
+        mButterKnifeUnbinder.unbind();
+        super.onDestroy();
     }
 
     @Override
@@ -188,11 +200,9 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         }
         if (requestCode == PictureUtils.ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST
                 && resultCode == AppCompatActivity.RESULT_OK) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST");
-            }
-            if (addImageDialog != null) {
-                addImageDialog.dismiss();
+            Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST");
+            if (mAddImageDialog != null) {
+                mAddImageDialog.dismiss();
             }
             if (data == null) {
                 //Display an error
@@ -202,15 +212,13 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
             // Getting the Absolute File Path from Content URI
             Uri selectedImage = data.getData();
             imagePath = PictureUtils.getRealPathFromURI(getContext(), selectedImage);
-            giftImageView.setImageURI(selectedImage);
+            mGiftImageView.setImageURI(selectedImage);
             isImageChanged = true;
         } else if (requestCode == PictureUtils.ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST
                 && resultCode == AppCompatActivity.RESULT_OK) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST");
-            }
-            if (addImageDialog != null) {
-                addImageDialog.dismiss();
+            Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST");
+            if (mAddImageDialog != null) {
+                mAddImageDialog.dismiss();
             }
             setPic(imagePath);
             isImageChanged = true;
@@ -247,48 +255,15 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         return true;
     }
 
-    @Override
-    protected void onDestroy() {
-        if (addImageDialog != null) {
-            addImageDialog.dismiss();
-        }
-        super.onDestroy();
-    }
-
     private void setPic(final String filepath) {
         // Get the dimensions of the View
-        int targetW = giftImageView.getWidth();
-        int targetH = giftImageView.getHeight();
+        int targetW = mGiftImageView.getWidth();
+        int targetH = mGiftImageView.getHeight();
 
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(filepath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
+        Bitmap bitmap = PictureUtils.getBitmap(filepath, targetW, targetH);
+        mGiftImageView.setImageBitmap(bitmap);
 
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(filepath, bmOptions);
-        giftImageView.setImageBitmap(bitmap);
-
-        // Todo: mettre l'image à la bonne taille (400px x 400 px)
-        OutputStream fOut = null;
-        try {
-            fOut = new FileOutputStream(imagePath);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-            fOut.flush();
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
-        } finally {
-            if (fOut != null) try { fOut.close(); } catch (IOException ignored) { } // do not forget to close the stream
-        }
+        PictureUtils.saveBitmap(bitmap, imagePath);
     }
 
     /**********************************************************************************************/
@@ -300,7 +275,7 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         // Force Picasso to reload data for this file
         final String filePath = Injection.getDataProvider(this).getGiftImageUrl(gift.getId());
         Picasso.with(this).invalidate(filePath);
-        Picasso.with(this).load(filePath).fit().centerCrop().into(giftImageView);
+        Picasso.with(this).load(filePath).fit().centerCrop().into(mGiftImageView);
         Intent intent = new Intent();
         intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
         setResult(RESULT_OK, intent);
@@ -316,14 +291,13 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
 
     @Override
     public void showLoader() {
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.toolbar_progressBar);
-        progressBar.animate();
-        findViewById(R.id.toolbar_progressBar).setVisibility(View.VISIBLE);
+        mProgressBar.animate();
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
-        findViewById(R.id.toolbar_progressBar).setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override

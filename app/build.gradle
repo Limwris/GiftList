@@ -117,6 +117,9 @@ dependencies {
     compile group: "com.google.android.gms", name: 'play-services', version: rootProject.ext.playServicesVersion
     // Picasso
     compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.2'
+    // ButterKnife
+    annotationProcessor group: 'com.jakewharton', name: 'butterknife-compiler', version: rootProject.ext.butterKnifeVersion
+    compile             group: 'com.jakewharton', name: 'butterknife',          version: rootProject.ext.butterKnifeVersion
 
     testCompile new StringBuffer('junit:junit:').append(rootProject.ext.junitVersion).toString()
     testCompile new StringBuffer('org.mockito:mockito-all:').append(rootProject.ext.mockitoVersion).toString()

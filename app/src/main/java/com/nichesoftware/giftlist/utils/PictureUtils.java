@@ -3,9 +3,10 @@ package com.nichesoftware.giftlist.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,7 +15,9 @@ import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.R;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -135,5 +138,50 @@ public final class PictureUtils {
             Log.d(TAG, String.format("createImageFile - complete path : %s", image.getAbsolutePath()));
         }
         return image;
+    }
+
+    /**
+     * Retrieve bitmap from the given location, and with the given config
+     * @param filepath
+     * @param targetW
+     * @param targetH
+     * @return bitmap from the given location, and with the given config
+     */
+    public static Bitmap getBitmap(final String filepath, final int targetW, final int targetH) {
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filepath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        return BitmapFactory.decodeFile(filepath, bmOptions);
+    }
+
+    /**
+     * Save image to the given file path
+     * @param bitmap
+     * @param imagePath
+     */
+    public static void saveBitmap(Bitmap bitmap, final String imagePath) {
+        // Todo: mettre l'image à la bonne taille (400px x 400 px)
+        OutputStream fOut = null;
+        try {
+            fOut = new FileOutputStream(imagePath);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+            fOut.flush();
+        } catch (IOException ignored) {
+            ignored.printStackTrace();
+        } finally {
+            if (fOut != null) try { fOut.close(); } catch (IOException ignored) { } // do not forget to close the stream
+        }
     }
 }
