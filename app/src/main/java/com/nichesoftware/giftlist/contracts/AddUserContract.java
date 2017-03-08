@@ -8,7 +8,7 @@ import java.util.List;
  * Created by n_che on 22/06/2016.
  */
 public interface AddUserContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         /**
          * Ajout d'un utilisateur avec succès
          */
@@ -23,7 +23,7 @@ public interface AddUserContract {
          */
         void showContacts(List<User> users);
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         /**
          * Action permettant à l'utilisateur d'inviter un autre utilisateur dans la salle
          * @param roomId

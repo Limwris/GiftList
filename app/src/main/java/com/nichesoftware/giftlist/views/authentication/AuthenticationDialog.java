@@ -3,13 +3,12 @@ package com.nichesoftware.giftlist.views.authentication;
 import android.content.Context;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.contracts.AuthenticationContract;
-import com.nichesoftware.giftlist.presenters.AuthenticationPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
 
 import butterknife.BindView;
@@ -20,25 +19,25 @@ import butterknife.Unbinder;
 /**
  * Authentication dialog
  */
-public class AuthenticationDialog extends AppCompatDialog implements AuthenticationContract.View {
+public class AuthenticationDialog extends AppCompatDialog {
     // Constants   ---------------------------------------------------------------------------------
     private final static String TAG = AuthenticationDialog.class.getSimpleName();
 
     // Fields   ------------------------------------------------------------------------------------
     /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private AuthenticationContract.UserActionListener actionsListener;
-
-    /**
      * Callback sur le processus d'authentification
      */
-    private AuthenticationContract.OnAuthenticationCallback authenticationCallback;
+    private IAuthenticationListener mAthenticationlistener;
 
     /**
      * Unbinder Butter Knife
      */
     private Unbinder mButterKnifeUnbinder;
+
+    /**
+     * Lock on the login button
+     */
+    private boolean lock;
 
     /**
      * Graphical components
@@ -53,10 +52,9 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
     @OnClick(R.id.authentication_dialog_ok_button)
     void onOkButtonClick() {
         if (validate()) {
-            actionsListener.authenticate(
+            mAthenticationlistener.onAuthentication(
                     mUsernameEditText.getText().toString(),
-                    mPasswordEditText.getText().toString(),
-                    authenticationCallback);
+                    mPasswordEditText.getText().toString());
         }
     }
 
@@ -65,15 +63,12 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
         dismiss();
     }
 
-    public AuthenticationDialog(Context context, final AuthenticationContract.OnAuthenticationCallback authenticationCallback) {
+    public AuthenticationDialog(Context context, final IAuthenticationListener authenticationCallback) {
         super(context, R.style.AppTheme_Dark_Dialog);
-        this.authenticationCallback = authenticationCallback;
+        this.mAthenticationlistener = authenticationCallback;
 
         setContentView(R.layout.log_in_dialog);
         mButterKnifeUnbinder = ButterKnife.bind(this);
-
-        actionsListener = new AuthenticationPresenter(this,
-                Injection.getDataProvider(getContext()));
     }
 
     @Override
@@ -112,15 +107,66 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
     //                                  Implement methods                                         //
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Override
     public void showLoader() {
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressBar.animate();
     }
 
-    @Override
     public void hideLoader() {
         mProgressBar.setVisibility(View.INVISIBLE);
+    }
+
+    /**********************************************************************************************/
+    /***                                        Lock                                            ***/
+    /**********************************************************************************************/
+
+    /**
+     * Adds a lock on the log button
+     */
+    private void addLock() {
+        lock = true;
+        findViewById(R.id.authentication_dialog_ok_button).setEnabled(false);
+    }
+
+    /**
+     * Removes the lock on the login button
+     */
+    private void removeLock() {
+        lock = false;
+        findViewById(R.id.authentication_dialog_ok_button).setEnabled(true);
+    }
+    /**********************************************************************************************/
+    /***                                       Errors                                           ***/
+    /**********************************************************************************************/
+
+    /**
+     * Indicates that the login field is empty
+     */
+    public void setLoginEmpty() {
+        Log.d(TAG, "[AuthenticationDialog] setLoginEmpty");
+        removeLock();
+        hideLoader();
+        mUsernameEditText.setError(getContext().getString(R.string.login_username_empty));
+    }
+
+    /**
+     * Indicates that the password field is empty
+     */
+    public void setPasswordEmpty() {
+        Log.d(TAG, "[AuthenticationDialog] setPasswordEmpty");
+        removeLock();
+        hideLoader();
+        mPasswordEditText.setError(getContext().getString(R.string.login_password_empty));
+    }
+
+    /**
+     * Indicates that the login has failed
+     */
+    public void setAuthentInError() {
+        Log.d(TAG, "[AuthenticationDialog] setAuthentInError");
+        removeLock();
+        hideLoader();
+        Toast.makeText(getContext(), getContext().getString(R.string.login_error), Toast.LENGTH_LONG).show();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,17 +175,17 @@ public class AuthenticationDialog extends AppCompatDialog implements Authenticat
 
     /**
      * Getter sur la callback sur le processus d'authentification
-     * @return
+     * @return authenticationlistener
      */
-    public AuthenticationContract.OnAuthenticationCallback getAuthenticationCallback() {
-        return authenticationCallback;
+    public IAuthenticationListener getAuthenticationlistener() {
+        return mAthenticationlistener;
     }
 
     /**
      * Setter sur la callback sur le processus d'authentification
-     * @param authenticationCallback
+     * @param authenticationlistener
      */
-    public void setAuthenticationCallback(AuthenticationContract.OnAuthenticationCallback authenticationCallback) {
-        this.authenticationCallback = authenticationCallback;
+    public void setAuthenticationlistener(IAuthenticationListener authenticationlistener) {
+        this.mAthenticationlistener = authenticationlistener;
     }
 }

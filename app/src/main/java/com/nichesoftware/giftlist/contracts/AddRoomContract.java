@@ -1,10 +1,10 @@
 package com.nichesoftware.giftlist.contracts;
 
 /**
- * Created by n_che on 27/04/2016.
+ * "Add room" contract
  */
 public interface AddRoomContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         /**
          * Création de la salle avec succès
          */
@@ -14,7 +14,7 @@ public interface AddRoomContract {
          */
         void onCreateRoomFailed();
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         void addRoom(final String roomName, final String occasion);
     }
 }

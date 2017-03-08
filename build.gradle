@@ -27,10 +27,12 @@ ext {
     targetSdkVersion = 21
     compileSdkVersion = 23
     buildToolsVersion = "25.0.2"
+
     retrofitVersion = "2.0.1"
     butterKnifeVersion = "8.5.1"
     playServicesVersion = "9.0.0"
     supportLibVersion = "24.2.1"
+
     junitVersion = "4.12"
     mockitoVersion = "1.10.19"
     powerMockVersion = "1.6.3"

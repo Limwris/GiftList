@@ -11,39 +11,35 @@ import com.nichesoftware.giftlist.model.Gift;
 import java.util.List;
 
 /**
- * Created by n_che on 25/04/2016.
+ * "Gifts list" presenter
  */
-public class GiftListPresenter extends AbstractPresenter implements GiftListContract.UserActionListener {
+public class GiftListPresenter extends AuthenticationPresenter<GiftListContract.View> implements GiftListContract.Presenter {
     private static final String TAG = GiftListPresenter.class.getSimpleName();
 
     /**
-     * View
-     */
-    private GiftListContract.View giftListView;
-
-    /**
-     * Constructeur
-     * @param view
-     * @param dataProvider
+     * Constructor
+     *
+     * @param view         View to attach
+     * @param dataProvider The data provider
      */
     public GiftListPresenter(@NonNull GiftListContract.View view, @NonNull DataProvider dataProvider) {
-        this.dataProvider = dataProvider;
-        this.giftListView = view;
+        super(view, dataProvider);
     }
+
 
     @Override
     public void loadGifts(final int roomId, boolean forceUpdate) {
         // Show loader
-        giftListView.showLoader();
+        mAttachedView.showLoader();
 
-        dataProvider.getGifts(forceUpdate, roomId, new DataProvider.LoadGiftsCallback() {
+        mDataProvider.getGifts(forceUpdate, roomId, new DataProvider.LoadGiftsCallback() {
             @Override
             public void onGiftsLoaded(List<Gift> gifts) {
                 // Cache le loader
-                giftListView.hideLoader();
+                mAttachedView.hideLoader();
 
                 if (gifts != null) {
-                    giftListView.showGifts(gifts);
+                    mAttachedView.showGifts(gifts);
                 } else {
                     // Gérer erreurs webservice
                 }
@@ -57,26 +53,26 @@ public class GiftListPresenter extends AbstractPresenter implements GiftListCont
             Log.d(TAG, String.format("Le cadeau [id=%s, nom=%s, amount=%f] a été cliqué...",
                     gift.getId(), gift.getName(), gift.getPrice()));
         }
-        giftListView.showGiftDetail(gift);
+        mAttachedView.showGiftDetail(gift);
     }
 
     @Override
     public void leaveCurrentRoom(int roomId) {
-        dataProvider.leaveRoom(roomId, new DataProvider.Callback() {
+        mDataProvider.leaveRoom(roomId, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
-                giftListView.onLeaveRoomSuccess();
+                mAttachedView.onLeaveRoomSuccess();
             }
 
             @Override
             public void onError() {
-                giftListView.onLeaveRoomError();
+                mAttachedView.onLeaveRoomError();
             }
         });
     }
 
     @Override
     public boolean isInvitationAvailable() {
-        return !dataProvider.isDisconnectedUser();
+        return !mDataProvider.isDisconnectedUser();
     }
 }

@@ -15,10 +15,13 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.nichesoftware.giftlist.BuildConfig;
+import com.nichesoftware.giftlist.dataproviders.events.AuthenticationFailedEvent;
+import com.nichesoftware.giftlist.dataproviders.events.AuthenticationSucceededEvent;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.ServiceAPI;
+import com.nichesoftware.giftlist.utils.BusProvider;
 import com.nichesoftware.giftlist.utils.FileUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.start.LaunchScreenActivity;
@@ -80,8 +83,7 @@ public class DataProvider {
     }
 
     public void logIn(@NonNull final String username,
-                      @NonNull final String password,
-                      @NonNull final Callback callback) {
+                      @NonNull final String password) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("logIn [username = %s, password = %s]", username, password));
         }
@@ -122,12 +124,12 @@ public class DataProvider {
                             sendGcmTokenToServer(gcmToken);
                         }
 
-                        callback.onSuccess();
+                        BusProvider.post(new AuthenticationSucceededEvent());
                     }
 
                     @Override
                     public void onError() {
-                        callback.onError();
+                        BusProvider.post(new AuthenticationFailedEvent());
                     }
                 });
     }

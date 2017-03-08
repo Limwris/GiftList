@@ -3,10 +3,10 @@ package com.nichesoftware.giftlist.contracts;
 import com.nichesoftware.giftlist.model.Gift;
 
 /**
- * Created by n_che on 09/06/2016.
+ * Gift detail contract
  */
 public interface GiftDetailContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         /**
          * Création de la salle avec succès
          */
@@ -16,8 +16,10 @@ public interface GiftDetailContract {
          */
         void onUpdateGiftFailed();
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         void updateGift(final Gift gift, int roomId, double allocatedAmount,
                         final String description, final String filePath);
+
+        String getCurrentUsername();
     }
 }

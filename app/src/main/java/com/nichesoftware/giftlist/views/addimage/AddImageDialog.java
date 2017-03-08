@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatDialog;
 
 import com.nichesoftware.giftlist.R;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
@@ -50,7 +49,6 @@ public class AddImageDialog extends AppCompatDialog {
 
         setContentView(R.layout.add_gift_add_image_dialog);
         mButterKnifeUnbinder = ButterKnife.bind(this);
-
     }
 
 

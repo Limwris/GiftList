@@ -1,14 +1,14 @@
 package com.nichesoftware.giftlist.contracts;
 
 /**
- * Created by Kattleya on 18/07/2016.
+ * Splash screen contract
  */
 public interface SplashScreenContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         void doShowDisconnectedActivity();
         void doShowConnectedActivity();
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         void doRGSplashScreen();
     }
 }

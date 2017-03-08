@@ -8,32 +8,28 @@ import com.nichesoftware.giftlist.contracts.LaunchScreenContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
 
 /**
- * Created by n_che on 08/06/2016.
+ * Launch screen presenter
  */
-public class LaunchScreenPresenter extends AbstractPresenter implements LaunchScreenContract.UserActionListener {
+public class LaunchScreenPresenter extends AuthenticationPresenter<LaunchScreenContract.View> implements LaunchScreenContract.Presenter {
     private static final String TAG = LaunchScreenPresenter.class.getSimpleName();
 
     /**
-     * View
-     */
-    private LaunchScreenContract.View view;
-
-    /**
-     * Constructeur
-     * @param view
-     * @param dataProvider
+     * Constructor
+     *
+     * @param view         View to attach
+     * @param dataProvider The data provider
      */
     public LaunchScreenPresenter(@NonNull LaunchScreenContract.View view, @NonNull DataProvider dataProvider) {
-        this.dataProvider = dataProvider;
-        this.view = view;
+        super(view, dataProvider);
     }
+
 
     @Override
     public void startApplication() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "startApplication");
         }
-        view.showRoomsActivity();
+        mAttachedView.showRoomsActivity();
 
     }
 
@@ -42,16 +38,16 @@ public class LaunchScreenPresenter extends AbstractPresenter implements LaunchSc
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "register");
         }
-        view.showLoader();
+        mAttachedView.showLoader();
 
-        dataProvider.register(username, password, new DataProvider.Callback() {
+        mDataProvider.register(username, password, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "register - onSuccess");
                 }
-                view.hideLoader();
-                view.showRoomsActivity();
+                mAttachedView.hideLoader();
+                mAttachedView.showRoomsActivity();
             }
 
             @Override
@@ -59,7 +55,7 @@ public class LaunchScreenPresenter extends AbstractPresenter implements LaunchSc
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "register - onError");
                 }
-                view.hideLoader();
+                mAttachedView.hideLoader();
             }
         });
     }

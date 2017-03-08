@@ -1,14 +1,12 @@
 package com.nichesoftware.giftlist.views.start;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,39 +14,27 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.contracts.AuthenticationContract;
 import com.nichesoftware.giftlist.contracts.LaunchScreenContract;
 import com.nichesoftware.giftlist.presenters.LaunchScreenPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
+import com.nichesoftware.giftlist.views.authentication.IAuthenticationListener;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Launch screen
  */
-public class LaunchScreenActivity extends AppCompatActivity implements LaunchScreenContract.View {
+public class LaunchScreenActivity extends AuthenticationActivity<LaunchScreenContract.Presenter> implements LaunchScreenContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = LaunchScreenActivity.class.getSimpleName();
 
     // Fields   ------------------------------------------------------------------------------------
-    /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private LaunchScreenContract.UserActionListener actionsListener;
-
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
-
     /**
      * Graphical components
      */
@@ -68,7 +54,7 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int  whichButton) {
-                                actionsListener.startApplication();
+                                presenter.startApplication();
                                 if (dialogInterface != null) {
                                     dialogInterface.dismiss();
                                 }
@@ -92,7 +78,7 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
         final TextInputEditText usernameEditText = (TextInputEditText) dialogView.findViewById(R.id.start_sign_up_dialog_username_edit_text);
         final TextInputEditText passwordEditText = (TextInputEditText) dialogView.findViewById(R.id.start_sign_up_dialog_password_edit_text);
 
-        new AlertDialog.Builder(LaunchScreenActivity.this,
+        new AlertDialog.Builder(this,
                 R.style.AppTheme_Dark_Dialog)
                 .setView(dialogView)
                 .setPositiveButton(R.string.start_dialog_sign_up_positive_button,
@@ -104,7 +90,7 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
                                         dialogInterface.dismiss();
                                     }
 
-                                    actionsListener.register(
+                                    presenter.register(
                                             usernameEditText.getText().toString(),
                                             passwordEditText.getText().toString());
                                 }
@@ -123,28 +109,19 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
 
     @OnClick(R.id.didacticiel_log_in)
     void onLogInClick() {
-        AuthenticationDialog authenticationDialog = new AuthenticationDialog(LaunchScreenActivity.this,
-                new AuthenticationContract.OnAuthenticationCallback() {
+        AuthenticationDialog authenticationDialog = new AuthenticationDialog(this,
+                new IAuthenticationListener() {
                     @Override
-                    public void onSuccess() {
-                        actionsListener.startApplication();
-                    }
-
-                    @Override
-                    public void onError() {
-
+                    public void onAuthentication(String username, String password) {
+                        getPresenter().onAuthentication(username, password);
                     }
                 });
-        authenticationDialog.show();
+                authenticationDialog.show();
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.launch_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
-
-        actionsListener = new LaunchScreenPresenter(this, Injection.getDataProvider(this));
+    protected void initView() {
+        super.initView();
 
         // Todo: régler problème de la Toolbar n'affichant plus la vue standard de l'action bar
         // Set up the toolbar.
@@ -161,9 +138,13 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+    protected int getContentView() {
+        return R.layout.launch_activity;
+    }
+
+    @Override
+    protected LaunchScreenContract.Presenter newPresenter() {
+        return new LaunchScreenPresenter(this, Injection.getDataProvider(this));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,7 +157,7 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
 
         Intent intent = new Intent(this, RoomsActivity.class);
         startActivity(intent);
-        if (actionsListener.isConnected()) {
+        if (presenter.isConnected()) {
             finish();
         }
     }
@@ -193,8 +174,8 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    public void showError(@NonNull String message) {
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,5 +202,10 @@ public class LaunchScreenActivity extends AppCompatActivity implements LaunchScr
         }
 
         return valid;
+    }
+
+    @Override
+    protected void performLogin() {
+        presenter.startApplication();
     }
 }

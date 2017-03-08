@@ -6,15 +6,10 @@ import com.nichesoftware.giftlist.contracts.AddRoomContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
 
 /**
- * Created by n_che on 09/06/2016.
+ * "Add room" presenter
  */
-public class AddRoomPresenter extends AbstractPresenter implements AddRoomContract.UserActionListener {
+public class AddRoomPresenter extends AuthenticationPresenter<AddRoomContract.View> implements AddRoomContract.Presenter {
     private static final String TAG = AddRoomPresenter.class.getSimpleName();
-
-    /**
-     * View
-     */
-    private AddRoomContract.View view;
 
     /**
      * Constructeur
@@ -22,22 +17,21 @@ public class AddRoomPresenter extends AbstractPresenter implements AddRoomContra
      * @param dataProvider
      */
     public AddRoomPresenter(@NonNull AddRoomContract.View view, @NonNull DataProvider dataProvider) {
-        this.dataProvider = dataProvider;
-        this.view = view;
+        super(view, dataProvider);
     }
 
     @Override
     public void addRoom(String roomName, String occasion) {
 
-        dataProvider.createRoom(roomName, occasion, new DataProvider.Callback() {
+        mDataProvider.createRoom(roomName, occasion, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
-                view.onCreateRoomSuccess();
+                mAttachedView.onCreateRoomSuccess();
             }
 
             @Override
             public void onError() {
-                view.onCreateRoomFailed();
+                mAttachedView.onCreateRoomFailed();
             }
         });
     }

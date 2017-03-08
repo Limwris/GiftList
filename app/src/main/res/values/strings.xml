@@ -29,6 +29,9 @@
     <!-- Authentication Dialog -->
     <string name="authentication_dialog_loading_message">En cours de connexion&#8230;</string>
     <string name="authentication_dialog_positive_button">Se connecter</string>
+    <string name="login_error">Identifiant et/ou mot de passe incorrect</string>
+    <string name="login_username_empty">Username cannot be empty</string>
+    <string name="login_password_empty">Password cannot be empty</string>
 
     <!-- RoomsActivity-->
     <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>

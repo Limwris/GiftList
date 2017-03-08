@@ -7,10 +7,10 @@ import com.nichesoftware.giftlist.model.Room;
 import java.util.List;
 
 /**
- * Created by n_che on 25/04/2016.
+ * Rooms list contract
  */
 public interface RoomsContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         /**
          * Affiche les salles passées en paramètre
          * @param rooms
@@ -22,7 +22,7 @@ public interface RoomsContract {
          */
         void showRoomDetail(@NonNull int roomId);
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         /**
          * Action permettant d'ouvrir le détail d'une salle
          * @param room   Salle à ouvrir

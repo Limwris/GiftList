@@ -5,10 +5,10 @@ import com.nichesoftware.giftlist.model.Gift;
 import java.util.List;
 
 /**
- * Created by n_che on 25/04/2016.
+ * "Gifts list" contract
  */
 public interface GiftListContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         /**
          * Affiche les cadeaux passées en paramètre
          * @param gifts
@@ -28,7 +28,7 @@ public interface GiftListContract {
          */
         void onLeaveRoomError();
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         /**
          * Action permettant de charger la liste des cadeaux
          * @param roomId        Identifiant de la salle

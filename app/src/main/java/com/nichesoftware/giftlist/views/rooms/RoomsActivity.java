@@ -1,13 +1,10 @@
 package com.nichesoftware.giftlist.views.rooms;
 
-import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +18,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.RoomsContract;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.presenters.RoomsPresenter;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addroom.AddRoomActivity;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
@@ -29,14 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Room screen
  */
-public class RoomsActivity extends AppCompatActivity implements RoomsContract.View {
+public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presenter> implements RoomsContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = RoomsActivity.class.getSimpleName();
     public static final int ADD_ROOM_REQUEST = 20;  // The request code
@@ -47,16 +43,6 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
      * Adapter lié à la RecyclerView
      */
     private RoomAdapter mRoomsAdapter;
-
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
-
-    /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private RoomsContract.UserActionListener actionsListener;
 
     /**
      * Listener for clicks on person in the RecyclerView.
@@ -82,13 +68,10 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
         startActivityForResult(intent, RoomsActivity.ADD_ROOM_REQUEST);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.rooms_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
+    @Override
+    protected void initView() {
+        super.initView();
 
         // Set up the toolbar
         if (mToolbar != null) {
@@ -99,13 +82,11 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
             }
         }
 
-        actionsListener = new RoomsPresenter(this, Injection.getDataProvider(this));
-
         mItemListener = new RoomItemListener() {
             @Override
             public void onRoomClick(Room clickedRoom) {
                 Log.d(TAG, "Clic détecté sur la salle " + clickedRoom.getRoomName());
-                actionsListener.openRoomDetail(clickedRoom);
+                presenter.openRoomDetail(clickedRoom);
             }
         };
 
@@ -124,18 +105,22 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                actionsListener.loadRooms(true);
+                presenter.loadRooms(true);
             }
         });
 
         // Charge les salles à l'ouverture de l'activité
-        actionsListener.loadRooms(false);
+        presenter.loadRooms(false);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+    protected int getContentView() {
+        return R.layout.rooms_activity;
+    }
+
+    @Override
+    protected RoomsContract.Presenter newPresenter() {
+        return new RoomsPresenter(this, Injection.getDataProvider(this));
     }
 
     @Override
@@ -144,11 +129,11 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
         if (requestCode == ADD_ROOM_REQUEST) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                actionsListener.loadRooms(false);
+                presenter.loadRooms(false);
             }
         } else if (requestCode == ROOM_DETAIL_REQUEST) {
             if (resultCode == GiftListActivity.RESULT_RELOAD) {
-                actionsListener.loadRooms(false);
+                presenter.loadRooms(false);
             }
         }
     }
@@ -157,7 +142,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.disconnection_menu_item:
-                actionsListener.doDisconnect();
+                presenter.doDisconnect();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -168,7 +153,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.standard_menu, menu);
         MenuItem item = menu.findItem(R.id.disconnection_menu_item);
-        if (actionsListener.isConnected()) {
+        if (presenter.isConnected()) {
             item.setEnabled(true);
         } else {
             // disabled
@@ -189,6 +174,11 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
     @Override
     public void hideLoader() {
         setRefreshIndicator(false);
+    }
+
+    @Override
+    public void showError(@NonNull String message) {
+
     }
 
     private void setRefreshIndicator(final boolean doShow) {
@@ -226,10 +216,9 @@ public class RoomsActivity extends AppCompatActivity implements RoomsContract.Vi
     }
 
     @Override
-    public Context getContext() {
-        return this;
-    }
+    protected void performLogin() {
 
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                                       Inner class                                          //

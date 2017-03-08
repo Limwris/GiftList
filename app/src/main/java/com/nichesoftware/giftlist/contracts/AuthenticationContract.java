@@ -1,17 +1,19 @@
 package com.nichesoftware.giftlist.contracts;
 
+import com.nichesoftware.giftlist.presenters.IPresenter;
+import com.nichesoftware.giftlist.views.IView;
+
 /**
- * Created by Kattleya on 07/07/2016.
+ * Authentication contract
  */
 public interface AuthenticationContract {
-    interface OnAuthenticationCallback {
-        void onSuccess();
-        void onError();
+    interface View extends IView {
+        void onAuthenticationError();
+        void onAuthenticationSucceeded();
     }
-    interface View extends AbstractContract.View {
-        void dismiss();
-    }
-    interface UserActionListener extends AbstractContract.UserActionListener {
-        void authenticate(final String username, final String password, final OnAuthenticationCallback callback);
+    interface Presenter extends IPresenter {
+        void onAuthentication(final String username, final String password);
+        void doDisconnect();
+        boolean isConnected();
     }
 }

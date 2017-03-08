@@ -1,10 +1,8 @@
 package com.nichesoftware.giftlist.views.addroom;
 
-import android.content.Context;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,27 +15,16 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddRoomContract;
 import com.nichesoftware.giftlist.presenters.AddRoomPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Add room screen
  */
-public class AddRoomActivity extends AppCompatActivity implements AddRoomContract.View {
+public class AddRoomActivity extends AuthenticationActivity<AddRoomContract.Presenter> implements AddRoomContract.View {
     // Fields   ------------------------------------------------------------------------------------
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
-
-    /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private AddRoomContract.UserActionListener actionsListener;
-
     /**
      * Graphical components
      */
@@ -58,18 +45,12 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
         }
         final String roomName = mRoomNameEditText.getText().toString();
         final String occasion = mOccasionEditText.getText().toString();
-        actionsListener.addRoom(roomName, occasion);
+        presenter.addRoom(roomName, occasion);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.add_room_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
-
-        actionsListener = new AddRoomPresenter(this, Injection.getDataProvider(this));
-
+    protected void initView() {
+        super.initView();
         // Set up the toolbar
         if (mToolbar != null) {
             setSupportActionBar(mToolbar);
@@ -86,7 +67,7 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.standard_menu, menu);
         MenuItem item = menu.findItem(R.id.disconnection_menu_item);
-        if (actionsListener.isConnected()) {
+        if (presenter.isConnected()) {
             item.setEnabled(true);
         } else {
             // disabled
@@ -99,7 +80,7 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.disconnection_menu_item:
-                actionsListener.doDisconnect();
+                presenter.doDisconnect();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -113,9 +94,13 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+    protected int getContentView() {
+        return R.layout.add_room_activity;
+    }
+
+    @Override
+    protected AddRoomContract.Presenter newPresenter() {
+        return new AddRoomPresenter(this, Injection.getDataProvider(this));
     }
 
     private boolean validate() {
@@ -169,7 +154,12 @@ public class AddRoomActivity extends AppCompatActivity implements AddRoomContrac
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    public void showError(@NonNull String message) {
+        // Todo
+    }
+
+    @Override
+    protected void performLogin() {
+        // Todo
     }
 }

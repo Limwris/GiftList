@@ -1,16 +1,14 @@
 package com.nichesoftware.giftlist.views.giftlist;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -24,6 +22,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
 import com.nichesoftware.giftlist.views.adduser.AddUserActivity;
@@ -33,14 +32,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Created by n_che on 25/04/2016.
  */
-public class GiftListActivity extends AppCompatActivity implements GiftListContract.View {
+public class GiftListActivity extends AuthenticationActivity<GiftListContract.Presenter> implements GiftListContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
@@ -61,11 +58,6 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     private DialogInterface mLeaveDialog = null;
 
     /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private GiftListContract.UserActionListener actionsListener;
-
-    /**
      * Listener sur le clic d'un cadeau
      */
     private GiftItemListener mGiftItemListener;
@@ -74,11 +66,6 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
      * Identifiant de la salle
      */
     private int roomId;
-
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
 
     /**
      * Graphical components
@@ -102,11 +89,8 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.gift_list_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
+    protected void initView() {
+        super.initView();
 
         // Set up the toolbar
         if (mToolbar != null) {
@@ -119,13 +103,11 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
             }
         }
 
-        actionsListener = new GiftListPresenter(this, Injection.getDataProvider(this));
-
         mGiftItemListener = new GiftItemListener() {
             @Override
             public void onGiftClick(Gift clickedGift) {
                 Log.d(TAG, "Clic détecté sur le cadeau " + clickedGift.getName());
-                actionsListener.openGiftDetail(clickedGift);
+                presenter.openGiftDetail(clickedGift);
             }
         };
 
@@ -144,7 +126,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                actionsListener.loadGifts(roomId, true);
+                presenter.loadGifts(roomId, true);
             }
         });
 
@@ -156,7 +138,19 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+        if (mLeaveDialog != null) {
+            mLeaveDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.gift_list_activity;
+    }
+
+    @Override
+    protected GiftListContract.Presenter newPresenter() {
+        return new GiftListPresenter(this, Injection.getDataProvider(this));
     }
 
     @Override
@@ -189,7 +183,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.giftlist_menu, menu);
         MenuItem invitationMenuItem = menu.findItem(R.id.gift_list_invite_user);
-        if (actionsListener.isInvitationAvailable()) {
+        if (presenter.isInvitationAvailable()) {
             invitationMenuItem.setEnabled(true);
             invitationMenuItem.getIcon().setAlpha(255);
         } else {
@@ -199,7 +193,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
         }
 
         MenuItem disconnectionMenuItem = menu.findItem(R.id.disconnection_menu_item);
-        if (actionsListener.isConnected()) {
+        if (presenter.isConnected()) {
             disconnectionMenuItem.setEnabled(true);
         } else {
             // disabled
@@ -222,7 +216,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                 startActivityForResult(intent, ADD_USER_REQUEST);
                 return true;
             case R.id.disconnection_menu_item:
-                actionsListener.doDisconnect();
+                presenter.doDisconnect();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -240,7 +234,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     private void initView(@Nullable final int roomId) {
         this.roomId = roomId;
         // Charge les cadeaux à l'ouverture de l'activité
-        actionsListener.loadGifts(roomId, false);
+        presenter.loadGifts(roomId, false);
     }
 
     private void doShowLeaveRoomDialog() {
@@ -252,7 +246,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
                             @Override
                             public void onClick(DialogInterface dialogInterface, int  whichButton) {
                                 mLeaveDialog = dialogInterface;
-                                actionsListener.leaveCurrentRoom(roomId);
+                                presenter.leaveCurrentRoom(roomId);
                             }
                         })
                 .setNegativeButton(R.string.cancel_button_text,
@@ -267,7 +261,7 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     }
 
     private void forceReload() {
-        actionsListener.loadGifts(roomId, true);
+        presenter.loadGifts(roomId, true);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -282,6 +276,11 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     @Override
     public void hideLoader() {
         setRefreshIndicator(false);
+    }
+
+    @Override
+    public void showError(@NonNull String message) {
+
     }
 
     private void setRefreshIndicator(final boolean doShow) {
@@ -337,8 +336,8 @@ public class GiftListActivity extends AppCompatActivity implements GiftListContr
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    protected void performLogin() {
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

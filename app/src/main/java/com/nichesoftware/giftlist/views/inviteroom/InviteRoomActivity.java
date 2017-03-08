@@ -1,8 +1,6 @@
 package com.nichesoftware.giftlist.views.inviteroom;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,16 +12,15 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.InviteRoomContract;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.presenters.InviteRoomPresenter;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Invite room screen
  */
-public class InviteRoomActivity extends AppCompatActivity implements InviteRoomContract.View {
+public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContract.Presenter> implements InviteRoomContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = InviteRoomActivity.class.getSimpleName();
     public static final String EXTRA_ROOM = "ROOM";
@@ -33,16 +30,6 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
      * Model
      */
     private Room room;
-
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
-
-    /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private InviteRoomContract.UserActionListener actionsListener;
 
     /**
      * Graphical components
@@ -58,22 +45,17 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
 
     @OnClick(R.id.invite_room_button_accept)
     void onInviteButtonClick() {
-        actionsListener.acceptInvitationToRoom(room.getId());
+        presenter.acceptInvitationToRoom(room.getId());
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.invite_room_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
+    protected void initView() {
+        super.initView();
 
         /**
          * Récupération de la salle
          */
         room = getIntent().getParcelableExtra(EXTRA_ROOM);
-
-        actionsListener = new InviteRoomPresenter(this, Injection.getDataProvider(this));
 
         // Set up the toolbar.
         if (mToolbar != null) {
@@ -84,9 +66,13 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+    protected int getContentView() {
+        return R.layout.invite_room_activity;
+    }
+
+    @Override
+    protected InviteRoomContract.Presenter newPresenter() {
+        return new InviteRoomPresenter(this, Injection.getDataProvider(this));
     }
 
     /**********************************************************************************************/
@@ -115,7 +101,12 @@ public class InviteRoomActivity extends AppCompatActivity implements InviteRoomC
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    public void showError(@NonNull String message) {
+
+    }
+
+    @Override
+    protected void performLogin() {
+
     }
 }

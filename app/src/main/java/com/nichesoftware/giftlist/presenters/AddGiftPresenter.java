@@ -8,37 +8,32 @@ import com.nichesoftware.giftlist.dataproviders.DataProvider;
 /**
  * Created by n_che on 09/06/2016.
  */
-public class AddGiftPresenter extends AbstractPresenter implements AddGiftContract.UserActionListener {
+public class AddGiftPresenter extends AuthenticationPresenter<AddGiftContract.View> implements AddGiftContract.Presenter {
     private static final String TAG = AddGiftPresenter.class.getSimpleName();
 
     /**
-     * View
-     */
-    private AddGiftContract.View view;
-
-    /**
-     * Constructeur
-     * @param view
-     * @param dataProvider
+     * Constructor
+     *
+     * @param view         View to attach
+     * @param dataProvider The data provider
      */
     public AddGiftPresenter(@NonNull AddGiftContract.View view, @NonNull DataProvider dataProvider) {
-        this.dataProvider = dataProvider;
-        this.view = view;
+        super(view, dataProvider);
     }
 
     @Override
     public void addGift(int roomId, String name, double price, double amount,
                         final String description, final String filePath) {
-        dataProvider.addGift(roomId, name, price, amount, description, filePath,
+        mDataProvider.addGift(roomId, name, price, amount, description, filePath,
                 new DataProvider.Callback() {
                     @Override
                     public void onSuccess() {
-                        view.onCreateGiftSuccess();
+                        mAttachedView.onCreateGiftSuccess();
                     }
 
                     @Override
                     public void onError() {
-                        view.onCreateGiftFailed();
+                        mAttachedView.onCreateGiftFailed();
                     }
                 });
     }

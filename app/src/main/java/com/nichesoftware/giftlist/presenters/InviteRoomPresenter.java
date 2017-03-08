@@ -4,40 +4,34 @@ import android.support.annotation.NonNull;
 
 import com.nichesoftware.giftlist.contracts.InviteRoomContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
-import com.nichesoftware.giftlist.model.Room;
 
 /**
- * Created by n_che on 27/06/2016.
+ * "Invite room" presenter
  */
-public class InviteRoomPresenter extends AbstractPresenter implements InviteRoomContract.UserActionListener {
+public class InviteRoomPresenter extends AuthenticationPresenter<InviteRoomContract.View> implements InviteRoomContract.Presenter {
     private static final String TAG = InviteRoomPresenter.class.getSimpleName();
 
     /**
-     * View
-     */
-    private InviteRoomContract.View view;
-
-    /**
-     * Constructeur
-     * @param view
-     * @param dataProvider
+     * Constructor
+     *
+     * @param view         View to attach
+     * @param dataProvider The data provider
      */
     public InviteRoomPresenter(@NonNull InviteRoomContract.View view, @NonNull DataProvider dataProvider) {
-        this.dataProvider = dataProvider;
-        this.view = view;
+        super(view, dataProvider);
     }
 
     @Override
     public void acceptInvitationToRoom(int roomId) {
-        dataProvider.acceptInvitationToRoom(roomId, new DataProvider.Callback() {
+        mDataProvider.acceptInvitationToRoom(roomId, new DataProvider.Callback() {
             @Override
             public void onSuccess() {
-                view.onAcceptInvitationSuccess();
+                mAttachedView.onAcceptInvitationSuccess();
             }
 
             @Override
             public void onError() {
-                view.onAcceptInvitationFailed();
+                mAttachedView.onAcceptInvitationFailed();
             }
         });
     }

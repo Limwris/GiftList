@@ -1,16 +1,16 @@
 package com.nichesoftware.giftlist.contracts;
 
 /**
- * Created by n_che on 08/06/2016.
+ * Launch screen contract
  */
 public interface LaunchScreenContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         /**
          * Affiche la vue des salles
          */
         void showRoomsActivity();
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         /**
          * Lance l'application
          */

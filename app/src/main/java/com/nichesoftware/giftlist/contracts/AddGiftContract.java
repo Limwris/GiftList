@@ -1,10 +1,10 @@
 package com.nichesoftware.giftlist.contracts;
 
 /**
- * Created by n_che on 09/06/2016.
+ * Contract of the "Add gift" functionality
  */
 public interface AddGiftContract {
-    interface View extends AbstractContract.View {
+    interface View extends AuthenticationContract.View {
         /**
          * Création du cadeau avec succès
          */
@@ -14,7 +14,7 @@ public interface AddGiftContract {
          */
         void onCreateGiftFailed();
     }
-    interface UserActionListener extends AbstractContract.UserActionListener {
+    interface Presenter extends AuthenticationContract.Presenter {
         void addGift(int roomid, final String name, double price, double amount,
                      final String description, final String filePath);
     }

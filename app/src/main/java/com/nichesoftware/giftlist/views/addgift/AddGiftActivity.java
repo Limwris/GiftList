@@ -1,11 +1,10 @@
 package com.nichesoftware.giftlist.views.addgift;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,19 +23,18 @@ import com.nichesoftware.giftlist.contracts.AddGiftContract;
 import com.nichesoftware.giftlist.presenters.AddGiftPresenter;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 
 import java.io.IOException;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Add gift screen
  */
-public class AddGiftActivity extends AppCompatActivity implements AddGiftContract.View {
+public class AddGiftActivity extends AuthenticationActivity<AddGiftContract.Presenter> implements AddGiftContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddGiftActivity.class.getSimpleName();
     public static final String PARCELABLE_ROOM_ID_KEY = "PARCELABLE_ROOM_ID_KEY";
@@ -49,15 +47,6 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     private String imagePath;
     private boolean isImageChanged;
 
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
-    /**
-     * Listener sur les actions de l'utilisateur
-     */
-
-    private AddGiftContract.UserActionListener actionsListener;
     /**
      * Graphical components
      */
@@ -95,18 +84,13 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.add_gift_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
+    protected void initView() {
+        super.initView();
 
         /**
          * Récupération du cadeau
          */
         roomId = getIntent().getIntExtra(PARCELABLE_ROOM_ID_KEY, -1);
-
-        actionsListener = new AddGiftPresenter(this, Injection.getDataProvider(this));
 
         // Set up the toolbar.
         if (mToolbar != null) {
@@ -134,7 +118,16 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
             mAddImageDialog.dismiss();
         }
         super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.add_gift_activity;
+    }
+
+    @Override
+    protected AddGiftContract.Presenter newPresenter() {
+        return new AddGiftPresenter(this, Injection.getDataProvider(this));
     }
 
     @Override
@@ -155,7 +148,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
 
             // Getting the Absolute File Path from Content URI
             Uri selectedImage = data.getData();
-            imagePath = PictureUtils.getRealPathFromURI(getContext(), selectedImage);
+            imagePath = PictureUtils.getRealPathFromURI(this, selectedImage);
             imageView.setImageURI(selectedImage);
             isImageChanged = true;
         } else if (requestCode == PictureUtils.ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST
@@ -173,7 +166,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.add_gift_menu, menu);
         MenuItem item = menu.findItem(R.id.disconnection_menu_item);
-        if (actionsListener.isConnected()) {
+        if (presenter.isConnected()) {
             item.setEnabled(true);
         } else {
             // disabled
@@ -186,7 +179,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.disconnection_menu_item:
-                actionsListener.doDisconnect();
+                presenter.doDisconnect();
                 return true;
             case R.id.add_gift_menu_item:
                 doAddGift();
@@ -212,9 +205,9 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
         final double amount = Double.valueOf(mAmountEditText.getText().toString());
         final String description = descriptionEditText.getText().toString();
         if (isImageChanged) {
-            actionsListener.addGift(roomId, name, price, amount, description, imagePath);
+            presenter.addGift(roomId, name, price, amount, description, imagePath);
         } else {
-            actionsListener.addGift(roomId, name, price, amount, description, null);
+            presenter.addGift(roomId, name, price, amount, description, null);
         }
     }
 
@@ -261,7 +254,6 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     /************************************     View contract     ***********************************/
     /**********************************************************************************************/
 
-
     @Override
     public void onCreateGiftSuccess() {
         setResult(RESULT_OK);
@@ -272,6 +264,11 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     public void onCreateGiftFailed() {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed", Snackbar.LENGTH_SHORT);
         snackbar.show();
+    }
+
+    @Override
+    protected void performLogin() {
+        // Todo
     }
 
     @Override
@@ -286,7 +283,7 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    public void showError(@NonNull String message) {
+        // Todo
     }
 }

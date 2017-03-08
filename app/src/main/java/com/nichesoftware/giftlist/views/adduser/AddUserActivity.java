@@ -1,11 +1,9 @@
 package com.nichesoftware.giftlist.views.adduser;
 
-import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -20,6 +18,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddUserContract;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.AddUserPresenter;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 
@@ -27,13 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 /**
  * Created by n_che on 22/06/2016.
  */
-public class AddUserActivity extends AppCompatActivity implements AddUserContract.View {
+public class AddUserActivity extends AuthenticationActivity<AddUserContract.Presenter> implements AddUserContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddUserActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
@@ -50,16 +47,6 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
     private ContactAdapter mContactsAdapter;
 
     /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
-
-    /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private AddUserContract.UserActionListener actionsListener;
-
-    /**
      * Graphical components
      */
     @BindView(R.id.add_user_recycler_view)
@@ -72,18 +59,13 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
     ErrorView mErrorView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.add_user_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
+    protected void initView() {
+        super.initView();
 
         /**
          * Récupération de l'identifiant de la salle
          */
         roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
-
-        actionsListener = new AddUserPresenter(this, Injection.getDataProvider(this));
 
         // Set up the toolbar.
         if (mToolbar != null) {
@@ -108,20 +90,23 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numColumns));
 
-        actionsListener.loadContacts(roomId);
+        presenter.loadContacts(roomId);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+    protected int getContentView() {
+        return R.layout.add_user_activity;
     }
 
+    @Override
+    protected AddUserContract.Presenter newPresenter() {
+        return new AddUserPresenter(this, Injection.getDataProvider(this));
+    }
 
     private void doInviteUsers() {
         for (AddUserVO vo : mContactsAdapter.getList()) {
             if (vo.isChecked()) {
-                actionsListener.inviteUserToCurrentRoom(roomId, vo.getUser().getUsername());
+                presenter.inviteUserToCurrentRoom(roomId, vo.getUser().getUsername());
             }
         }
     }
@@ -131,7 +116,7 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
         getMenuInflater().inflate(R.menu.add_user_menu, menu);
         MenuItem disconnectionItem = menu.findItem(R.id.disconnection_menu_item);
         MenuItem addItem = menu.findItem(R.id.add_user_menu_item);
-        if (actionsListener.isConnected()) {
+        if (presenter.isConnected()) {
             disconnectionItem.setEnabled(true);
         } else {
             // disabled
@@ -167,7 +152,7 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.disconnection_menu_item:
-                actionsListener.doDisconnect();
+                presenter.doDisconnect();
                 return true;
             case R.id.add_user_menu_item:
                 doInviteUsers();
@@ -214,6 +199,11 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
     }
 
     @Override
+    public void showError(@NonNull String message) {
+
+    }
+
+    @Override
     public void showContacts(List<User> users) {
         Log.d(TAG, "showContacts");
 
@@ -235,7 +225,7 @@ public class AddUserActivity extends AppCompatActivity implements AddUserContrac
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    protected void performLogin() {
+
     }
 }

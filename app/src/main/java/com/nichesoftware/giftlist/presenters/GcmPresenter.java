@@ -21,15 +21,20 @@ import com.nichesoftware.giftlist.views.inviteroom.InviteRoomActivity;
 /**
  * Created by n_che on 27/06/2016.
  */
-public class GcmPresenter extends AbstractPresenter implements GcmContract.ActionListener {
+public class GcmPresenter implements GcmContract.Presenter {
     private static final String TAG = GcmPresenter.class.getSimpleName();
+
+    /**
+     * Data provider
+     */
+    protected DataProvider mDataProvider;
 
     /**
      * Constructor
      * @param provider
      */
     public GcmPresenter(DataProvider provider) {
-        this.dataProvider = provider;
+        this.mDataProvider = provider;
     }
 
     /**
@@ -40,7 +45,7 @@ public class GcmPresenter extends AbstractPresenter implements GcmContract.Actio
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "registerGcm");
         }
-        dataProvider.registerGcm(gcmToken);
+        mDataProvider.registerGcm(gcmToken);
 
     }
 
@@ -55,7 +60,7 @@ public class GcmPresenter extends AbstractPresenter implements GcmContract.Actio
         intent.putExtra(InviteRoomActivity.EXTRA_ROOM, invitation.getRoom());
 
         // Si l'utilisateur courant est bien celui qui est invité
-        if (dataProvider.getCurrentUser().equals(invitation.getInvitedUser().getUsername())) {
+        if (mDataProvider.getCurrentUser().equals(invitation.getInvitedUser().getUsername())) {
             // Build Notification
             NotificationCompat.Builder notificationBuilder =
                     new NotificationCompat.Builder(context)

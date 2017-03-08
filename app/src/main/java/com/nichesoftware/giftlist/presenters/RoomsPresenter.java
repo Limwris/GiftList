@@ -11,24 +11,19 @@ import com.nichesoftware.giftlist.model.Room;
 import java.util.List;
 
 /**
- * Created by n_che on 25/04/2016.
+ * Rooms list presenter
  */
-public class RoomsPresenter extends AbstractPresenter implements RoomsContract.UserActionListener {
+public class RoomsPresenter extends AuthenticationPresenter<RoomsContract.View> implements RoomsContract.Presenter {
     private static final String TAG = RoomsPresenter.class.getSimpleName();
 
     /**
-     * View
-     */
-    private RoomsContract.View roomsView;
-
-    /**
-     * Constructeur
-     * @param view
-     * @param dataProvider
+     * Constructor
+     *
+     * @param view         View to attach
+     * @param dataProvider The data provider
      */
     public RoomsPresenter(@NonNull RoomsContract.View view, @NonNull DataProvider dataProvider) {
-        this.dataProvider = dataProvider;
-        this.roomsView = view;
+        super(view, dataProvider);
     }
 
     @Override
@@ -36,7 +31,7 @@ public class RoomsPresenter extends AbstractPresenter implements RoomsContract.U
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("La salle [id=%s, nom=%s, occasion=%s] a été cliquée...", room.getId(), room.getRoomName(), room.getOccasion()));
         }
-        roomsView.showRoomDetail(room.getId());
+        mAttachedView.showRoomDetail(room.getId());
     }
 
     @Override
@@ -46,16 +41,16 @@ public class RoomsPresenter extends AbstractPresenter implements RoomsContract.U
         }
 
         // Show loader
-        roomsView.showLoader();
+        mAttachedView.showLoader();
 
-        dataProvider.getRooms(forceUpdate, new DataProvider.LoadRoomsCallback() {
+        mDataProvider.getRooms(forceUpdate, new DataProvider.LoadRoomsCallback() {
             @Override
             public void onRoomsLoaded(List<Room> rooms) {
                 // Cache le loader
-                roomsView.hideLoader();
+                mAttachedView.hideLoader();
 
                 if (rooms != null) {
-                    roomsView.showRooms(rooms);
+                    mAttachedView.showRooms(rooms);
                 } else {
                     // Gérer erreurs webservice
                 }

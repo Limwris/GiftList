@@ -1,11 +1,10 @@
 package com.nichesoftware.giftlist.views.giftdetail;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +25,7 @@ import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftDetailPresenter;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 import com.squareup.picasso.Picasso;
@@ -34,14 +34,12 @@ import java.io.IOException;
 import java.util.Locale;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Gift detail screen
  */
-public class GiftDetailActivity extends AppCompatActivity implements GiftDetailContract.View {
+public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContract.Presenter> implements GiftDetailContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftDetailActivity.class.getSimpleName();
     public static final String PARCELABLE_GIFT_KEY = "PARCELABLE_GIFT_KEY";
@@ -55,16 +53,6 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     private int roomId;
     private String imagePath;
     private boolean isImageChanged;
-
-    /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private GiftDetailContract.UserActionListener actionsListener;
-
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
 
     /**
      * Graphical components
@@ -105,19 +93,19 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         try {
             double amount = Double.valueOf(mGiftAmountEditText.getText().toString());
             final String description = mDescriptionEditText.getText().toString();
-            if (amount > gift.remainder(actionsListener.getCurrentUsername())) {
+            if (amount > gift.remainder(presenter.getCurrentUsername())) {
                 mGiftAmountEditText.setError(
                         String.format(getString(R.string.gift_detail_too_high_error_text),
-                                gift.remainder(actionsListener.getCurrentUsername()))
+                                gift.remainder(presenter.getCurrentUsername()))
                 );
             } else {
                 if (isImageChanged) {
                     Log.d(TAG, String.format(Locale.getDefault(),
                             "onClick - imageChange: %s", imagePath));
-                    actionsListener.updateGift(gift, roomId, amount, description, imagePath);
+                    presenter.updateGift(gift, roomId, amount, description, imagePath);
                 } else {
                     Log.d(TAG, "onClick - image did not change");
-                    actionsListener.updateGift(gift, roomId, amount, description, null);
+                    presenter.updateGift(gift, roomId, amount, description, null);
                 }
             }
         } catch (NumberFormatException e) {
@@ -125,13 +113,9 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         }
     }
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.gift_detail_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
+    protected void initView() {
+        super.initView();
 
         /**
          * Récupération du cadeau
@@ -141,8 +125,6 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
          * Récupération de l'identifiant de la salle
          */
         roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
-
-        actionsListener = new GiftDetailPresenter(this, Injection.getDataProvider(this));
 
         // Set up the toolbar.
         if (mToolbar != null) {
@@ -179,8 +161,17 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
         if (mAddImageDialog != null) {
             mAddImageDialog.dismiss();
         }
-        mButterKnifeUnbinder.unbind();
         super.onDestroy();
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.gift_detail_activity;
+    }
+
+    @Override
+    protected GiftDetailContract.Presenter newPresenter() {
+        return new GiftDetailPresenter(this, Injection.getDataProvider(this));
     }
 
     @Override
@@ -201,7 +192,7 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
 
             // Getting the Absolute File Path from Content URI
             Uri selectedImage = data.getData();
-            imagePath = PictureUtils.getRealPathFromURI(getContext(), selectedImage);
+            imagePath = PictureUtils.getRealPathFromURI(this, selectedImage);
             mGiftImageView.setImageURI(selectedImage);
             isImageChanged = true;
         } else if (requestCode == PictureUtils.ADD_GIFT_ADD_CAMERA_IMAGE_REQUEST
@@ -219,7 +210,7 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.standard_menu, menu);
         MenuItem item = menu.findItem(R.id.disconnection_menu_item);
-        if (actionsListener.isConnected()) {
+        if (presenter.isConnected()) {
             item.setEnabled(true);
         } else {
             // disabled
@@ -232,7 +223,7 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.disconnection_menu_item:
-                actionsListener.doDisconnect();
+                presenter.doDisconnect();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -291,7 +282,12 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    public void showError(@NonNull String message) {
+
+    }
+
+    @Override
+    protected void performLogin() {
+
     }
 }
