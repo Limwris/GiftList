@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -25,6 +24,7 @@ import com.nichesoftware.giftlist.contracts.AddGiftContract;
 import com.nichesoftware.giftlist.presenters.AddGiftPresenter;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 
 import java.io.IOException;
 
@@ -80,25 +80,17 @@ public class AddGiftActivity extends AppCompatActivity implements AddGiftContrac
 
     @OnClick(R.id.add_gift_add_image_button)
     void onAddGiftButtonClick() {
-        mAddImageDialog = new AppCompatDialog(AddGiftActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        mAddImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
-        mAddImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PictureUtils.selectGalleryPicture(AddGiftActivity.this);
-                    }
-                });
-        mAddImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PictureUtils.takePicture(AddGiftActivity.this, imagePath);
-                    }
-                });
-        mAddImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
-        mAddImageDialog.setCanceledOnTouchOutside(true);
+        mAddImageDialog = new AddImageDialog(this, new AddImageDialog.OnDialogListener() {
+            @Override
+            public void onSelectPicture() {
+                PictureUtils.selectGalleryPicture(AddGiftActivity.this);
+            }
+
+            @Override
+            public void onTakePicture() {
+                PictureUtils.takePicture(AddGiftActivity.this, imagePath);
+            }
+        }, getString(R.string.add_gift_add_image_title_dialog));
         mAddImageDialog.show();
     }
 

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -20,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftDetailContract;
@@ -28,6 +26,7 @@ import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftDetailPresenter;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
+import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 import com.squareup.picasso.Picasso;
 
@@ -87,25 +86,17 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
 
     @OnClick(R.id.gift_detail_image)
     void onGiftImageClick() {
-        mAddImageDialog = new AppCompatDialog(GiftDetailActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        mAddImageDialog.setContentView(R.layout.add_gift_add_image_dialog);
-        mAddImageDialog.findViewById(R.id.add_gift_add_image_select_picture)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PictureUtils.selectGalleryPicture(GiftDetailActivity.this);
-                    }
-                });
-        mAddImageDialog.findViewById(R.id.add_gift_add_image_take_picture)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PictureUtils.takePicture(GiftDetailActivity.this, imagePath);
-                    }
-                });
-        mAddImageDialog.setTitle(getResources().getString(R.string.add_gift_add_image_title_dialog));
-        mAddImageDialog.setCanceledOnTouchOutside(true);
+        mAddImageDialog = new AddImageDialog(this, new AddImageDialog.OnDialogListener() {
+            @Override
+            public void onSelectPicture() {
+                PictureUtils.selectGalleryPicture(GiftDetailActivity.this);
+            }
+
+            @Override
+            public void onTakePicture() {
+                PictureUtils.takePicture(GiftDetailActivity.this, imagePath);
+            }
+        }, getString(R.string.add_gift_add_image_title_dialog));
         mAddImageDialog.show();
     }
 
@@ -195,9 +186,8 @@ public class GiftDetailActivity extends AppCompatActivity implements GiftDetailC
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("onActivityResult - with resultCode: %d and requestCode: %d", resultCode, requestCode));
-        }
+        Log.d(TAG, String.format("onActivityResult - with resultCode: %d and requestCode: %d", resultCode, requestCode));
+
         if (requestCode == PictureUtils.ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST
                 && resultCode == AppCompatActivity.RESULT_OK) {
             Log.d(TAG, "onActivityResult - ADD_GIFT_ADD_GALLERY_IMAGE_REQUEST");
