@@ -6,9 +6,11 @@ import com.nichesoftware.giftlist.contracts.AddGiftContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
 
 /**
- * Created by n_che on 09/06/2016.
+ * Add gift presenter
  */
-public class AddGiftPresenter extends AuthenticationPresenter<AddGiftContract.View> implements AddGiftContract.Presenter {
+public class AddGiftPresenter extends AbstractPresenter<AddGiftContract.View>
+        implements AddGiftContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddGiftPresenter.class.getSimpleName();
 
     /**

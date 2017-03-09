@@ -11,7 +11,9 @@ import com.nichesoftware.giftlist.model.Gift;
 /**
  * Gift detail presenter
  */
-public class GiftDetailPresenter extends AuthenticationPresenter<GiftDetailContract.View> implements GiftDetailContract.Presenter {
+public class GiftDetailPresenter extends AbstractPresenter<GiftDetailContract.View>
+        implements GiftDetailContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftDetailPresenter.class.getSimpleName();
 
     /**

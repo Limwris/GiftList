@@ -1,5 +1,6 @@
 package com.nichesoftware.giftlist.views;
 
+import android.support.annotation.CallSuper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -7,21 +8,48 @@ import com.nichesoftware.giftlist.contracts.AuthenticationContract;
 import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
 import com.nichesoftware.giftlist.views.authentication.IAuthenticationListener;
 
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
  * Authentication activity
  */
-public abstract class AuthenticationActivity<P extends AuthenticationContract.Presenter> extends BaseActivity<P>
-implements AuthenticationContract.View, IAuthenticationListener {
-    private static final String TAG = AuthenticationActivity.class.getSimpleName();
+public abstract class AbstractActivity<P extends AuthenticationContract.Presenter>
+        extends BaseActivity<P>
+        implements AuthenticationContract.View, IAuthenticationListener {
+    // Constants   ---------------------------------------------------------------------------------
+    private static final String TAG = AbstractActivity.class.getSimpleName();
+
+    // Fields   ------------------------------------------------------------------------------------
+    /**
+     * Unbinder Butter Knife
+     */
+    private Unbinder mButterKnifeUnbinder;
 
     /**
-     * Authentication dialog (could be instanciated anywhere in the app
+     * Authentication dialog (could be instantiated anywhere in the app)
      */
     protected AuthenticationDialog authenticationDialog;
 
-    /**********************************************************************************************/
-    /***                                Authentication                                          ***/
-    /**********************************************************************************************/
+    @Override
+    @CallSuper
+    protected void initView() {
+        super.initView();
+        // Bind ButterKnife
+        mButterKnifeUnbinder = ButterKnife.bind(this);
+    }
+
+    @Override
+    @CallSuper
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unbind ButterKnife
+        mButterKnifeUnbinder.unbind();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Authentication
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onAuthentication(final String username, final String password) {
@@ -47,6 +75,10 @@ implements AuthenticationContract.View, IAuthenticationListener {
         }
         performLogin();
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Private methods
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Method called after authentication succeeded

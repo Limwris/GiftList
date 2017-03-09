@@ -19,7 +19,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.LaunchScreenContract;
 import com.nichesoftware.giftlist.presenters.LaunchScreenPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
 import com.nichesoftware.giftlist.views.authentication.IAuthenticationListener;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
@@ -30,7 +30,8 @@ import butterknife.OnClick;
 /**
  * Launch screen
  */
-public class LaunchScreenActivity extends AuthenticationActivity<LaunchScreenContract.Presenter> implements LaunchScreenContract.View {
+public class LaunchScreenActivity extends AbstractActivity<LaunchScreenContract.Presenter>
+        implements LaunchScreenContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = LaunchScreenActivity.class.getSimpleName();
 

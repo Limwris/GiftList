@@ -26,14 +26,14 @@ public abstract class BaseActivity<P extends IPresenter>
         implements IView, INavigationListener {
     private static final String TAG = BaseActivity.class.getSimpleName();
 
-    @BindView(R.id.toolbar_identifier)
-    @Nullable
-    protected Toolbar toolbar;
+//    @BindView(R.id.toolbar_identifier)
+//    @Nullable
+//    protected Toolbar mToolbar;
 
     /**
      * Unbinder ButterKnife to handle the Activity lifecycle
      */
-    private Unbinder unbinder;
+//    private Unbinder unbinder;
 
     /**
      * Instance of the presenter bound to this activity
@@ -51,19 +51,19 @@ public abstract class BaseActivity<P extends IPresenter>
         Log.d(TAG, "onCreate");
         setContentView(getContentView());
         // Binding ButterKnife
-        unbinder = ButterKnife.bind(this);
+//        unbinder = ButterKnife.bind(this);
         // Initialize view
         initView();
         // Initialize presenter
         initPresenter();
         // Dealing with Toolbar
-        if (hasToolbar()) {
-            setSupportActionBar(toolbar);
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setTitle(getToolbarTitle());
-            }
-        }
+//        if (hasToolbar()) {
+//            setSupportActionBar(mToolbar);
+//            ActionBar actionBar = getSupportActionBar();
+//            if (actionBar != null) {
+//                actionBar.setTitle(getToolbarTitle());
+//            }
+//        }
     }
 
     @Override
@@ -74,8 +74,8 @@ public abstract class BaseActivity<P extends IPresenter>
         if (presenter != null) {
             presenter.onDestroy();
         }
-        // Unbind ButterKnife
-        unbinder.unbind();
+//        // Unbind ButterKnife
+//        unbinder.unbind();
     }
 
     /**********************************************************************************************/
@@ -175,18 +175,18 @@ public abstract class BaseActivity<P extends IPresenter>
      *
      * @return true if the activity contains a toolbar, false otherwise
      */
-    protected boolean hasToolbar() {
-        return toolbar != null;
-    }
+//    protected boolean hasToolbar() {
+//        return mToolbar != null;
+//    }
 
 //    protected BaseFragment getCurrentFragment() {
 //        return (BaseFragment) getSupportFragmentManager().findFragmentById(R.id.main_frame_identifier);
 //    }
 
-    protected  @Nullable String getToolbarTitle() {
-        // By default, no title is provided
-        return null;
-    }
+//    protected  @Nullable String getToolbarTitle() {
+//        // By default, no title is provided
+//        return null;
+//    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ///   Navigation

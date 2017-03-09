@@ -19,11 +19,13 @@ import com.nichesoftware.giftlist.views.inviteroom.InviteRoomActivity;
 
 
 /**
- * Created by n_che on 27/06/2016.
+ * GCM presenter
  */
 public class GcmPresenter implements GcmContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GcmPresenter.class.getSimpleName();
 
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Data provider
      */

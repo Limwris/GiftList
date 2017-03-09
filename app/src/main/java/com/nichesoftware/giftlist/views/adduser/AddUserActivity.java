@@ -18,7 +18,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddUserContract;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.AddUserPresenter;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 
@@ -28,9 +28,10 @@ import java.util.List;
 import butterknife.BindView;
 
 /**
- * Created by n_che on 22/06/2016.
+ * Add user activity
  */
-public class AddUserActivity extends AuthenticationActivity<AddUserContract.Presenter> implements AddUserContract.View {
+public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
+        implements AddUserContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddUserActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
@@ -103,14 +104,6 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
         return new AddUserPresenter(this, Injection.getDataProvider(this));
     }
 
-    private void doInviteUsers() {
-        for (AddUserVO vo : mContactsAdapter.getList()) {
-            if (vo.isChecked()) {
-                presenter.inviteUserToCurrentRoom(roomId, vo.getUser().getUsername());
-            }
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.add_user_menu, menu);
@@ -139,15 +132,6 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private boolean isItemChecked() {
-        for (AddUserVO vo : mContactsAdapter.getList()) {
-            if (vo.isChecked()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -168,9 +152,30 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
         return true;
     }
 
-    /**********************************************************************************************/
-    /************************************     View contract     ***********************************/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Private methods
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void doInviteUsers() {
+        for (AddUserVO vo : mContactsAdapter.getList()) {
+            if (vo.isChecked()) {
+                presenter.inviteUserToCurrentRoom(roomId, vo.getUser().getUsername());
+            }
+        }
+    }
+
+    private boolean isItemChecked() {
+        for (AddUserVO vo : mContactsAdapter.getList()) {
+            if (vo.isChecked()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     View contract
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onUserAddedSuccess() {

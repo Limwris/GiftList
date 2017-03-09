@@ -13,9 +13,11 @@ import com.squareup.otto.Subscribe;
 /**
  * Authentication presenter
  */
-public abstract class AuthenticationPresenter<V extends AuthenticationContract.View> extends BasePresenter<V> implements AuthenticationContract.Presenter {
-    private static final String TAG = AuthenticationPresenter.class.getSimpleName();
+public abstract class AbstractPresenter<V extends AuthenticationContract.View> extends BasePresenter<V> implements AuthenticationContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
+    private static final String TAG = AbstractPresenter.class.getSimpleName();
 
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Bus listener for authentication (composition)
      */
@@ -27,7 +29,7 @@ public abstract class AuthenticationPresenter<V extends AuthenticationContract.V
      * @param view         View to attach
      * @param dataProvider The data provider
      */
-    public AuthenticationPresenter(@NonNull V view, @NonNull DataProvider dataProvider) {
+    public AbstractPresenter(@NonNull V view, @NonNull DataProvider dataProvider) {
         super(view, dataProvider);
     }
 
@@ -37,7 +39,7 @@ public abstract class AuthenticationPresenter<V extends AuthenticationContract.V
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "[AuthenticationPresenter] onCreate");
+        Log.d(TAG, "onCreate");
         super.onCreate();
 
         authenticationEventListener = new AuthenticationBusListener() {
@@ -104,8 +106,8 @@ public abstract class AuthenticationPresenter<V extends AuthenticationContract.V
         mDataProvider.doDisconnect();
     }
 }
-//public class AuthenticationPresenter extends AbstractPresenter implements AuthenticationContract.UserActionListener {
-//    private static final String TAG = AuthenticationPresenter.class.getSimpleName();
+//public class AbstractPresenter extends AbstractPresenter implements AuthenticationContract.UserActionListener {
+//    private static final String TAG = AbstractPresenter.class.getSimpleName();
 //
 //    /**
 //     * View
@@ -117,7 +119,7 @@ public abstract class AuthenticationPresenter<V extends AuthenticationContract.V
 //     * @param view
 //     * @param dataProvider
 //     */
-//    public AuthenticationPresenter(@NonNull AuthenticationContract.View view,
+//    public AbstractPresenter(@NonNull AuthenticationContract.View view,
 //                                   @NonNull DataProvider dataProvider) {
 //        this.dataProvider = dataProvider;
 //        this.view = view;

@@ -18,7 +18,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.RoomsContract;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.presenters.RoomsPresenter;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addroom.AddRoomActivity;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
@@ -32,7 +32,8 @@ import butterknife.OnClick;
 /**
  * Room screen
  */
-public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presenter> implements RoomsContract.View {
+public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
+        implements RoomsContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = RoomsActivity.class.getSimpleName();
     public static final int ADD_ROOM_REQUEST = 20;  // The request code

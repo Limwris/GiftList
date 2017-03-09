@@ -6,9 +6,11 @@ import com.nichesoftware.giftlist.contracts.InviteRoomContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
 
 /**
- * "Invite room" presenter
+ * Invite room presenter
  */
-public class InviteRoomPresenter extends AuthenticationPresenter<InviteRoomContract.View> implements InviteRoomContract.Presenter {
+public class InviteRoomPresenter extends AbstractPresenter<InviteRoomContract.View>
+        implements InviteRoomContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = InviteRoomPresenter.class.getSimpleName();
 
     /**

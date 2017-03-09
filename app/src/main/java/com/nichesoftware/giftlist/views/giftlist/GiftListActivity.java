@@ -22,7 +22,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
 import com.nichesoftware.giftlist.views.adduser.AddUserActivity;
@@ -35,9 +35,10 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 /**
- * Created by n_che on 25/04/2016.
+ * Gift list activity
  */
-public class GiftListActivity extends AuthenticationActivity<GiftListContract.Presenter> implements GiftListContract.View {
+public class GiftListActivity extends AbstractActivity<GiftListContract.Presenter>
+        implements GiftListContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListActivity.class.getSimpleName();
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
@@ -224,7 +225,7 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                    Private methods                                         //
+    ///     Private methods
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -264,9 +265,20 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
         presenter.loadGifts(roomId, true);
     }
 
+    private void setRefreshIndicator(final boolean doShow) {
+        // Make sure setRefreshing() is called after the layout is done with everything else.
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(doShow);
+            }
+        });
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                  Implement methods                                         //
+    ///     View contract
     ////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     @Override
     public void showLoader() {
@@ -281,16 +293,6 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
     @Override
     public void showError(@NonNull String message) {
 
-    }
-
-    private void setRefreshIndicator(final boolean doShow) {
-        // Make sure setRefreshing() is called after the layout is done with everything else.
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(doShow);
-            }
-        });
     }
 
     @Override

@@ -10,7 +10,9 @@ import com.nichesoftware.giftlist.dataproviders.DataProvider;
 /**
  * Launch screen presenter
  */
-public class LaunchScreenPresenter extends AuthenticationPresenter<LaunchScreenContract.View> implements LaunchScreenContract.Presenter {
+public class LaunchScreenPresenter extends AbstractPresenter<LaunchScreenContract.View>
+        implements LaunchScreenContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = LaunchScreenPresenter.class.getSimpleName();
 
     /**

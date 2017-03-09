@@ -23,7 +23,7 @@ import com.nichesoftware.giftlist.contracts.AddGiftContract;
 import com.nichesoftware.giftlist.presenters.AddGiftPresenter;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 
 import java.io.IOException;
@@ -34,7 +34,8 @@ import butterknife.OnClick;
 /**
  * Add gift screen
  */
-public class AddGiftActivity extends AuthenticationActivity<AddGiftContract.Presenter> implements AddGiftContract.View {
+public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
+        implements AddGiftContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddGiftActivity.class.getSimpleName();
     public static final String PARCELABLE_ROOM_ID_KEY = "PARCELABLE_ROOM_ID_KEY";
@@ -195,6 +196,10 @@ public class AddGiftActivity extends AuthenticationActivity<AddGiftContract.Pres
         return true;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Private methods
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     private void doAddGift() {
         if (!validate()) {
             onCreateGiftFailed();
@@ -250,9 +255,9 @@ public class AddGiftActivity extends AuthenticationActivity<AddGiftContract.Pres
         return valid;
     }
 
-    /**********************************************************************************************/
-    /************************************     View contract     ***********************************/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     View contract
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onCreateGiftSuccess() {

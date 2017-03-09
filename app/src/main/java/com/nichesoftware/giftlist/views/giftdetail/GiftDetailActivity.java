@@ -25,7 +25,7 @@ import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftDetailPresenter;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 import com.squareup.picasso.Picasso;
@@ -39,7 +39,8 @@ import butterknife.OnClick;
 /**
  * Gift detail screen
  */
-public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContract.Presenter> implements GiftDetailContract.View {
+public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Presenter>
+        implements GiftDetailContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftDetailActivity.class.getSimpleName();
     public static final String PARCELABLE_GIFT_KEY = "PARCELABLE_GIFT_KEY";
@@ -236,6 +237,10 @@ public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContrac
         return true;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Private methods
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     private void setPic(final String filepath) {
         // Get the dimensions of the View
         int targetW = mGiftImageView.getWidth();
@@ -247,9 +252,9 @@ public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContrac
         PictureUtils.saveBitmap(bitmap, imagePath);
     }
 
-    /**********************************************************************************************/
-    /************************************     View contract     ***********************************/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     View contract
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onUpdateGiftSuccess() {

@@ -9,7 +9,9 @@ import com.nichesoftware.giftlist.dataproviders.DataProvider;
 /**
  * Splash screen presenter
  */
-public class SplashScreenPresenter extends AuthenticationPresenter<SplashScreenContract.View> implements SplashScreenContract.Presenter {
+public class SplashScreenPresenter extends AbstractPresenter<SplashScreenContract.View>
+        implements SplashScreenContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = LaunchScreenPresenter.class.getSimpleName();
 
     /**

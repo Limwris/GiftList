@@ -11,9 +11,11 @@ import com.nichesoftware.giftlist.model.Gift;
 import java.util.List;
 
 /**
- * "Gifts list" presenter
+ * Gifts list presenter
  */
-public class GiftListPresenter extends AuthenticationPresenter<GiftListContract.View> implements GiftListContract.Presenter {
+public class GiftListPresenter extends AbstractPresenter<GiftListContract.View>
+        implements GiftListContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListPresenter.class.getSimpleName();
 
     /**

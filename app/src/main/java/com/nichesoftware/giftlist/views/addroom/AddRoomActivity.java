@@ -15,7 +15,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddRoomContract;
 import com.nichesoftware.giftlist.presenters.AddRoomPresenter;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -23,7 +23,8 @@ import butterknife.OnClick;
 /**
  * Add room screen
  */
-public class AddRoomActivity extends AuthenticationActivity<AddRoomContract.Presenter> implements AddRoomContract.View {
+public class AddRoomActivity extends AbstractActivity<AddRoomContract.Presenter>
+        implements AddRoomContract.View {
     // Fields   ------------------------------------------------------------------------------------
     /**
      * Graphical components
@@ -103,6 +104,10 @@ public class AddRoomActivity extends AuthenticationActivity<AddRoomContract.Pres
         return new AddRoomPresenter(this, Injection.getDataProvider(this));
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Private methods
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     private boolean validate() {
         boolean valid = true;
 
@@ -125,9 +130,9 @@ public class AddRoomActivity extends AuthenticationActivity<AddRoomContract.Pres
         return valid;
     }
 
-    /**********************************************************************************************/
-    /************************************     View contract     ***********************************/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     View contract
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onCreateRoomSuccess() {

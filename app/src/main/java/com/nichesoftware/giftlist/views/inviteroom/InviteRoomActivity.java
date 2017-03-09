@@ -12,7 +12,7 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.InviteRoomContract;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.presenters.InviteRoomPresenter;
-import com.nichesoftware.giftlist.views.AuthenticationActivity;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -20,7 +20,8 @@ import butterknife.OnClick;
 /**
  * Invite room screen
  */
-public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContract.Presenter> implements InviteRoomContract.View {
+public class InviteRoomActivity extends AbstractActivity<InviteRoomContract.Presenter>
+        implements InviteRoomContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = InviteRoomActivity.class.getSimpleName();
     public static final String EXTRA_ROOM = "ROOM";
@@ -75,9 +76,9 @@ public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContrac
         return new InviteRoomPresenter(this, Injection.getDataProvider(this));
     }
 
-    /**********************************************************************************************/
-    /************************************     View contract     ***********************************/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     View contract
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onAcceptInvitationSuccess() {

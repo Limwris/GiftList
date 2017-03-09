@@ -13,7 +13,9 @@ import java.util.List;
 /**
  * Rooms list presenter
  */
-public class RoomsPresenter extends AuthenticationPresenter<RoomsContract.View> implements RoomsContract.Presenter {
+public class RoomsPresenter extends AbstractPresenter<RoomsContract.View>
+        implements RoomsContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = RoomsPresenter.class.getSimpleName();
 
     /**

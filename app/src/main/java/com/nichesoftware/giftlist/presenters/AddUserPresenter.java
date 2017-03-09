@@ -9,9 +9,11 @@ import com.nichesoftware.giftlist.model.User;
 import java.util.List;
 
 /**
- * "Add user" presenter
+ * Add user presenter
  */
-public class AddUserPresenter extends AuthenticationPresenter<AddUserContract.View> implements AddUserContract.Presenter {
+public class AddUserPresenter extends AbstractPresenter<AddUserContract.View>
+        implements AddUserContract.Presenter {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddGiftPresenter.class.getSimpleName();
 
     /**

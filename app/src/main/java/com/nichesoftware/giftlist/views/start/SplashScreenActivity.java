@@ -1,12 +1,9 @@
 package com.nichesoftware.giftlist.views.start;
 
-import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -16,16 +13,15 @@ import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.SplashScreenContract;
 import com.nichesoftware.giftlist.presenters.SplashScreenPresenter;
+import com.nichesoftware.giftlist.views.AbstractActivity;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 /**
  * Splash screen
  */
-public class SplashScreenActivity extends AppCompatActivity implements SplashScreenContract.View {
+public class SplashScreenActivity extends AbstractActivity<SplashScreenContract.Presenter> implements SplashScreenContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = SplashScreenActivity.class.getSimpleName();
     private static final int STARTUP_DELAY = 300;
@@ -33,37 +29,22 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashScr
 
     // Fields   ------------------------------------------------------------------------------------
     /**
-     * Listener sur les actions de l'utilisateur
-     */
-    private SplashScreenContract.UserActionListener actionsListener;
-
-    /**
-     * Unbinder Butter Knife
-     */
-    private Unbinder mButterKnifeUnbinder;
-
-    /**
      * Graphical components
      */
     @BindView(R.id.login_logo)
     ImageView mLogoImageView;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
+    protected void initView() {
+        super.initView();
+        Log.d(TAG, "initView");
         setTheme(R.style.AppTheme); // Supprime le windowBackground
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.splash_activity);
-        mButterKnifeUnbinder = ButterKnife.bind(this);
-
-        actionsListener = new SplashScreenPresenter(this,
-                Injection.getDataProvider(this));
 
         /**
          * Animations
          */
         ViewCompat.animate(mLogoImageView)
-                .translationY(-getContext().getResources().getInteger(R.integer.login_logo_translation))
+                .translationY(-getResources().getInteger(R.integer.login_logo_translation))
                 .setStartDelay(STARTUP_DELAY)
                 .setDuration(ANIM_ITEM_DURATION).setInterpolator(
                 new DecelerateInterpolator(1.2f)).setListener(new ViewPropertyAnimatorListener() {
@@ -74,7 +55,7 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashScr
 
             @Override
             public void onAnimationEnd(View view) {
-                actionsListener.doRGSplashScreen();
+                presenter.doRGSplashScreen();
             }
 
             @Override
@@ -85,9 +66,13 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashScr
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mButterKnifeUnbinder.unbind();
+    protected int getContentView() {
+        return R.layout.splash_activity;
+    }
+
+    @Override
+    protected SplashScreenContract.Presenter newPresenter() {
+        return new SplashScreenPresenter(this, Injection.getDataProvider(this));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +108,12 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashScr
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    public void showError(@NonNull String message) {
+
+    }
+
+    @Override
+    protected void performLogin() {
+
     }
 }
