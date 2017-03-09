@@ -6,17 +6,10 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
-import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.presenters.IPresenter;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 /**
  * Common abstract activity.
@@ -29,11 +22,6 @@ public abstract class BaseActivity<P extends IPresenter>
 //    @BindView(R.id.toolbar_identifier)
 //    @Nullable
 //    protected Toolbar mToolbar;
-
-    /**
-     * Unbinder ButterKnife to handle the Activity lifecycle
-     */
-//    private Unbinder unbinder;
 
     /**
      * Instance of the presenter bound to this activity
@@ -50,12 +38,10 @@ public abstract class BaseActivity<P extends IPresenter>
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setContentView(getContentView());
-        // Binding ButterKnife
-//        unbinder = ButterKnife.bind(this);
-        // Initialize view
-        initView();
         // Initialize presenter
         initPresenter();
+        // Initialize view
+        initView();
         // Dealing with Toolbar
 //        if (hasToolbar()) {
 //            setSupportActionBar(mToolbar);
@@ -74,8 +60,6 @@ public abstract class BaseActivity<P extends IPresenter>
         if (presenter != null) {
             presenter.onDestroy();
         }
-//        // Unbind ButterKnife
-//        unbinder.unbind();
     }
 
     /**********************************************************************************************/

@@ -6,14 +6,14 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.Injection;
-import com.nichesoftware.giftlist.contracts.GcmContract;
 import com.nichesoftware.giftlist.presenters.GcmPresenter;
 
 /**
- * Created by n_che on 27/06/2016.
+ * Firebase service listener
  * According to this Google official documentation, the instance ID server issues callbacks periodically (i.e. 6 months) to request apps to refresh their tokens.
  */
 public class FirebaseInstanceIDListenerService extends FirebaseInstanceIdService {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = FirebaseInstanceIDListenerService.class.getSimpleName();
 
     /**
@@ -35,18 +35,16 @@ public class FirebaseInstanceIDListenerService extends FirebaseInstanceIdService
 
         // Make a call to Instance API
         FirebaseInstanceId instanceID = FirebaseInstanceId.getInstance();
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onTokenRefresh - Instance retreived...");
-        }
+        Log.d(TAG, "onTokenRefresh - Instance retreived...");
+
 
         // Request token that will be used by the server to send push notifications
         final String gcmToken = instanceID.getToken();
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("onTokenRefresh - Token retreived: token = %s", gcmToken));
-        }
+        Log.d(TAG, String.format("onTokenRefresh - Token retreived: token = %s", gcmToken));
 
-        GcmContract.ActionListener actionListener = new GcmPresenter(Injection.getDataProvider(getApplicationContext()));
-        actionListener.registerGcm(gcmToken);
+
+        GcmPresenter presenter = new GcmPresenter(Injection.getDataProvider(getApplicationContext()));
+        presenter.registerGcm(gcmToken);
     }
 }

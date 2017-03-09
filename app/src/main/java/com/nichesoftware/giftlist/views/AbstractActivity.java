@@ -22,7 +22,7 @@ public abstract class AbstractActivity<P extends AuthenticationContract.Presente
 
     // Fields   ------------------------------------------------------------------------------------
     /**
-     * Unbinder Butter Knife
+     * Unbinder ButterKnife to handle the Activity lifecycle
      */
     private Unbinder mButterKnifeUnbinder;
 
