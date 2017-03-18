@@ -1,4 +1,4 @@
-package com.nichesoftware.giftlist.android;
+package com.nichesoftware.giftlist.gcm;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

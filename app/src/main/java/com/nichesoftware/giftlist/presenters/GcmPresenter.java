@@ -10,7 +10,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.android.NotificationId;
+import com.nichesoftware.giftlist.gcm.NotificationId;
 import com.nichesoftware.giftlist.contracts.GcmContract;
 import com.nichesoftware.giftlist.dataproviders.DataProvider;
 import com.nichesoftware.giftlist.dto.NotificationDto;

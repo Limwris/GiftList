@@ -8,7 +8,7 @@ import com.nichesoftware.giftlist.model.User;
 import java.util.List;
 
 /**
- * Created by n_che on 06/06/2016.
+ * User share preference persistence manager
  */
 public final class PersistenceBroker {
     private static final String SHARED_PREFERENCES_GIFLIST_FILE = "SHARED_PREFERENCES_GIFLIST_FILE";
@@ -22,6 +22,11 @@ public final class PersistenceBroker {
         // Nothing
     }
 
+    /**
+     * Setter sur le current User
+     * @param context
+     * @param username
+     */
     public static void setCurrentUser(final Context context, final String username) {
         SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_GIFLIST_FILE,
                 Context.MODE_PRIVATE);
@@ -30,6 +35,11 @@ public final class PersistenceBroker {
         editor.apply();
     }
 
+    /**
+     * Retourne l'utilisateur courant, ou DISCONECTED_USER sinon
+     * @param context
+     * @return
+     */
     public static String getCurrentUser(final Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_GIFLIST_FILE,
                 Context.MODE_PRIVATE);
@@ -135,6 +145,11 @@ public final class PersistenceBroker {
         manager.close();
     }
 
+    /**
+     * Setter sur le token GCM
+     * @param context
+     * @param gcmToken
+     */
     public static void setGcmToken(Context context, final String gcmToken) {
         SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_GIFLIST_FILE,
                 Context.MODE_PRIVATE);
@@ -171,6 +186,11 @@ public final class PersistenceBroker {
         return user.isTokenSent();
     }
 
+    /**
+     * Setter sur le flag indiquant si le token a été envoyé au server
+     * @param context
+     * @param isSent
+     */
     public static void setTokenSent(Context context, final boolean isSent) {
         UserManager manager = new UserManager(context);
         // Ouverture de la table en lecture/écriture
