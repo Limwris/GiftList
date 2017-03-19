@@ -730,7 +730,7 @@ public class DataProvider {
         }
     }
 
-    public Uri getContactImageUrl(final String phoneNumber) {
+    public static Uri getContactImageUrl(final String phoneNumber) {
         Log.d(TAG, String.format(Locale.getDefault(),
                 "getContactImageUrl [phone number: %s]", phoneNumber));
         long contactId = getContactIdFromPhoneNumber(phoneNumber);
@@ -744,7 +744,7 @@ public class DataProvider {
         return null;
     }
 
-    private long getContactIdFromPhoneNumber(final String phoneNumber) {
+    private static long getContactIdFromPhoneNumber(final String phoneNumber) {
         Log.d(TAG, "getContactIdFromPhoneNumber");
 
         final Context context = BaseApplication.getAppContext();

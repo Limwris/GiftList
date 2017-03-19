@@ -101,7 +101,7 @@ public class AddRoomActivity extends AbstractActivity<AddRoomContract.Presenter>
 
     @Override
     protected AddRoomContract.Presenter newPresenter() {
-        return new AddRoomPresenter(this, Injection.getDataProvider(this));
+        return new AddRoomPresenter(this, Injection.getDataProvider());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

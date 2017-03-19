@@ -107,7 +107,7 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHo
         });
 
         Picasso.with(context)
-                .load(Injection.getDataProvider(context).getGiftImageUrl(gift.getId()))
+                .load(Injection.getDataProvider().getGiftImageUrl(gift.getId()))
                 .fit().centerCrop().placeholder(R.drawable.placeholder)
                 .into(viewHolder.image);
     }

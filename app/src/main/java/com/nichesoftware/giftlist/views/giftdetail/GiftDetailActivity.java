@@ -145,7 +145,7 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
             mDescriptionEditText.setText(gift.getDescription());
         }
 
-        Picasso.with(this).load(Injection.getDataProvider(this).getGiftImageUrl(gift.getId()))
+        Picasso.with(this).load(Injection.getDataProvider().getGiftImageUrl(gift.getId()))
                 .fit().centerCrop().placeholder(R.drawable.placeholder).into(mGiftImageView);
 
         // Create the File where the photo should go
@@ -172,7 +172,7 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
 
     @Override
     protected GiftDetailContract.Presenter newPresenter() {
-        return new GiftDetailPresenter(this, Injection.getDataProvider(this));
+        return new GiftDetailPresenter(this, Injection.getDataProvider());
     }
 
     @Override
@@ -259,7 +259,7 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
     @Override
     public void onUpdateGiftSuccess() {
         // Force Picasso to reload data for this file
-        final String filePath = Injection.getDataProvider(this).getGiftImageUrl(gift.getId());
+        final String filePath = Injection.getDataProvider().getGiftImageUrl(gift.getId());
         Picasso.with(this).invalidate(filePath);
         Picasso.with(this).load(filePath).fit().centerCrop().into(mGiftImageView);
         Intent intent = new Intent();

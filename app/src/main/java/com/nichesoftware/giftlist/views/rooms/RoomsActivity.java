@@ -121,7 +121,7 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
 
     @Override
     protected RoomsContract.Presenter newPresenter() {
-        return new RoomsPresenter(this, Injection.getDataProvider(this));
+        return new RoomsPresenter(this, Injection.getDataProvider());
     }
 
     @Override

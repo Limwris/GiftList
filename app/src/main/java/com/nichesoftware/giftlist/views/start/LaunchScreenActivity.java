@@ -145,7 +145,7 @@ public class LaunchScreenActivity extends AbstractActivity<LaunchScreenContract.
 
     @Override
     protected LaunchScreenContract.Presenter newPresenter() {
-        return new LaunchScreenPresenter(this, Injection.getDataProvider(this));
+        return new LaunchScreenPresenter(this, Injection.getDataProvider());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

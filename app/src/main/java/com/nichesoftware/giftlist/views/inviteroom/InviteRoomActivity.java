@@ -73,7 +73,7 @@ public class InviteRoomActivity extends AbstractActivity<InviteRoomContract.Pres
 
     @Override
     protected InviteRoomContract.Presenter newPresenter() {
-        return new InviteRoomPresenter(this, Injection.getDataProvider(this));
+        return new InviteRoomPresenter(this, Injection.getDataProvider());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

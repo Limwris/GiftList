@@ -151,7 +151,7 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
 
     @Override
     protected GiftListContract.Presenter newPresenter() {
-        return new GiftListPresenter(this, Injection.getDataProvider(this));
+        return new GiftListPresenter(this, Injection.getDataProvider());
     }
 
     @Override

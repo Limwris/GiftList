@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
+import com.nichesoftware.giftlist.dataproviders.DataProvider;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -86,7 +87,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         });
 
         Picasso.with(context)
-                .load(Injection.getDataProvider(context).getContactImageUrl(vo.getUser().getPhoneNumber()))
+                .load(DataProvider.getContactImageUrl(vo.getUser().getPhoneNumber()))
                 .placeholder(R.drawable.person_placeholder).into(viewHolder.contactBadge);
     }
 

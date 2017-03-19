@@ -72,7 +72,7 @@ public class SplashScreenActivity extends AbstractActivity<SplashScreenContract.
 
     @Override
     protected SplashScreenContract.Presenter newPresenter() {
-        return new SplashScreenPresenter(this, Injection.getDataProvider(this));
+        return new SplashScreenPresenter(this, Injection.getDataProvider());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

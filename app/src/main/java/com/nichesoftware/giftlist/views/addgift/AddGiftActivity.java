@@ -128,7 +128,7 @@ public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
 
     @Override
     protected AddGiftContract.Presenter newPresenter() {
-        return new AddGiftPresenter(this, Injection.getDataProvider(this));
+        return new AddGiftPresenter(this, Injection.getDataProvider());
     }
 
     @Override

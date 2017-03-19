@@ -101,7 +101,7 @@ public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
 
     @Override
     protected AddUserContract.Presenter newPresenter() {
-        return new AddUserPresenter(this, Injection.getDataProvider(this));
+        return new AddUserPresenter(this, Injection.getDataProvider());
     }
 
     @Override
