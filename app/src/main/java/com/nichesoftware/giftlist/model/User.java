@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by n_che on 17/06/2016.
+ * User model
  */
 public class User {
     public final static String DISCONNECTED_USER = "DISCONNECTED_USER";
@@ -12,6 +12,10 @@ public class User {
      * Identifiant de l'utilisateur
      */
     private String username;
+    /**
+     * Mot de passe de l'utilisateur
+     */
+    private String password;
     /**
      * Token de l'utilisateur
      */
@@ -30,6 +34,33 @@ public class User {
     private boolean isTokenSent;
 
     /**
+     * Default constructor
+     */
+    public User() {
+        // Nothing
+    }
+
+    /**
+     * Constructor
+     *
+     * @param username      Identifiant de l'utilisateur
+     */
+    public User(final String username) {
+        this.username = username;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param username      Identifiant de l'utilisateur
+     * @param password      Mot de passe de l'utilisateur
+     */
+    public User(final String username, final String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    /**
      * Getter sur l'identifiant de l'utilisateur
      * @return username
      */
@@ -44,6 +75,15 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     /**
      * Getter sur la liste des salles
      * @return rooms

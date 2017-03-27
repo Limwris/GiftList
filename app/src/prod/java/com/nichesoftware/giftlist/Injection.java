@@ -1,12 +1,13 @@
 package com.nichesoftware.giftlist;
 
-import com.nichesoftware.giftlist.dataproviders.DataProvider;
+import com.nichesoftware.giftlist.service.Service;
+import com.nichesoftware.giftlist.service.ServiceGenerator;
 
 /**
- * Created by n_che on 25/04/2016.
+ * Injection module (Prod flavor)
  */
 public final class Injection {
-    public static DataProvider getDataProvider() {
-        return new DataProvider(new RestService());
+    public static Service getService() {
+        return ServiceGenerator.createService(Service.class);
     }
 }

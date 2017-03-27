@@ -1,17 +1,19 @@
 package com.nichesoftware.giftlist.views.giftlist;
 
+import android.text.SpannableString;
+
 /**
- * Created by Kattleya on 31/07/2016.
+ * View Object used in the {@link GiftListDetailAdapter}
  */
 public class GiftListDetailVO {
     private String username;
-    private double participation;
+    private SpannableString participation;
 
-    public double getParticipation() {
+    public SpannableString getParticipation() {
         return participation;
     }
 
-    public void setParticipation(double participation) {
+    public void setParticipation(SpannableString participation) {
         this.participation = participation;
     }
 

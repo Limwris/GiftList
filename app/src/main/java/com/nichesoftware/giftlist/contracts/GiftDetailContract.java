@@ -8,18 +8,12 @@ import com.nichesoftware.giftlist.model.Gift;
 public interface GiftDetailContract {
     interface View extends AuthenticationContract.View {
         /**
-         * Création de la salle avec succès
+         * Mise à jour réussie du cadeau
          */
         void onUpdateGiftSuccess();
-        /**
-         * Echec lors de la création de la salle
-         */
-        void onUpdateGiftFailed();
     }
     interface Presenter extends AuthenticationContract.Presenter {
-        void updateGift(final Gift gift, int roomId, double allocatedAmount,
+        void updateGift(final Gift gift, String roomId, double allocatedAmount,
                         final String description, final String filePath);
-
-        String getCurrentUsername();
     }
 }

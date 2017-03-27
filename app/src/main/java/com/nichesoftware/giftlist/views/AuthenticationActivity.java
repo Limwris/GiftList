@@ -1,6 +1,5 @@
 package com.nichesoftware.giftlist.views;
 
-import android.support.annotation.CallSuper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -8,44 +7,20 @@ import com.nichesoftware.giftlist.contracts.AuthenticationContract;
 import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
 import com.nichesoftware.giftlist.views.authentication.IAuthenticationListener;
 
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
-
 /**
  * Authentication activity
  */
-public abstract class AbstractActivity<P extends AuthenticationContract.Presenter>
+public abstract class AuthenticationActivity<P extends AuthenticationContract.Presenter>
         extends BaseActivity<P>
         implements AuthenticationContract.View, IAuthenticationListener {
     // Constants   ---------------------------------------------------------------------------------
-    private static final String TAG = AbstractActivity.class.getSimpleName();
+    private static final String TAG = AuthenticationActivity.class.getSimpleName();
 
     // Fields   ------------------------------------------------------------------------------------
     /**
-     * Unbinder ButterKnife to handle the Activity lifecycle
-     */
-    private Unbinder mButterKnifeUnbinder;
-
-    /**
      * Authentication dialog (could be instantiated anywhere in the app)
      */
-    protected AuthenticationDialog authenticationDialog;
-
-    @Override
-    @CallSuper
-    protected void initView() {
-        super.initView();
-        // Bind ButterKnife
-        mButterKnifeUnbinder = ButterKnife.bind(this);
-    }
-
-    @Override
-    @CallSuper
-    protected void onDestroy() {
-        super.onDestroy();
-        // Unbind ButterKnife
-        mButterKnifeUnbinder.unbind();
-    }
+    protected AuthenticationDialog mAuthenticationDialog;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ///     Authentication
@@ -55,23 +30,34 @@ public abstract class AbstractActivity<P extends AuthenticationContract.Presente
     public void onAuthentication(final String username, final String password) {
         Log.d(TAG, "onAuthentication");
         if(validate(username, password)) {
-            getPresenter().onAuthentication(username, password);
+            presenter.onAuthentication(username, password);
+        }
+    }
+
+    @Override
+    public void displayAuthenticationLoader(boolean show) {
+        if (mAuthenticationDialog != null) {
+            if (show) {
+                mAuthenticationDialog.showLoader();
+            } else {
+                mAuthenticationDialog.hideLoader();
+            }
         }
     }
 
     @Override
     public void onAuthenticationError() {
         Log.d(TAG, "onAuthenticationError");
-        if (authenticationDialog != null) {
-            //authenticationDialog.setAuthentInError();
+        if (mAuthenticationDialog != null) {
+            mAuthenticationDialog.setAuthentInError();
         }
     }
 
     @Override
     public void onAuthenticationSucceeded() {
         Log.d(TAG, "onAuthenticationSucceeded");
-        if (authenticationDialog != null) {
-            authenticationDialog.dismiss();
+        if (mAuthenticationDialog != null) {
+            mAuthenticationDialog.dismiss();
         }
         performLogin();
     }
@@ -87,8 +73,8 @@ public abstract class AbstractActivity<P extends AuthenticationContract.Presente
 
     /**
      * Validate the login form
-     * @param username
-     * @param password
+     * @param username      Username filled in by the user
+     * @param password      Password filled in by the user
      * @return whether the login form is valid or not
      */
     private boolean validate(final String username, final String password) {
@@ -96,12 +82,12 @@ public abstract class AbstractActivity<P extends AuthenticationContract.Presente
         boolean valid = true;
 
         if (TextUtils.isEmpty(username)) {
-            authenticationDialog.setLoginEmpty();
+            mAuthenticationDialog.setLoginEmpty();
             valid = false;
         }
 
         if (TextUtils.isEmpty(password)) {
-            authenticationDialog.setPasswordEmpty();
+            mAuthenticationDialog.setPasswordEmpty();
             valid = false;
         }
 

@@ -11,6 +11,9 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
 
+        // Retrolambda
+        classpath 'me.tatarka:gradle-retrolambda:3.2.0'
+        // GCM
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
@@ -28,7 +31,7 @@ ext {
     compileSdkVersion = 23
     buildToolsVersion = "25.0.2"
 
-    retrofitVersion = "2.0.1"
+    retrofitVersion = "2.2.0"
     butterKnifeVersion = "8.5.1"
     playServicesVersion = "9.0.0"
     supportLibVersion = "24.2.1"

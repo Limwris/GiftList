@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    android:id="@+id/invite_room_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".views.inviteroom.InviteRoomActivity">
 
     <include layout="@layout/toolbar_progress_bar" />
 
     <TextView
-        android:padding="20dp"
-        tools:text="Bienvenue dans la salle de Jean-François"
         android:id="@+id/invite_room_name_text_view"
-        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="20dp"
+        tools:text="Bienvenue dans la salle de Jean-François" />
 
-    <Button
+    <android.support.v7.widget.AppCompatButton
         android:id="@+id/invite_room_button_accept"
-        android:text="@string/invite_room_accept_button"
-        android:enabled="false"
-        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:enabled="false"
+        android:text="@string/invite_room_accept_button" />
 
 </LinearLayout>

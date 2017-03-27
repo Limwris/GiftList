@@ -15,7 +15,7 @@ public interface AddGiftContract {
         void onCreateGiftFailed();
     }
     interface Presenter extends AuthenticationContract.Presenter {
-        void addGift(int roomid, final String name, double price, double amount,
+        void addGift(String roomid, final String name, double price, double amount,
                      final String description, final String filePath);
     }
 }

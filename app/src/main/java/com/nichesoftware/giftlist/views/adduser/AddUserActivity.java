@@ -2,6 +2,7 @@ package com.nichesoftware.giftlist.views.adduser;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,9 +17,13 @@ import android.widget.ProgressBar;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddUserContract;
+import com.nichesoftware.giftlist.database.DatabaseManager;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.AddUserPresenter;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.repository.cache.UserCache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 
@@ -30,7 +35,7 @@ import butterknife.BindView;
 /**
  * Add user activity
  */
-public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
+public class AddUserActivity extends AuthenticationActivity<AddUserContract.Presenter>
         implements AddUserContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddUserActivity.class.getSimpleName();
@@ -40,7 +45,7 @@ public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
     /**
      * Model
      */
-    private int roomId;
+    private String roomId;
 
     /**
      * Adapter lié à la RecyclerView
@@ -54,6 +59,8 @@ public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
     RecyclerView mRecyclerView;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.toolbar_progressBar)
     ProgressBar mProgressBar;
     @BindView(R.id.error_view)
@@ -66,7 +73,7 @@ public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
         /**
          * Récupération de l'identifiant de la salle
          */
-        roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
+        roomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
 
         // Set up the toolbar.
         if (mToolbar != null) {
@@ -101,7 +108,9 @@ public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
 
     @Override
     protected AddUserContract.Presenter newPresenter() {
-        return new AddUserPresenter(this, Injection.getDataProvider());
+        UserCache userCache = new UserCache(DatabaseManager.getInstance());
+        AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
+        return new AddUserPresenter(this, authDataSource, Injection.getService());
     }
 
     @Override
@@ -205,7 +214,7 @@ public class AddUserActivity extends AbstractActivity<AddUserContract.Presenter>
 
     @Override
     public void showError(@NonNull String message) {
-
+        Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
     @Override

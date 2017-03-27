@@ -11,26 +11,32 @@ import android.util.Log;
 
 import com.nichesoftware.giftlist.presenters.IPresenter;
 
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
  * Common abstract activity.
  */
 public abstract class BaseActivity<P extends IPresenter>
         extends AppCompatActivity
         implements IView, INavigationListener {
+    // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = BaseActivity.class.getSimpleName();
 
-//    @BindView(R.id.toolbar_identifier)
-//    @Nullable
-//    protected Toolbar mToolbar;
-
+    // Fields   ------------------------------------------------------------------------------------
     /**
      * Instance of the presenter bound to this activity
      */
     protected P presenter;
 
-    /**********************************************************************************************/
-    /***                                   Lifecycle                                            ***/
-    /**********************************************************************************************/
+    /**
+     * Unbinder ButterKnife to handle the Activity lifecycle
+     */
+    protected Unbinder mButterKnifeUnbinder;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Lifecycle
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     @CallSuper
@@ -40,16 +46,10 @@ public abstract class BaseActivity<P extends IPresenter>
         setContentView(getContentView());
         // Initialize presenter
         initPresenter();
+        // Bind ButterKnife
+        mButterKnifeUnbinder = ButterKnife.bind(this);
         // Initialize view
         initView();
-        // Dealing with Toolbar
-//        if (hasToolbar()) {
-//            setSupportActionBar(mToolbar);
-//            ActionBar actionBar = getSupportActionBar();
-//            if (actionBar != null) {
-//                actionBar.setTitle(getToolbarTitle());
-//            }
-//        }
     }
 
     @Override
@@ -60,11 +60,13 @@ public abstract class BaseActivity<P extends IPresenter>
         if (presenter != null) {
             presenter.onDestroy();
         }
+        // Unbind ButterKnife
+        mButterKnifeUnbinder.unbind();
     }
 
-    /**********************************************************************************************/
-    /***                                Abstract methods                                        ***/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Abstract methods
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Retrieve the layout of the activity
@@ -79,14 +81,6 @@ public abstract class BaseActivity<P extends IPresenter>
      * @return presenter
      */
     protected abstract P newPresenter();
-
-//    protected void updateToolbar(@NonNull final String title) {
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            actionBar.setDisplayShowTitleEnabled(true);
-//            actionBar.setTitle(title);
-//        }
-//    }
 
 //    protected void onFragmentChanged(@NonNull BaseFragment fragment, final boolean isAdded) {
 //        // Update toolbar
@@ -124,9 +118,9 @@ public abstract class BaseActivity<P extends IPresenter>
         }
     }
 
-    /**********************************************************************************************/
-    /***                               Getters & setters                                        ***/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Getters & setters
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Getter on the presenter
@@ -154,22 +148,8 @@ public abstract class BaseActivity<P extends IPresenter>
         this.presenter = presenter;
     }
 
-    /**
-     * Indicates whether or not the instance has a toolbar
-     *
-     * @return true if the activity contains a toolbar, false otherwise
-     */
-//    protected boolean hasToolbar() {
-//        return mToolbar != null;
-//    }
-
 //    protected BaseFragment getCurrentFragment() {
 //        return (BaseFragment) getSupportFragmentManager().findFragmentById(R.id.main_frame_identifier);
-//    }
-
-//    protected  @Nullable String getToolbarTitle() {
-//        // By default, no title is provided
-//        return null;
 //    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,9 +167,9 @@ public abstract class BaseActivity<P extends IPresenter>
         startActivity(intent);
     }
 
-    /**********************************************************************************************/
-    /***                                Fragment handler                                        ***/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///     Fragment handler
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
 //    @Override
 //    public void addBackStackFragment(@NonNull final String fragmentTag, @Nullable Bundle bundle) {

@@ -1,6 +1,7 @@
 package com.nichesoftware.giftlist.views.addroom;
 
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -13,9 +14,17 @@ import android.widget.ProgressBar;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddRoomContract;
+import com.nichesoftware.giftlist.database.DatabaseManager;
+import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.AddRoomPresenter;
+import com.nichesoftware.giftlist.repository.cache.RoomCache;
+import com.nichesoftware.giftlist.repository.cache.UserCache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.datasource.RoomCloudDataSource;
+import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
+import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -23,7 +32,7 @@ import butterknife.OnClick;
 /**
  * Add room screen
  */
-public class AddRoomActivity extends AbstractActivity<AddRoomContract.Presenter>
+public class AddRoomActivity extends AuthenticationActivity<AddRoomContract.Presenter>
         implements AddRoomContract.View {
     // Fields   ------------------------------------------------------------------------------------
     /**
@@ -37,6 +46,8 @@ public class AddRoomActivity extends AbstractActivity<AddRoomContract.Presenter>
     Toolbar mToolbar;
     @BindView(R.id.toolbar_progressBar)
     ProgressBar mProgressBar;
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout mCoordinatorLayout;
 
     @OnClick(R.id.add_room_create_button)
     void onAddRoomButtonClick() {
@@ -101,7 +112,14 @@ public class AddRoomActivity extends AbstractActivity<AddRoomContract.Presenter>
 
     @Override
     protected AddRoomContract.Presenter newPresenter() {
-        return new AddRoomPresenter(this, Injection.getDataProvider());
+        final User user = SessionManager.getInstance().getConnectedUser();
+        RoomCache cache = new RoomCache(DatabaseManager.getInstance(),
+                user != null ? user.getUsername() : "");
+        RoomCloudDataSource cloudDataSource = new RoomCloudDataSource(SessionManager.getInstance().getToken(),
+                Injection.getService());
+        UserCache userCache = new UserCache(DatabaseManager.getInstance());
+        AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
+        return new AddRoomPresenter(this, cache, cloudDataSource, authDataSource);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +178,7 @@ public class AddRoomActivity extends AbstractActivity<AddRoomContract.Presenter>
 
     @Override
     public void showError(@NonNull String message) {
-        // Todo
+        Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
     @Override

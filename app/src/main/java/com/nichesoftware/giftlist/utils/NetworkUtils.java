@@ -15,6 +15,12 @@ public final class NetworkUtils {
         // Nothing
     }
 
+    /**
+     * Permits to know if the network is available or not
+     *
+     * @param context       Application {@link Context}
+     * @return  {@link Boolean#TRUE} if the network is available, {@link Boolean#FALSE} otherwise
+     */
     public static boolean isConnectionAvailable(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);

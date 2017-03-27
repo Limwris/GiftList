@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -21,11 +23,18 @@ import android.widget.TextView;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftDetailContract;
+import com.nichesoftware.giftlist.database.DatabaseManager;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftDetailPresenter;
+import com.nichesoftware.giftlist.repository.cache.GiftCache;
+import com.nichesoftware.giftlist.repository.cache.UserCache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.datasource.GiftCloudDataSource;
+import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
+import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 import com.squareup.picasso.Picasso;
@@ -39,7 +48,7 @@ import butterknife.OnClick;
 /**
  * Gift detail screen
  */
-public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Presenter>
+public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContract.Presenter>
         implements GiftDetailContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftDetailActivity.class.getSimpleName();
@@ -51,13 +60,15 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
      * Model
      */
     private Gift gift;
-    private int roomId;
+    private String mRoomId;
     private String imagePath;
     private boolean isImageChanged;
 
     /**
      * Graphical components
      */
+    @BindView(R.id.gift_detail_content)
+    CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.gift_detail_image)
     ImageView mGiftImageView;
     @BindView(R.id.gift_detail_description_edit_text)
@@ -70,6 +81,8 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
     Toolbar mToolbar;
     @BindView(R.id.toolbar_progressBar)
     ProgressBar mProgressBar;
+    @BindView(R.id.gift_detail_modify_button)
+    AppCompatButton mModifyButton;
     // Add image dialog
     private Dialog mAddImageDialog;
 
@@ -94,19 +107,19 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
         try {
             double amount = Double.valueOf(mGiftAmountEditText.getText().toString());
             final String description = mDescriptionEditText.getText().toString();
-            if (amount > gift.remainder(presenter.getCurrentUsername())) {
+            if (amount > gift.getRemainder()) {
                 mGiftAmountEditText.setError(
                         String.format(getString(R.string.gift_detail_too_high_error_text),
-                                gift.remainder(presenter.getCurrentUsername()))
+                                gift.getRemainder())
                 );
             } else {
                 if (isImageChanged) {
                     Log.d(TAG, String.format(Locale.getDefault(),
                             "onClick - imageChange: %s", imagePath));
-                    presenter.updateGift(gift, roomId, amount, description, imagePath);
+                    presenter.updateGift(gift, mRoomId, amount, description, imagePath);
                 } else {
                     Log.d(TAG, "onClick - image did not change");
-                    presenter.updateGift(gift, roomId, amount, description, null);
+                    presenter.updateGift(gift, mRoomId, amount, description, null);
                 }
             }
         } catch (NumberFormatException e) {
@@ -122,10 +135,6 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
          * Récupération du cadeau
          */
         gift = getIntent().getParcelableExtra(PARCELABLE_GIFT_KEY);
-        /**
-         * Récupération de l'identifiant de la salle
-         */
-        roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
 
         // Set up the toolbar.
         if (mToolbar != null) {
@@ -145,7 +154,7 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
             mDescriptionEditText.setText(gift.getDescription());
         }
 
-        Picasso.with(this).load(Injection.getDataProvider().getGiftImageUrl(gift.getId()))
+        Picasso.with(this).load(gift.getImageUrl())
                 .fit().centerCrop().placeholder(R.drawable.placeholder).into(mGiftImageView);
 
         // Create the File where the photo should go
@@ -172,7 +181,17 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
 
     @Override
     protected GiftDetailContract.Presenter newPresenter() {
-        return new GiftDetailPresenter(this, Injection.getDataProvider());
+        /**
+         * Récupération de l'identifiant de la salle
+         */
+        mRoomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
+
+        GiftCache cache = new GiftCache(DatabaseManager.getInstance(), mRoomId);
+        GiftCloudDataSource cloudDataSource = new GiftCloudDataSource(SessionManager.getInstance().getToken(),
+                Injection.getService(), mRoomId);
+        UserCache userCache = new UserCache(DatabaseManager.getInstance());
+        AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
+        return new GiftDetailPresenter(this, cache, cloudDataSource, authDataSource);
     }
 
     @Override
@@ -259,36 +278,31 @@ public class GiftDetailActivity extends AbstractActivity<GiftDetailContract.Pres
     @Override
     public void onUpdateGiftSuccess() {
         // Force Picasso to reload data for this file
-        final String filePath = Injection.getDataProvider().getGiftImageUrl(gift.getId());
+        final String filePath = gift.getImageUrl();
         Picasso.with(this).invalidate(filePath);
         Picasso.with(this).load(filePath).fit().centerCrop().into(mGiftImageView);
         Intent intent = new Intent();
-        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
+        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, mRoomId);
         setResult(RESULT_OK, intent);
         finish();
     }
 
     @Override
-    public void onUpdateGiftFailed() {
-        // Todo
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed", Snackbar.LENGTH_SHORT);
-        snackbar.show();
-    }
-
-    @Override
     public void showLoader() {
+        mModifyButton.setEnabled(false);
         mProgressBar.animate();
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoader() {
+        mModifyButton.setEnabled(true);
         mProgressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void showError(@NonNull String message) {
-
+        Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
     @Override

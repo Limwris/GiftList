@@ -25,9 +25,8 @@ public class FirebaseMessageHandler extends FirebaseMessagingService {
         String from = remoteMessage.getFrom();
         Log.d(TAG, String.format("onMessageReceived - From %s, data %s", from, data));
 
-
         Context context = getBaseContext();
-        GcmPresenter presenter = new GcmPresenter(Injection.getDataProvider());
+        GcmPresenter presenter = new GcmPresenter(Injection.getService());
         presenter.doProcessInvitationNotification(context, data.get("notification"), data.get("data"));
     }
 }

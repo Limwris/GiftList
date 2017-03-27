@@ -44,7 +44,7 @@ public class FirebaseInstanceIDListenerService extends FirebaseInstanceIdService
         Log.d(TAG, String.format("onTokenRefresh - Token retreived: token = %s", gcmToken));
 
 
-        GcmPresenter presenter = new GcmPresenter(Injection.getDataProvider());
+        GcmPresenter presenter = new GcmPresenter(Injection.getService());
         presenter.registerGcm(gcmToken);
     }
 }

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -60,9 +61,10 @@ android {
             // Permit to fasten build (gradle plugin pred-dex each module)
             minSdkVersion 21
             applicationIdSuffix = ".mock"
+            buildConfigField    "String",   "BASE_URL",     "\"http://localhost/giftlist/\""
         }
         prod {
-
+            buildConfigField    "String",   "BASE_URL",     "\"http://192.168.1.65:8080/giftlist/\""
         }
     }
 
@@ -81,6 +83,11 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -104,10 +111,12 @@ dependencies {
     // MultiDex
     compile group: 'com.android.support',     name: 'multidex',                version: "1.0.1"
     // Retrofit
-    compile group: 'com.squareup.retrofit2',  name: 'retrofit',                version: rootProject.ext.retrofitVersion
-    compile group: 'com.squareup.retrofit2',  name: 'converter-gson',          version: rootProject.ext.retrofitVersion
-    compile group: 'com.squareup.retrofit2',  name: 'converter-scalars',       version: rootProject.ext.retrofitVersion
-    compile group: 'com.squareup.okhttp3',    name: 'logging-interceptor',     version: '3.2.0'
+    compile         group: 'com.squareup.retrofit2',  name: 'retrofit',                version: rootProject.ext.retrofitVersion
+    compile         group: 'com.squareup.retrofit2',  name: 'converter-gson',          version: rootProject.ext.retrofitVersion
+    compile         group: 'com.squareup.retrofit2',  name: 'converter-scalars',       version: rootProject.ext.retrofitVersion
+    compile         group: 'com.squareup.okhttp3',    name: 'logging-interceptor',     version: '3.2.0'
+    debugCompile    group: 'com.squareup.retrofit2',  name: 'retrofit-mock',           version: rootProject.ext.retrofitVersion
+    compile         group: 'com.squareup.retrofit2',  name: 'adapter-rxjava2',         version: rootProject.ext.retrofitVersion
     // CircularImageView
     compile 'de.hdodenhof:circleimageview:2.0.0'
     // googlei18n / libphonenumber
@@ -122,6 +131,9 @@ dependencies {
     compile             group: 'com.jakewharton', name: 'butterknife',          version: rootProject.ext.butterKnifeVersion
     // Event Bus
     compile group: 'com.squareup',              name: 'otto',                   version: '1.3.8'
+    // RX
+    compile group: 'io.reactivex.rxjava2',      name: 'rxjava',                 version: '2.0.2'
+    compile group: 'io.reactivex.rxjava2',      name: 'rxandroid',              version: '2.0.1'
 
 
     testCompile new StringBuffer('junit:junit:').append(rootProject.ext.junitVersion).toString()

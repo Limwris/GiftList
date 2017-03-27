@@ -36,25 +36,15 @@
     <!-- RoomsActivity-->
     <string name="room_error_view_message">Aucune salle n\'est enregistrée.</string>
     <plurals name="gift_description">
-        <!--
-             As a developer, you should always supply "one" and "other"
-             strings. Your translators will know which strings are actually
-             needed for their language. Always include %d in "one" because
-             translators will need to use %d for languages where "one"
-             doesn't mean 1 (as explained above).
-          -->
         <item quantity="zero">%1$d de %2$d cadeau acheté.</item>
         <item quantity="one">%1$d de %2$d cadeau acheté.</item>
         <item quantity="other">%1$d de %2$d cadeaux achetés.</item>
     </plurals>
+    <string name="gift_description">{0,choice,0#0 de {1} cadeau acheté.|1#1 de {1} cadeau acheté.|1&lt;{0} de {1} cadeaux achetés.}</string>
     <string name="description_medaillon_list_person">Médaillon affichant une image représentant la personne.</string>
 
     <!-- GiftlisActivity -->
     <string name="gift_list_title">Liste des cadeaux</string>
-    <string name="gift_price_description">%1$,.2f €</string>
-    <string name="gift_amount_description">Participation: %1$,.2f €</string>
-    <string name="gift_remainder_description">Reste: %1$,.2f €</string>
-    <string name="gift_list_detail_amount_description">%1$,.2f €</string>
     <string name="gift_error_view_message">Aucun cadeau n\'a été proposé pour cette salle.</string>
     <string name="gift_list_leave_room_menu_item">Quitter la salle</string>
     <string name="gift_list_invite_user_menu_item">Inviter un utilisateur</string>
@@ -103,4 +93,7 @@
     <!-- Invite Room -->
     <string name="invite_room_name_room_text">Bienvenue dans %1$s</string>
     <string name="invite_room_accept_button">Accepter</string>
+    <string name="euros_amount">%1$s€</string>
+    <string name="participation">Participation</string>
+    <string name="remainder">Reste</string>
 </resources>

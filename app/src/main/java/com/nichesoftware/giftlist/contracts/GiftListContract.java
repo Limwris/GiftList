@@ -1,6 +1,7 @@
 package com.nichesoftware.giftlist.contracts;
 
 import com.nichesoftware.giftlist.model.Gift;
+import com.nichesoftware.giftlist.views.giftlist.GiftVO;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface GiftListContract {
          * Affiche les cadeaux passées en paramètre
          * @param gifts
          */
-        void showGifts(List<Gift> gifts);
+        void showGifts(List<GiftVO> gifts);
         /**
          * Affiche le détail du cadeau passée en paramètre (id)
          * @param gift
@@ -34,17 +35,17 @@ public interface GiftListContract {
          * @param roomId        Identifiant de la salle
          * @param forceUpdate   Flag indiquant si la mise à jour doit être forcée
          */
-        void loadGifts(final int roomId, boolean forceUpdate);
+        void loadGifts(final String roomId, boolean forceUpdate);
         /**
          * Action permettant d'ouvrir le détail d'un cadeau
-         * @param gift
+         * @param giftId
          */
-        void openGiftDetail(Gift gift);
+        void openGiftDetail(String giftId);
         /**
          * Action permettant à l'utilisateur de quitter la salle
          * @param roomId
          */
-        void leaveCurrentRoom(final int roomId);
+        void leaveCurrentRoom(final String roomId);
         /**
          * Indique si l'invitation est disponible
          * @return flag indiquant si l'invitation est disponible

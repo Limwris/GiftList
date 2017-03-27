@@ -10,11 +10,13 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.nichesoftware.giftlist.BuildConfig;
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.gcm.NotificationId;
 import com.nichesoftware.giftlist.contracts.GcmContract;
-import com.nichesoftware.giftlist.dataproviders.DataProvider;
 import com.nichesoftware.giftlist.dto.NotificationDto;
+import com.nichesoftware.giftlist.gcm.NotificationId;
 import com.nichesoftware.giftlist.model.Invitation;
+import com.nichesoftware.giftlist.model.User;
+import com.nichesoftware.giftlist.service.Service;
+import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.views.inviteroom.InviteRoomActivity;
 
 
@@ -29,14 +31,15 @@ public class GcmPresenter implements GcmContract.Presenter {
     /**
      * Data provider
      */
-    protected DataProvider mDataProvider;
+    private Service mService;
 
     /**
      * Constructor
-     * @param provider
+     *
+     * @param service
      */
-    public GcmPresenter(DataProvider provider) {
-        this.mDataProvider = provider;
+    public GcmPresenter(Service service) {
+        this.mService = service;
     }
 
     /**
@@ -47,7 +50,10 @@ public class GcmPresenter implements GcmContract.Presenter {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "registerGcm");
         }
-        mDataProvider.registerGcm(gcmToken);
+        final String token = SessionManager.getInstance().getToken();
+        if (token != null) {
+            mService.registerDevice(token, gcmToken);
+        }
 
     }
 
@@ -62,7 +68,8 @@ public class GcmPresenter implements GcmContract.Presenter {
         intent.putExtra(InviteRoomActivity.EXTRA_ROOM, invitation.getRoom());
 
         // Si l'utilisateur courant est bien celui qui est invité
-        if (mDataProvider.getCurrentUser().equals(invitation.getInvitedUser().getUsername())) {
+        User user = SessionManager.getInstance().getConnectedUser();
+        if (user != null && user.getUsername().equals(invitation.getInvitedUser().getUsername())) {
             // Build Notification
             NotificationCompat.Builder notificationBuilder =
                     new NotificationCompat.Builder(context)

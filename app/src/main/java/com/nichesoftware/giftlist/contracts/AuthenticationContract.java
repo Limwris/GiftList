@@ -8,11 +8,13 @@ import com.nichesoftware.giftlist.views.IView;
  */
 public interface AuthenticationContract {
     interface View extends IView {
+        void displayAuthenticationLoader(boolean show);
         void onAuthenticationError();
         void onAuthenticationSucceeded();
     }
     interface Presenter extends IPresenter {
         void onAuthentication(final String username, final String password);
+        void cancelTask();
         void doDisconnect();
         boolean isConnected();
     }

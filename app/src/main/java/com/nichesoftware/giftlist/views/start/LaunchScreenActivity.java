@@ -17,11 +17,14 @@ import android.widget.ProgressBar;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.LaunchScreenContract;
+import com.nichesoftware.giftlist.database.DatabaseManager;
 import com.nichesoftware.giftlist.presenters.LaunchScreenPresenter;
+import com.nichesoftware.giftlist.repository.cache.UserCache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
-import com.nichesoftware.giftlist.views.authentication.IAuthenticationListener;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
 
 import butterknife.BindView;
@@ -30,7 +33,7 @@ import butterknife.OnClick;
 /**
  * Launch screen
  */
-public class LaunchScreenActivity extends AbstractActivity<LaunchScreenContract.Presenter>
+public class LaunchScreenActivity extends AuthenticationActivity<LaunchScreenContract.Presenter>
         implements LaunchScreenContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = LaunchScreenActivity.class.getSimpleName();
@@ -110,14 +113,11 @@ public class LaunchScreenActivity extends AbstractActivity<LaunchScreenContract.
 
     @OnClick(R.id.didacticiel_log_in)
     void onLogInClick() {
-        AuthenticationDialog authenticationDialog = new AuthenticationDialog(this,
-                new IAuthenticationListener() {
-                    @Override
-                    public void onAuthentication(String username, String password) {
-                        getPresenter().onAuthentication(username, password);
-                    }
-                });
-                authenticationDialog.show();
+         mAuthenticationDialog = new AuthenticationDialog(this,
+                 (username, password) -> presenter.onAuthentication(username, password));
+        // If the dialog is cancelled, drop authentication task
+        mAuthenticationDialog.setOnDismissListener(dialog -> presenter.cancelTask());
+        mAuthenticationDialog.show();
     }
 
     @Override
@@ -145,7 +145,9 @@ public class LaunchScreenActivity extends AbstractActivity<LaunchScreenContract.
 
     @Override
     protected LaunchScreenContract.Presenter newPresenter() {
-        return new LaunchScreenPresenter(this, Injection.getDataProvider());
+        UserCache userCache = new UserCache(DatabaseManager.getInstance());
+        AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
+        return new LaunchScreenPresenter(this, authDataSource);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

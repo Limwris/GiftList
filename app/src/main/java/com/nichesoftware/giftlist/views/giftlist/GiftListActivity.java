@@ -3,7 +3,7 @@ package com.nichesoftware.giftlist.views.giftlist;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,15 +20,21 @@ import android.view.View;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
+import com.nichesoftware.giftlist.database.DatabaseManager;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.repository.cache.GiftCache;
+import com.nichesoftware.giftlist.repository.cache.UserCache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.datasource.GiftCloudDataSource;
+import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
+import com.nichesoftware.giftlist.session.SessionManager;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addgift.AddGiftActivity;
 import com.nichesoftware.giftlist.views.adduser.AddUserActivity;
 import com.nichesoftware.giftlist.views.giftdetail.GiftDetailActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -37,7 +43,7 @@ import butterknife.OnClick;
 /**
  * Gift list activity
  */
-public class GiftListActivity extends AbstractActivity<GiftListContract.Presenter>
+public class GiftListActivity extends AuthenticationActivity<GiftListContract.Presenter>
         implements GiftListContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListActivity.class.getSimpleName();
@@ -66,13 +72,15 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
     /**
      * Identifiant de la salle
      */
-    private int roomId;
+    private String mRoomId;
 
     /**
      * Graphical components
      */
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
     @BindView(R.id.refresh_layout)
@@ -82,10 +90,8 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
 
     @OnClick(R.id.fab_add_gift)
     void onAddGiftClick() {
-        Log.d(TAG, "onClick FAB");
-
         Intent intent = new Intent(this, AddGiftActivity.class);
-        intent.putExtra(AddGiftActivity.PARCELABLE_ROOM_ID_KEY, roomId);
+        intent.putExtra(AddGiftActivity.PARCELABLE_ROOM_ID_KEY, mRoomId);
         startActivityForResult(intent, ADD_GIFT_REQUEST);
     }
 
@@ -106,13 +112,13 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
 
         mGiftItemListener = new GiftItemListener() {
             @Override
-            public void onGiftClick(Gift clickedGift) {
-                Log.d(TAG, "Clic détecté sur le cadeau " + clickedGift.getName());
-                presenter.openGiftDetail(clickedGift);
+            public void onGiftClick(String clickedGiftId) {
+                Log.d(TAG, "Clic détecté sur le cadeau " + clickedGiftId);
+                presenter.openGiftDetail(clickedGiftId);
             }
         };
 
-        mGiftListAdapter = new GiftListAdapter(new ArrayList<Gift>(0), mGiftItemListener);
+        mGiftListAdapter = new GiftListAdapter(mGiftItemListener);
         mRecyclerView.setAdapter(mGiftListAdapter);
         int numColumns = getResources().getInteger(R.integer.num_gifts_columns);
 
@@ -127,13 +133,12 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.loadGifts(roomId, true);
+                presenter.loadGifts(mRoomId, true);
             }
         });
 
-        // Get the requested note id
-        int roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
-        initView(roomId);
+        // Charge les cadeaux à l'ouverture de l'activité
+        presenter.loadGifts(mRoomId, false);
     }
 
     @Override
@@ -151,12 +156,20 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
 
     @Override
     protected GiftListContract.Presenter newPresenter() {
-        return new GiftListPresenter(this, Injection.getDataProvider());
+        // Get the requested note id
+        mRoomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
+
+        GiftCache cache = new GiftCache(DatabaseManager.getInstance(), mRoomId);
+        GiftCloudDataSource cloudDataSource = new GiftCloudDataSource(SessionManager.getInstance().getToken(),
+                Injection.getService(), mRoomId);
+        UserCache userCache = new UserCache(DatabaseManager.getInstance());
+        AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
+        return new GiftListPresenter(this, cache, cloudDataSource, authDataSource);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        roomId = getIntent().getIntExtra(EXTRA_ROOM_ID, -1);
         // Check which request we're responding to
         if (requestCode == ADD_GIFT_REQUEST) {
             // Make sure the request was successful
@@ -213,7 +226,7 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
             case R.id.gift_list_invite_user:
                 // Comportement du bouton "Inviter un utilisateur"
                 Intent intent = new Intent(this, AddUserActivity.class);
-                intent.putExtra(AddUserActivity.EXTRA_ROOM_ID, roomId);
+                intent.putExtra(AddUserActivity.EXTRA_ROOM_ID, mRoomId);
                 startActivityForResult(intent, ADD_USER_REQUEST);
                 return true;
             case R.id.disconnection_menu_item:
@@ -228,16 +241,6 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
     ///     Private methods
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Initialisation de la vue
-     * @param roomId
-     */
-    private void initView(@Nullable final int roomId) {
-        this.roomId = roomId;
-        // Charge les cadeaux à l'ouverture de l'activité
-        presenter.loadGifts(roomId, false);
-    }
-
     private void doShowLeaveRoomDialog() {
         new AlertDialog.Builder(this,
                 R.style.AppTheme_Dark_Dialog)
@@ -247,7 +250,7 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
                             @Override
                             public void onClick(DialogInterface dialogInterface, int  whichButton) {
                                 mLeaveDialog = dialogInterface;
-                                presenter.leaveCurrentRoom(roomId);
+                                presenter.leaveCurrentRoom(mRoomId);
                             }
                         })
                 .setNegativeButton(R.string.cancel_button_text,
@@ -262,7 +265,7 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
     }
 
     private void forceReload() {
-        presenter.loadGifts(roomId, true);
+        presenter.loadGifts(mRoomId, true);
     }
 
     private void setRefreshIndicator(final boolean doShow) {
@@ -279,7 +282,6 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
     ///     View contract
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     @Override
     public void showLoader() {
         setRefreshIndicator(true);
@@ -292,11 +294,11 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
 
     @Override
     public void showError(@NonNull String message) {
-
+        Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
-    public void showGifts(List<Gift> gifts) {
+    public void showGifts(List<GiftVO> gifts) {
         if (gifts.isEmpty()) {
             mErrorView.setMessage(getResources().getString(R.string.gift_error_view_message));
             mErrorView.setVisibility(View.VISIBLE);
@@ -313,7 +315,7 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
         Intent intent = new Intent(this, GiftDetailActivity.class);
         // Passing data as a parecelable object
         intent.putExtra(GiftDetailActivity.PARCELABLE_GIFT_KEY, gift);
-        intent.putExtra(GiftDetailActivity.EXTRA_ROOM_ID, roomId);
+        intent.putExtra(GiftDetailActivity.EXTRA_ROOM_ID, mRoomId);
         startActivityForResult(intent, GIFT_DETAIL_REQUEST);
     }
 
@@ -333,8 +335,7 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
             mLeaveDialog.dismiss();
         }
         mLeaveDialog = null;
-        // Todo
-        Snackbar.make(findViewById(android.R.id.content), "Echec...", Snackbar.LENGTH_LONG).show();
+        Snackbar.make(mCoordinatorLayout, "Echec...", Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -349,7 +350,7 @@ public class GiftListActivity extends AbstractActivity<GiftListContract.Presente
     /**
      * Interface du listener du clic sur un cadeau
      */
-    public interface GiftItemListener {
-        void onGiftClick(Gift clickedGift);
+    /* package */ interface GiftItemListener {
+        void onGiftClick(String clickedGiftId);
     }
 }

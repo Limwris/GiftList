@@ -2,7 +2,9 @@ package com.nichesoftware.giftlist.views.authentication;
 
 import android.content.Context;
 import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -35,19 +37,20 @@ public class AuthenticationDialog extends AppCompatDialog {
     private Unbinder mButterKnifeUnbinder;
 
     /**
-     * Lock on the login button
-     */
-    private boolean lock;
-
-    /**
      * Graphical components
      */
+    @BindView(R.id.start_log_in_dialog_username_input_layout)
+    TextInputLayout mUsernameInputLayout;
     @BindView(R.id.start_log_in_dialog_username_edit_text)
     TextInputEditText mUsernameEditText;
+    @BindView(R.id.start_log_in_dialog_password_input_layout)
+    TextInputLayout mPasswordInputLayout;
     @BindView(R.id.start_log_in_dialog_password_edit_text)
     TextInputEditText mPasswordEditText;
     @BindView(R.id.toolbar_progressBar)
     ProgressBar mProgressBar;
+    @BindView(R.id.authentication_dialog_ok_button)
+    AppCompatButton mOkButton;
 
     @OnClick(R.id.authentication_dialog_ok_button)
     void onOkButtonClick() {
@@ -86,18 +89,22 @@ public class AuthenticationDialog extends AppCompatDialog {
 
         final String username = mUsernameEditText.getText().toString();
         if (StringUtils.isEmpty(username)) {
-            mUsernameEditText.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
+            mUsernameInputLayout.setErrorEnabled(true);
+            mUsernameInputLayout.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
             valid = false;
         } else {
-            mUsernameEditText.setError(null);
+            mUsernameInputLayout.setErrorEnabled(false);
+            mUsernameInputLayout.setError(null);
         }
 
         final String password = mPasswordEditText.getText().toString();
         if (StringUtils.isEmpty(password)) {
-            mPasswordEditText.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
+            mPasswordInputLayout.setErrorEnabled(true);
+            mPasswordInputLayout.setError(getContext().getString(R.string.start_dialog_empty_field_error_text));
             valid = false;
         } else {
-            mPasswordEditText.setError(null);
+            mPasswordInputLayout.setErrorEnabled(false);
+            mPasswordInputLayout.setError(null);
         }
 
         return valid;
@@ -108,44 +115,27 @@ public class AuthenticationDialog extends AppCompatDialog {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void showLoader() {
+        // Adds a lock on the log button
+        mOkButton.setEnabled(false);
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressBar.animate();
     }
 
     public void hideLoader() {
+        // Removes the lock on the login button
+        mOkButton.setEnabled(true);
         mProgressBar.setVisibility(View.INVISIBLE);
     }
 
-    /**********************************************************************************************/
-    /***                                        Lock                                            ***/
-    /**********************************************************************************************/
-
-    /**
-     * Adds a lock on the log button
-     */
-    private void addLock() {
-        lock = true;
-        findViewById(R.id.authentication_dialog_ok_button).setEnabled(false);
-    }
-
-    /**
-     * Removes the lock on the login button
-     */
-    private void removeLock() {
-        lock = false;
-        findViewById(R.id.authentication_dialog_ok_button).setEnabled(true);
-    }
-    /**********************************************************************************************/
-    /***                                       Errors                                           ***/
-    /**********************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                     Error methods                                          //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Indicates that the login field is empty
      */
     public void setLoginEmpty() {
-        Log.d(TAG, "[AuthenticationDialog] setLoginEmpty");
-        removeLock();
-        hideLoader();
+        Log.d(TAG, "setLoginEmpty");
         mUsernameEditText.setError(getContext().getString(R.string.login_username_empty));
     }
 
@@ -153,9 +143,7 @@ public class AuthenticationDialog extends AppCompatDialog {
      * Indicates that the password field is empty
      */
     public void setPasswordEmpty() {
-        Log.d(TAG, "[AuthenticationDialog] setPasswordEmpty");
-        removeLock();
-        hideLoader();
+        Log.d(TAG, "setPasswordEmpty");
         mPasswordEditText.setError(getContext().getString(R.string.login_password_empty));
     }
 
@@ -163,9 +151,7 @@ public class AuthenticationDialog extends AppCompatDialog {
      * Indicates that the login has failed
      */
     public void setAuthentInError() {
-        Log.d(TAG, "[AuthenticationDialog] setAuthentInError");
-        removeLock();
-        hideLoader();
+        Log.d(TAG, "setAuthentInError");
         Toast.makeText(getContext(), getContext().getString(R.string.login_error), Toast.LENGTH_LONG).show();
     }
 

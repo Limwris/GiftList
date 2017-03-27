@@ -10,9 +10,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
-import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.dataproviders.DataProvider;
+import com.nichesoftware.giftlist.utils.ContactUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -87,7 +86,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         });
 
         Picasso.with(context)
-                .load(DataProvider.getContactImageUrl(vo.getUser().getPhoneNumber()))
+                .load(ContactUtils.getContactImageUrl(vo.getUser().getPhoneNumber()))
                 .placeholder(R.drawable.person_placeholder).into(viewHolder.contactBadge);
     }
 

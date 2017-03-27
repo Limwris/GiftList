@@ -9,11 +9,10 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.SplashScreenContract;
 import com.nichesoftware.giftlist.presenters.SplashScreenPresenter;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.views.BaseActivity;
 import com.nichesoftware.giftlist.views.rooms.RoomsActivity;
 
 import butterknife.BindView;
@@ -21,7 +20,8 @@ import butterknife.BindView;
 /**
  * Splash screen
  */
-public class SplashScreenActivity extends AbstractActivity<SplashScreenContract.Presenter> implements SplashScreenContract.View {
+public class SplashScreenActivity extends BaseActivity<SplashScreenContract.Presenter>
+        implements SplashScreenContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = SplashScreenActivity.class.getSimpleName();
     private static final int STARTUP_DELAY = 300;
@@ -72,7 +72,7 @@ public class SplashScreenActivity extends AbstractActivity<SplashScreenContract.
 
     @Override
     protected SplashScreenContract.Presenter newPresenter() {
-        return new SplashScreenPresenter(this, Injection.getDataProvider());
+        return new SplashScreenPresenter(this);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,11 +109,6 @@ public class SplashScreenActivity extends AbstractActivity<SplashScreenContract.
 
     @Override
     public void showError(@NonNull String message) {
-
-    }
-
-    @Override
-    protected void performLogin() {
 
     }
 }

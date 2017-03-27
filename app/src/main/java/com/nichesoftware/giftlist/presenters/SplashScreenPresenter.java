@@ -4,33 +4,32 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.nichesoftware.giftlist.contracts.SplashScreenContract;
-import com.nichesoftware.giftlist.dataproviders.DataProvider;
+import com.nichesoftware.giftlist.session.SessionManager;
 
 /**
  * Splash screen presenter
  */
-public class SplashScreenPresenter extends AbstractPresenter<SplashScreenContract.View>
+public class SplashScreenPresenter extends BaseBarePresenter<SplashScreenContract.View>
         implements SplashScreenContract.Presenter {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = LaunchScreenPresenter.class.getSimpleName();
 
     /**
-     * Constructor
+     * Default constructor
      *
-     * @param view         View to attach
-     * @param dataProvider The data provider
+     * @param view View to attach
      */
-    public SplashScreenPresenter(@NonNull SplashScreenContract.View view, @NonNull DataProvider dataProvider) {
-        super(view, dataProvider);
+    public SplashScreenPresenter(@NonNull SplashScreenContract.View view) {
+        super(view);
     }
 
     @Override
     public void doRGSplashScreen() {
         Log.d(TAG, "doRGSplashScreen");
-        if (mDataProvider.isDisconnectedUser()) {
-            mAttachedView.doShowDisconnectedActivity();
-        } else {
+        if (SessionManager.getInstance().isConnected()) {
             mAttachedView.doShowConnectedActivity();
+        } else {
+            mAttachedView.doShowDisconnectedActivity();
         }
     }
 }

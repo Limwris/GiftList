@@ -5,16 +5,15 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Created by Kattleya on 22/05/2016.
+ * Room model
  */
 public class Room implements Parcelable {
     /**
      * Identifiant unique de la salle
      */
-    private int id;
+    private String id;
     /**
      * Nom de la salle
      */
@@ -28,14 +27,34 @@ public class Room implements Parcelable {
      */
     private List<Gift> giftList;
 
+    /**
+     * Contructor
+     *
+     * @param id
+     */
+    public Room(final String id) {
+        this.id = id;
+    }
+
+    /**
+     * Contructor
+     *
+     * @param roomName
+     * @param occasion
+     */
+    public Room(final String roomName, final String occasion) {
+        this.roomName = roomName;
+        this.occasion = occasion;
+    }
 
     /**
      * Contructeur par défaut
+     *
      * @param id
      * @param roomName
      * @param occasion
      */
-    public Room(final int id, final String roomName, final String occasion) {
+    public Room(final String id, final String roomName, final String occasion) {
         this.id = id;
         this.roomName = roomName;
         this.occasion = occasion;
@@ -43,16 +62,33 @@ public class Room implements Parcelable {
 
     /**
      * Contructeur avec liste de cadeau
+     *
      * @param id
      * @param roomName
      * @param occasion
      * @param gifts
      */
-    public Room(final int id, final String roomName, final String occasion, List<Gift> gifts) {
+    public Room(final String id, final String roomName, final String occasion, List<Gift> gifts) {
         this.id = id;
         this.roomName = roomName;
         this.occasion = occasion;
         this.giftList = gifts;
+    }
+
+    /**
+     * Getter sur l'identifiant unique de la salle
+     * @return id
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Setter sur l'identifiant unique de la salle
+     * @param id    Identifiant de la salle
+     */
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -85,14 +121,6 @@ public class Room implements Parcelable {
      */
     public void setGiftList(List<Gift> giftList) {
         this.giftList = giftList;
-    }
-
-    /**
-     * Getter sur l'identifiant unique de la personne
-     * @return id
-     */
-    public int getId() {
-        return id;
     }
 
     /**
@@ -134,7 +162,7 @@ public class Room implements Parcelable {
      */
     public boolean updateGift(Gift gift) {
         for (Gift temp : giftList) {
-            if (temp.getId() == gift.getId()) {
+            if (temp.getId().equals(gift.getId())) {
                 // Todo: Update...
                 return true;
             }
@@ -147,12 +175,12 @@ public class Room implements Parcelable {
      * @param giftId - identifiant du cadeau recherchée
      * @return room  - cadeau correspondant à l'identifiant passé en paramètre, nul sinon
      */
-    public Gift getGiftById(final int giftId) {
+    public Gift getGiftById(final String giftId) {
         if (giftList == null) {
             giftList = new ArrayList<>();
         }
         for (Gift gift : giftList) {
-            if (gift.getId() == giftId) {
+            if (gift.getId().equals(giftId)) {
                 return gift;
             }
         }
@@ -190,6 +218,15 @@ public class Room implements Parcelable {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Room{" +
+                "id='" + id + '\'' +
+                ", roomName='" + roomName + '\'' +
+                ", occasion='" + occasion + '\'' +
+                '}';
+    }
+
     /**********************************************************************************************/
     /********************************          PARCELABLE          ********************************/
     /**********************************************************************************************/
@@ -201,13 +238,13 @@ public class Room implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
-        parcel.writeInt(id);
+        parcel.writeString(id);
         parcel.writeString(roomName);
         parcel.writeString(occasion);
     }
 
     public Room(Parcel in) {
-        this.id = in.readInt();
+        this.id = in.readString();
         this.roomName = in.readString();
         this.occasion = in.readString();
     }

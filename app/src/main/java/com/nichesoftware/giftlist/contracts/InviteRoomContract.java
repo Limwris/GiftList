@@ -15,6 +15,6 @@ public interface InviteRoomContract {
         void onAcceptInvitationFailed();
     }
     interface Presenter extends AuthenticationContract.Presenter {
-        void acceptInvitationToRoom(final int roomId);
+        void acceptInvitationToRoom(final String roomId);
     }
 }

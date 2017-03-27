@@ -2,6 +2,8 @@ package com.nichesoftware.giftlist.views.rooms;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -16,14 +18,20 @@ import android.view.View;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.RoomsContract;
-import com.nichesoftware.giftlist.model.Room;
+import com.nichesoftware.giftlist.database.DatabaseManager;
+import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.RoomsPresenter;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.repository.cache.RoomCache;
+import com.nichesoftware.giftlist.repository.cache.UserCache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.datasource.RoomCloudDataSource;
+import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
+import com.nichesoftware.giftlist.session.SessionManager;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.ErrorView;
 import com.nichesoftware.giftlist.views.addroom.AddRoomActivity;
 import com.nichesoftware.giftlist.views.giftlist.GiftListActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -32,7 +40,7 @@ import butterknife.OnClick;
 /**
  * Room screen
  */
-public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
+public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presenter>
         implements RoomsContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = RoomsActivity.class.getSimpleName();
@@ -46,15 +54,12 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
     private RoomAdapter mRoomsAdapter;
 
     /**
-     * Listener for clicks on person in the RecyclerView.
-     */
-    private RoomItemListener mItemListener;
-
-    /**
      * Graphical components
      */
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
     @BindView(R.id.refresh_layout)
@@ -83,15 +88,15 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
             }
         }
 
-        mItemListener = new RoomItemListener() {
+        RoomItemListener itemListener = new RoomItemListener() {
             @Override
-            public void onRoomClick(Room clickedRoom) {
-                Log.d(TAG, "Clic détecté sur la salle " + clickedRoom.getRoomName());
-                presenter.openRoomDetail(clickedRoom);
+            public void onRoomClick(String clickedRoomId) {
+                Log.d(TAG, "Clic détecté sur la salle " + clickedRoomId);
+                presenter.openRoomDetail(clickedRoomId);
             }
         };
 
-        mRoomsAdapter = new RoomAdapter(new ArrayList<Room>(0), mItemListener);
+        mRoomsAdapter = new RoomAdapter(itemListener);
         mRecyclerView.setAdapter(mRoomsAdapter);
         int numColumns = getResources().getInteger(R.integer.num_persons_columns);
 
@@ -121,7 +126,14 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
 
     @Override
     protected RoomsContract.Presenter newPresenter() {
-        return new RoomsPresenter(this, Injection.getDataProvider());
+        final User user = SessionManager.getInstance().getConnectedUser();
+        RoomCache cache = new RoomCache(DatabaseManager.getInstance(),
+                user != null ? user.getUsername() : "");
+        RoomCloudDataSource cloudDataSource = new RoomCloudDataSource(SessionManager.getInstance().getToken(),
+                Injection.getService());
+        UserCache userCache = new UserCache(DatabaseManager.getInstance());
+        AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
+        return new RoomsPresenter(this, cache, cloudDataSource, authDataSource);
     }
 
     @Override
@@ -179,7 +191,7 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
 
     @Override
     public void showError(@NonNull String message) {
-
+        Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
     private void setRefreshIndicator(final boolean doShow) {
@@ -193,7 +205,7 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
     }
 
     @Override
-    public void showRooms(List<Room> rooms) {
+    public void showRooms(List<RoomVO> rooms) {
         Log.d(TAG, "showRooms");
 
         if (rooms.isEmpty()) {
@@ -208,7 +220,7 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
     }
 
     @Override
-    public void showRoomDetail(@NonNull int roomId) {
+    public void showRoomDetail(@NonNull String roomId) {
         Log.d(TAG, "showRoomDetail");
 
         Intent intent = new Intent(this, GiftListActivity.class);
@@ -229,6 +241,6 @@ public class RoomsActivity extends AbstractActivity<RoomsContract.Presenter>
      * Interface du listener du clic sur une salle
      */
     public interface RoomItemListener {
-        void onRoomClick(Room clickedRoom);
+        void onRoomClick(String clickedRoomId);
     }
 }

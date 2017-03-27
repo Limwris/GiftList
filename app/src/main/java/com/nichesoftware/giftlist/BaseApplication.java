@@ -18,6 +18,11 @@ public class BaseApplication extends Application {
         }
     }
 
+    /**
+     * Application context available everywhere
+     *
+     * @return      The Application {@link Context}
+     */
     public static Context getAppContext() {
         return INSTANCE.getApplicationContext();
     }

@@ -1,17 +1,21 @@
 package com.nichesoftware.giftlist.presenters;
 
 import android.support.annotation.NonNull;
-import android.support.design.BuildConfig;
 import android.util.Log;
 
 import com.nichesoftware.giftlist.contracts.GiftDetailContract;
-import com.nichesoftware.giftlist.dataproviders.DataProvider;
 import com.nichesoftware.giftlist.model.Gift;
+import com.nichesoftware.giftlist.repository.cache.Cache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.datasource.ConnectedDataSource;
+import com.nichesoftware.giftlist.utils.StringUtils;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Gift detail presenter
  */
-public class GiftDetailPresenter extends AbstractPresenter<GiftDetailContract.View>
+public class GiftDetailPresenter extends BasePresenter<GiftDetailContract.View, Gift>
         implements GiftDetailContract.Presenter {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftDetailPresenter.class.getSimpleName();
@@ -19,43 +23,35 @@ public class GiftDetailPresenter extends AbstractPresenter<GiftDetailContract.Vi
     /**
      * Constructor
      *
-     * @param view         View to attach
-     * @param dataProvider The data provider
+     * @param view                  View to attach
+     * @param cache                 Cache
+     * @param connectedDataSource   The cloud data provider
+     * @param authDataSource        Authentication data source
      */
-    public GiftDetailPresenter(@NonNull GiftDetailContract.View view, @NonNull DataProvider dataProvider) {
-        super(view, dataProvider);
+    public GiftDetailPresenter(@NonNull GiftDetailContract.View view, @NonNull Cache<Gift> cache,
+                            @NonNull ConnectedDataSource<Gift> connectedDataSource,
+                            @NonNull AuthDataSource authDataSource) {
+        super(view, cache, connectedDataSource, authDataSource);
     }
 
     @Override
-    public void updateGift(Gift gift, int roomId, double allocatedAmount,
+    public void updateGift(Gift gift, String roomId, double allocatedAmount,
                            final String description, final String filePath) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "updateGift");
+        Log.d(TAG, "updateGift");
+
+        Gift updatedGift = gift.clone();
+        updatedGift.setAmount(allocatedAmount);
+        updatedGift.setDescription(description);
+        if (!StringUtils.isEmpty(filePath)) {
+            updatedGift.setImageUrl(filePath);
+            updatedGift.setImageFileLocal(true);
         }
-        mAttachedView.showLoader();
-
-        mDataProvider.updateGift(roomId, gift.getId(), allocatedAmount, description, filePath,
-                new DataProvider.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        mAttachedView.hideLoader();
-                        mAttachedView.onUpdateGiftSuccess();
-                    }
-
-                    @Override
-                    public void onError() {
-                        mAttachedView.hideLoader();
-                        mAttachedView.onUpdateGiftFailed();
-                    }
-                });
-    }
-
-    /**
-     * Méthode retournant l'utilisateur courant
-     * @return
-     */
-    @Override
-    public String getCurrentUsername() {
-        return mDataProvider.getCurrentUser();
+        mDataProvider.update(updatedGift)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(disposable -> mAttachedView.showLoader())
+                .doFinally(() -> mAttachedView.hideLoader())
+                .subscribe(addGift -> mAttachedView.onUpdateGiftSuccess(),
+                        throwable -> mAttachedView.showError(throwable.getMessage()),
+                        () -> Log.d(TAG, "addGift: onComplete"));
     }
 }

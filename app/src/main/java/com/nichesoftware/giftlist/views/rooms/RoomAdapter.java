@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.model.Room;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,81 +24,64 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
     /**
      * Données (liste de salles)
      */
-    private List<Room> rooms;
+    private List<RoomVO> mRooms = new ArrayList<>();
 
     /**
      * Listener sur le clic de la salle
      */
-    private RoomsActivity.RoomItemListener itemListener;
+    private RoomsActivity.RoomItemListener mItemListener;
 
     /**
-     * Context
+     * Constructor
+     *
+     * @param itemListener      On click listener
      */
-    private Context context;
-
-    /**
-     * Constructeur
-     * @param rooms
-     * @param itemListener
-     */
-    public RoomAdapter(List<Room> rooms, RoomsActivity.RoomItemListener itemListener) {
+    public RoomAdapter(RoomsActivity.RoomItemListener itemListener) {
         Log.d(TAG, "RoomsAdapter");
-
-        setList(rooms);
-        this.itemListener = itemListener;
+        this.mItemListener = itemListener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d(TAG, "RoomsAdapter - onCreateViewHolder");
+        Log.d(TAG, "onCreateViewHolder");
 
-        this.context = parent.getContext();
+        Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View roomsView = inflater.inflate(R.layout.room_list_item_view, parent, false);
 
-        return new ViewHolder(roomsView, itemListener);
+        return new ViewHolder(roomsView, mItemListener);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        Log.d(TAG, "RoomsAdapter - onBindViewHolder");
-
-        Room room = rooms.get(position);
-
-        viewHolder.name.setText(room.getRoomName());
-        // The first parameter of getQuantityString is used to decide which format to use (single or plural)
-        viewHolder.giftDescription.setText(context.getResources().getQuantityString(R.plurals.gift_description, room.getBoughtGiftListSize(), room.getBoughtGiftListSize(), room.getGiftListSize()));
+        Log.d(TAG, "onBindViewHolder");
+        if (position < mRooms.size()) {
+            RoomVO room = mRooms.get(position);
+            viewHolder.bindData(room);
+        }
     }
 
-    public void replaceData(List<Room> rooms) {
-        setList(rooms);
+    public void replaceData(List<RoomVO> rooms) {
+        mRooms = rooms;
         notifyDataSetChanged();
-    }
-
-    private void setList(List<Room> rooms) {
-        this.rooms = rooms;
     }
 
     @Override
     public int getItemCount() {
-        return rooms.size();
+        return mRooms.size();
     }
 
-    public Room getItem(int position) {
-        return rooms.get(position);
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder implements android.view.View.OnClickListener {
+    /* package */ class ViewHolder extends RecyclerView.ViewHolder {
 
         /**
          * Nom
          */
-        TextView name;
+        private TextView name;
 
         /**
          * Description des cadeaux en cours
          */
-        TextView giftDescription;
+        private TextView giftDescription;
 
         /**
          * Listener sur le clic de la salle
@@ -110,24 +93,24 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
          * @param itemView vue d'un item de la liste
          * @param listener listener sur le clic d'un item de la liste
          */
-        public ViewHolder(View itemView, RoomsActivity.RoomItemListener listener) {
+        /* package */ ViewHolder(View itemView, RoomsActivity.RoomItemListener listener) {
             super(itemView);
             roomItemListener = listener;
             name = (TextView) itemView.findViewById(R.id.room_name);
             giftDescription = (TextView) itemView.findViewById(R.id.room_gift_description);
-            itemView.findViewById(R.id.mainHolder).setOnClickListener(this);
         }
 
-        @Override
-        public void onClick(View v) {
-            int position = getAdapterPosition();
-            Log.d(TAG, "Clic détecté dans la liste à la position: " + position);
-
-            Room room = getItem(position);
-            if (roomItemListener != null) {
-                roomItemListener.onRoomClick(room);
-            }
-
+        public void bindData(RoomVO vo) {
+            name.setText(vo.getRoomName());
+            giftDescription.setText(vo.getDescription());
+            itemView.findViewById(R.id.mainHolder).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (roomItemListener != null) {
+                        roomItemListener.onRoomClick(vo.getId());
+                    }
+                }
+            });
         }
     }
 }

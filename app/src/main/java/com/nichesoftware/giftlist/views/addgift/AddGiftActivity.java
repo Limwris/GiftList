@@ -20,10 +20,17 @@ import android.widget.ProgressBar;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.AddGiftContract;
+import com.nichesoftware.giftlist.database.DatabaseManager;
 import com.nichesoftware.giftlist.presenters.AddGiftPresenter;
+import com.nichesoftware.giftlist.repository.cache.GiftCache;
+import com.nichesoftware.giftlist.repository.cache.UserCache;
+import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
+import com.nichesoftware.giftlist.repository.datasource.GiftCloudDataSource;
+import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
+import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.utils.PictureUtils;
 import com.nichesoftware.giftlist.utils.StringUtils;
-import com.nichesoftware.giftlist.views.AbstractActivity;
+import com.nichesoftware.giftlist.views.AuthenticationActivity;
 import com.nichesoftware.giftlist.views.addimage.AddImageDialog;
 
 import java.io.IOException;
@@ -34,7 +41,7 @@ import butterknife.OnClick;
 /**
  * Add gift screen
  */
-public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
+public class AddGiftActivity extends AuthenticationActivity<AddGiftContract.Presenter>
         implements AddGiftContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = AddGiftActivity.class.getSimpleName();
@@ -44,7 +51,7 @@ public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
     /**
      * Model
      */
-    private int roomId;
+    private String mRoomId;
     private String imagePath;
     private boolean isImageChanged;
 
@@ -88,11 +95,6 @@ public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
     protected void initView() {
         super.initView();
 
-        /**
-         * Récupération du cadeau
-         */
-        roomId = getIntent().getIntExtra(PARCELABLE_ROOM_ID_KEY, -1);
-
         // Set up the toolbar.
         if (mToolbar != null) {
             setSupportActionBar(mToolbar);
@@ -128,7 +130,15 @@ public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
 
     @Override
     protected AddGiftContract.Presenter newPresenter() {
-        return new AddGiftPresenter(this, Injection.getDataProvider());
+        // Récupération du cadeau
+        mRoomId = getIntent().getStringExtra(PARCELABLE_ROOM_ID_KEY);
+
+        GiftCache cache = new GiftCache(DatabaseManager.getInstance(), mRoomId);
+        GiftCloudDataSource cloudDataSource = new GiftCloudDataSource(SessionManager.getInstance().getToken(),
+                Injection.getService(), mRoomId);
+        UserCache userCache = new UserCache(DatabaseManager.getInstance());
+        AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
+        return new AddGiftPresenter(this, cache, cloudDataSource, authDataSource);
     }
 
     @Override
@@ -210,9 +220,9 @@ public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
         final double amount = Double.valueOf(mAmountEditText.getText().toString());
         final String description = descriptionEditText.getText().toString();
         if (isImageChanged) {
-            presenter.addGift(roomId, name, price, amount, description, imagePath);
+            presenter.addGift(mRoomId, name, price, amount, description, imagePath);
         } else {
-            presenter.addGift(roomId, name, price, amount, description, null);
+            presenter.addGift(mRoomId, name, price, amount, description, null);
         }
     }
 
@@ -227,6 +237,7 @@ public class AddGiftActivity extends AbstractActivity<AddGiftContract.Presenter>
         PictureUtils.saveBitmap(bitmap, imagePath);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private boolean validate() {
         boolean valid = true;
 
