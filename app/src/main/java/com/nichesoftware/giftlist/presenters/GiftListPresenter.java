@@ -11,7 +11,7 @@ import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
-import com.nichesoftware.giftlist.repository.datasource.ConnectedDataSource;
+import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
 import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.utils.ResourcesUtils;
 import com.nichesoftware.giftlist.views.giftlist.GiftListDetailVO;
@@ -55,7 +55,7 @@ public class GiftListPresenter extends BasePresenter<GiftListContract.View, Gift
      * @param authDataSource        Authentication data source
      */
     public GiftListPresenter(@NonNull GiftListContract.View view, @NonNull Cache<Gift> cache,
-                               @NonNull ConnectedDataSource<Gift> connectedDataSource,
+                               @NonNull CloudDataSource<Gift> connectedDataSource,
                                @NonNull AuthDataSource authDataSource) {
         super(view, cache, connectedDataSource, authDataSource);
         mDecimalFormat = new DecimalFormat(PRICE_DECIMAL_PATTERN);

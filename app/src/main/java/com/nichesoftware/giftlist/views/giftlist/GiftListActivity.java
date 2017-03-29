@@ -160,8 +160,7 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
         mRoomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
 
         GiftCache cache = new GiftCache(DatabaseManager.getInstance(), mRoomId);
-        GiftCloudDataSource cloudDataSource = new GiftCloudDataSource(SessionManager.getInstance().getToken(),
-                Injection.getService(), mRoomId);
+        GiftCloudDataSource cloudDataSource = new GiftCloudDataSource(Injection.getService(), mRoomId);
         UserCache userCache = new UserCache(DatabaseManager.getInstance());
         AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
         return new GiftListPresenter(this, cache, cloudDataSource, authDataSource);

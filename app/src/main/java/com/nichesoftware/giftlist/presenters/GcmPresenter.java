@@ -19,6 +19,10 @@ import com.nichesoftware.giftlist.service.Service;
 import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.views.inviteroom.InviteRoomActivity;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * GCM presenter
@@ -29,9 +33,14 @@ public class GcmPresenter implements GcmContract.Presenter {
 
     // Fields   ------------------------------------------------------------------------------------
     /**
-     * Data provider
+     * Service
      */
     private Service mService;
+
+    /**
+     * RX subscription
+     */
+    private Disposable mRegisterGcmSubscription;
 
     /**
      * Constructor
@@ -50,11 +59,15 @@ public class GcmPresenter implements GcmContract.Presenter {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "registerGcm");
         }
-        final String token = SessionManager.getInstance().getToken();
-        if (token != null) {
-            mService.registerDevice(token, gcmToken);
+        if( mRegisterGcmSubscription != null && !mRegisterGcmSubscription.isDisposed()) {
+            mRegisterGcmSubscription.dispose();
         }
-
+        mRegisterGcmSubscription = mService.registerDevice(gcmToken)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(aBoolean -> {
+            // TODO: 28/03/2017
+        });
     }
 
     @Override

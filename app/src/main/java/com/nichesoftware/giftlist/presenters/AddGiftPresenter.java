@@ -7,7 +7,7 @@ import com.nichesoftware.giftlist.contracts.AddGiftContract;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
-import com.nichesoftware.giftlist.repository.datasource.ConnectedDataSource;
+import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -28,7 +28,7 @@ public class AddGiftPresenter extends BasePresenter<AddGiftContract.View, Gift>
      * @param authDataSource        Authentication data source
      */
     public AddGiftPresenter(@NonNull AddGiftContract.View view, @NonNull Cache<Gift> cache,
-                            @NonNull ConnectedDataSource<Gift> connectedDataSource,
+                            @NonNull CloudDataSource<Gift> connectedDataSource,
                             @NonNull AuthDataSource authDataSource) {
         super(view, cache, connectedDataSource, authDataSource);
     }

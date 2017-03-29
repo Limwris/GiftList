@@ -1,6 +1,8 @@
 package com.nichesoftware.giftlist.service;
 
 import com.nichesoftware.giftlist.BuildConfig;
+import com.nichesoftware.giftlist.service.interceptors.TokenInterceptor;
+import com.nichesoftware.giftlist.session.SessionManager;
 
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
@@ -27,13 +29,15 @@ public class ServiceGenerator {
     private static OkHttpClient.Builder getHttpClientBuilder() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
+        TokenInterceptor tokenInterceptor = new TokenInterceptor(SessionManager.getInstance());
+        httpClient.addInterceptor(tokenInterceptor);
+
+        // Add logging as last interceptor
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            // set your desired log level
+            // Set your desired log level
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-            // add your other interceptors …
-            // add logging as last interceptor
-            httpClient.addInterceptor(logging);  // <-- this is the important line!
+            httpClient.addInterceptor(logging);
         }
 
         return httpClient;

@@ -115,8 +115,7 @@ public class AddRoomActivity extends AuthenticationActivity<AddRoomContract.Pres
         final User user = SessionManager.getInstance().getConnectedUser();
         RoomCache cache = new RoomCache(DatabaseManager.getInstance(),
                 user != null ? user.getUsername() : "");
-        RoomCloudDataSource cloudDataSource = new RoomCloudDataSource(SessionManager.getInstance().getToken(),
-                Injection.getService());
+        RoomCloudDataSource cloudDataSource = new RoomCloudDataSource(Injection.getService());
         UserCache userCache = new UserCache(DatabaseManager.getInstance());
         AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
         return new AddRoomPresenter(this, cache, cloudDataSource, authDataSource);

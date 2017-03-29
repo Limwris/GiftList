@@ -32,8 +32,7 @@ public interface Service {
     Observable<User> register(@Body final User user);
 
     @POST("invite")
-    Observable<Boolean> inviteUserToRoom(@Header("X-Auth-Token") String token,
-                                         @Body final Invitation invitation);
+    Observable<Boolean> inviteUserToRoom(@Body final Invitation invitation);
 
 //    @POST("contacts")
 //    Observable<List<User>> retreiveAvailableContacts(@Header("X-Auth-Token") final String token,
@@ -42,36 +41,34 @@ public interface Service {
 
     // TODO: 24/03/2017 From GCMRegistrationDTO to String...
     @POST("gcm")
-    Observable<Boolean> registerDevice(@Header("X-Auth-Token") String token,
-                                 @Body final String registrationId);
+    Observable<Boolean> registerDevice(@Body final String registrationId);
     // endregion
 
     // region Room
     @GET("rooms")
-    Observable<List<Room>> getAllRooms(@Header("X-Auth-Token") final String token);
+    Observable<List<Room>> getAllRooms();
 
     @POST("room")
-    Observable<Room> createRoom(@Header("X-Auth-Token") final String token, @Body final Room room);
+    Observable<Room> createRoom(@Body final Room room);
 
     @HTTP(method = "DELETE", path = "room", hasBody = true)
-    Observable<List<Room>> leaveRoom(@Header("X-Auth-Token") final String token, @Body final Room room);
+    Observable<List<Room>> leaveRoom(@Body final Room room);
     // endregion
 
     // region Gift
     @GET("gifts")
-    Observable<List<Gift>> getGifts(@Header("X-Auth-Token") final String token, @Body final Room room);
+    Observable<List<Gift>> getGifts(@Body final Room room);
 
     @GET("gift/{id}")
-    Observable<Gift> getGift(@Header("X-Auth-Token") final String token, @Path("id") final String giftId);
+    Observable<Gift> getGift(@Path("id") final String giftId);
 
     @Multipart
     @POST("gift")
-    Observable<Gift> addGift(@Header("X-Auth-Token") final String token,
-                             @Part MultipartBody.Part file,
+    Observable<Gift> addGift(@Part MultipartBody.Part file,
                              @Part("body") final RequestBody gift);
 
     @PUT("gift")
-    Observable<Gift> updateGift(@Header("X-Auth-Token") final String token, @Body final Gift gift);
+    Observable<Gift> updateGift(@Body final Gift gift);
     // endregion
 
 //    @Multipart

@@ -18,7 +18,11 @@ import okhttp3.RequestBody;
 /**
  * {@link CloudDataSource} implementation for {@link Gift}.
  */
-public class GiftCloudDataSource extends ConnectedDataSource<Gift> {
+public class GiftCloudDataSource extends CloudDataSource<Gift> {
+    // Constants
+    private static final String MEDIATYPE_MULTIPART_FORM_DATA = "multipart/form-data";
+    private static final String MEDIATYPE_APPLICATION_JSON = "application/json";
+    private static final String MEDIATYPE_FILE = "file";
 
     // Fields
     private String mRoomId;
@@ -26,48 +30,49 @@ public class GiftCloudDataSource extends ConnectedDataSource<Gift> {
     /**
      * Public constructor
      *
-     * @param token         {@link User} token
      * @param service       The bound {@link Service}
      * @param roomId        Id of the parent {@link Room}
      */
-    public GiftCloudDataSource(final String token, final Service service, String roomId) {
-        super(token, service);
+    public GiftCloudDataSource(final Service service, String roomId) {
+        super(service);
         mRoomId = roomId;
     }
 
     @Override
     public Observable<Gift> add(Gift element) {
         Gson gson = new Gson();
-        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), gson.toJson(element));
+        // TODO: 29/03/2017 Which MediaType should I choose ?
+//        RequestBody requestBody = RequestBody.create(MediaType.parse(MEDIATYPE_MULTIPART_FORM_DATA), gson.toJson(element));
+        RequestBody requestBody = RequestBody.create(MediaType.parse(MEDIATYPE_APPLICATION_JSON), gson.toJson(element));
 
         MultipartBody.Part fileBody = null;
         if (!StringUtils.isEmpty(element.getImageUrl())) {
             File file = new File(element.getImageUrl());
             if (file.exists()) {
                 // create RequestBody instance from file
-                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                RequestBody requestFile = RequestBody.create(MediaType.parse(MEDIATYPE_MULTIPART_FORM_DATA), file);
 
                 // MultipartBody.Part is used to send also the actual file name
-                fileBody = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+                fileBody = MultipartBody.Part.createFormData(MEDIATYPE_FILE, file.getName(), requestFile);
             }
         }
-        return mService.addGift(mToken, fileBody, requestBody);
+        return mService.addGift(fileBody, requestBody);
     }
 
     @Override
     public Observable<List<Gift>> getAll() {
         Room room = new Room(mRoomId);
-        return mService.getGifts(mToken, room);
+        return mService.getGifts(room);
     }
 
     @Override
     public Observable<Gift> get(String id) {
-        return mService.getGift(mToken, id);
+        return mService.getGift(id);
     }
 
     @Override
     public Observable<Gift> update(Gift element) {
-        return mService.updateGift(mToken, element);
+        return mService.updateGift(element);
     }
 
     @Override

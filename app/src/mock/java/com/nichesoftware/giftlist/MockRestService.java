@@ -1,6 +1,7 @@
 package com.nichesoftware.giftlist;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Invitation;
 import com.nichesoftware.giftlist.model.Room;
@@ -15,6 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import io.reactivex.Observable;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
@@ -127,63 +129,67 @@ public class MockRestService implements Service {
     }
 
     @Override
-    public Observable<Boolean> inviteUserToRoom(@Header("X-Auth-Token") String token, @Body Invitation invitation) {
-        return delegate.returningResponse(Boolean.TRUE).inviteUserToRoom(token, invitation);
+    public Observable<Boolean> inviteUserToRoom(@Body Invitation invitation) {
+        return delegate.returningResponse(Boolean.TRUE).inviteUserToRoom(invitation);
     }
 
     @Override
-    public Observable<Boolean> registerDevice(@Header("X-Auth-Token") String token, @Body String registrationId) {
-        return delegate.returningResponse(Boolean.TRUE).registerDevice(token, registrationId);
+    public Observable<Boolean> registerDevice(@Body String registrationId) {
+        return delegate.returningResponse(Boolean.TRUE).registerDevice(registrationId);
     }
 
     @Override
-    public Observable<List<Room>> getAllRooms(String token) {
-        return delegate.returningResponse(ROOMS).getAllRooms(token);
+    public Observable<List<Room>> getAllRooms() {
+        return delegate.returningResponse(ROOMS).getAllRooms();
     }
 
     @Override
-    public Observable<Room> createRoom(String token, Room room) {
+    public Observable<Room> createRoom(Room room) {
         room.setId(UUID.randomUUID().toString());
-        return delegate.returningResponse(room).createRoom(token, room);
+        return delegate.returningResponse(room).createRoom(room);
     }
 
     @Override
-    public Observable<List<Room>> leaveRoom(String token, Room room) {
-        return delegate.returningResponse(ROOMS).leaveRoom(token, room);
+    public Observable<List<Room>> leaveRoom(Room room) {
+        return delegate.returningResponse(ROOMS).leaveRoom(room);
     }
 
     @Override
-    public Observable<List<Gift>> getGifts(String token, Room room) {
+    public Observable<List<Gift>> getGifts(Room room) {
         List<Gift> gifts = new ArrayList<>();
         for (Room element : ROOMS) {
             if (element.getId().equals(room.getId())) {
                 gifts = element.getGiftList();
             }
         }
-        return delegate.returningResponse(gifts).getGifts(token, room);
+        return delegate.returningResponse(gifts).getGifts(room);
     }
 
     @Override
-    public Observable<Gift> getGift(@Header("X-Auth-Token") String token, @Path("id") String giftId) {
+    public Observable<Gift> getGift(@Path("id") String giftId) {
         for (Room room : ROOMS) {
             for (Gift gift : room.getGiftList()) {
                 if (gift.getId().equals(giftId)) {
-                    return delegate.returningResponse(gift).getGift(token, giftId);
+                    return delegate.returningResponse(gift).getGift(giftId);
                 }
             }
         }
-        return delegate.returningResponse(new NoSuchElementException("This gift is not in DB.")).getGift(token, giftId);
+        return delegate.returningResponse(new NoSuchElementException("This gift is not in DB.")).getGift(giftId);
     }
 
     @Override
-    public Observable<Gift> addGift(String token, MultipartBody.Part file, RequestBody gift) {
-        Gift addedGift = new Gson().fromJson(gift.toString(), Gift.class);
-        addedGift.setId(UUID.randomUUID().toString());
-        return delegate.returningResponse(addedGift).addGift(token, file, gift);
+    public Observable<Gift> addGift(MultipartBody.Part file, RequestBody gift) {
+        // TODO: 28/03/2017 Extract gift from RequestBody
+        if (MediaType.parse("application/json").equals(gift.contentType())) {
+            Gift addedGift = new Gson().fromJson(gift.toString(), Gift.class);
+            addedGift.setId(UUID.randomUUID().toString());
+            return delegate.returningResponse(addedGift).addGift(file, gift);
+        }
+        return delegate.returningResponse(new JsonSyntaxException("Could not add the gift")).addGift(file, gift);
     }
 
     @Override
-    public Observable<Gift> updateGift(String token, Gift gift) {
-        return delegate.returningResponse(gift).updateGift(token, gift);
+    public Observable<Gift> updateGift(Gift gift) {
+        return delegate.returningResponse(gift).updateGift(gift);
     }
 }

@@ -5,9 +5,9 @@ import android.support.annotation.NonNull;
 import com.nichesoftware.giftlist.contracts.AuthenticationContract;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
-import com.nichesoftware.giftlist.repository.datasource.ConnectedDataSource;
+import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
 import com.nichesoftware.giftlist.repository.datasource.DataSource;
-import com.nichesoftware.giftlist.repository.provider.ConnectedDataSourceProvider;
+import com.nichesoftware.giftlist.repository.provider.DataSourceProvider;
 
 /**
  * Base presenter
@@ -26,10 +26,6 @@ public abstract class BasePresenter<V extends AuthenticationContract.View, M>
      * Cache
      */
     protected final Cache<M> mCache;
-    /**
-     *
-     */
-    protected final ConnectedDataSource<M> mConnectedDataSource;
 
     /**
      * Constructor
@@ -40,11 +36,10 @@ public abstract class BasePresenter<V extends AuthenticationContract.View, M>
      * @param authDataSource        Authentication data source
      */
     public BasePresenter(@NonNull V view, @NonNull Cache<M> cache,
-                         @NonNull ConnectedDataSource<M> connectedDataSource,
+                         @NonNull CloudDataSource<M> connectedDataSource,
                          @NonNull AuthDataSource authDataSource) {
         super(view, authDataSource);
         mCache = cache;
-        mConnectedDataSource = connectedDataSource;
-        mDataProvider = new ConnectedDataSourceProvider<>(cache, connectedDataSource);
+        mDataProvider = new DataSourceProvider<>(cache, connectedDataSource);
     }
 }

@@ -5,7 +5,7 @@ package com.nichesoftware.giftlist.utils;
  */
 public final class StringUtils {
     // Constants
-    private static final String EMPTY_STRING = "";
+    public static final String EMPTY_STRING = "";
 
     /**
      * Constructeur privé

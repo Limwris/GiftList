@@ -12,6 +12,7 @@ import com.nichesoftware.giftlist.service.Service;
 import com.nichesoftware.giftlist.session.SessionManager;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Add user presenter
@@ -28,6 +29,11 @@ public class AddUserPresenter extends AuthenticationPresenter<AddUserContract.Vi
     private Service mService;
 
     /**
+     * RX subscription
+     */
+    private Disposable mAddUserSubscription;
+
+    /**
      * Constructor
      *
      * @param view                View to attach
@@ -41,15 +47,25 @@ public class AddUserPresenter extends AuthenticationPresenter<AddUserContract.Vi
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mAddUserSubscription != null && !mAddUserSubscription.isDisposed()) {
+            mAddUserSubscription.dispose();
+        }
+    }
+
+    @Override
     public void inviteUserToCurrentRoom(String roomId, String username) {
         Room room = new Room(roomId);
         User invitedUser = new User(username);
         Invitation invitation = new Invitation();
         invitation.setInvitedUser(invitedUser);
         invitation.setRoom(room);
-        final String token = SessionManager.getInstance().getToken();
-        if (token != null) {
-            mService.inviteUserToRoom(token , invitation)
+
+        if (mAddUserSubscription != null && !mAddUserSubscription.isDisposed()) {
+            mAddUserSubscription.dispose();
+        }
+        mAddUserSubscription = mService.inviteUserToRoom(invitation)
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSubscribe(disposable -> mAttachedView.showLoader())
                     .doFinally(() -> mAttachedView.hideLoader())
@@ -59,7 +75,6 @@ public class AddUserPresenter extends AuthenticationPresenter<AddUserContract.Vi
                                 mAttachedView.onUserAddedFailed();
                             },
                             () -> Log.d(TAG, "inviteUserToCurrentRoom: onComplete"));
-        }
     }
 
     @Override

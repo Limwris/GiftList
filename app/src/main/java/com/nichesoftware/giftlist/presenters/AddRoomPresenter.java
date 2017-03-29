@@ -7,7 +7,7 @@ import com.nichesoftware.giftlist.contracts.AddRoomContract;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
-import com.nichesoftware.giftlist.repository.datasource.ConnectedDataSource;
+import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -28,7 +28,7 @@ public class AddRoomPresenter extends BasePresenter<AddRoomContract.View, Room>
      * @param authDataSource        Authentication data source
      */
     public AddRoomPresenter(@NonNull AddRoomContract.View view, @NonNull Cache<Room> cache,
-                            @NonNull ConnectedDataSource<Room> connectedDataSource,
+                            @NonNull CloudDataSource<Room> connectedDataSource,
                             @NonNull AuthDataSource authDataSource) {
         super(view, cache, connectedDataSource, authDataSource);
     }

@@ -3,11 +3,12 @@ package com.nichesoftware.giftlist.session;
 import android.support.annotation.Nullable;
 
 import com.nichesoftware.giftlist.model.User;
+import com.nichesoftware.giftlist.utils.StringUtils;
 
 /**
  * Session manager
  */
-public final class SessionManager {
+public final class SessionManager implements TokenManager {
 
     // Connected user
     private User mConnectedUser;
@@ -51,15 +52,19 @@ public final class SessionManager {
     }
     // endregion
 
-    // region Public methods
-    /**
-     * Returns the token if a {@link User} is connected
-     * @return      {@link User} token if he is connected, null otherwise
-     */
+    // region TokenManager methods
+    @Override
     public @Nullable String getToken() {
-        return mConnectedUser.getToken();
+        return mConnectedUser == null ? StringUtils.EMPTY_STRING : mConnectedUser.getToken();
     }
 
+    @Override
+    public boolean hasToken() {
+        return (mConnectedUser != null && StringUtils.isEmpty(mConnectedUser.getToken()));
+    }
+    // enregion
+
+    // region Public utility methods
     /**
      * Indicates whether a {@link User} is connected or not
      * @return      true if a {@link User} is connected, false otherwise

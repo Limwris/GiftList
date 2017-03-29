@@ -6,7 +6,7 @@ import com.nichesoftware.giftlist.contracts.InviteRoomContract;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
-import com.nichesoftware.giftlist.repository.datasource.ConnectedDataSource;
+import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
 
 /**
  * Invite room presenter
@@ -25,7 +25,7 @@ public class InviteRoomPresenter extends BasePresenter<InviteRoomContract.View, 
      * @param authDataSource        Authentication data source
      */
     public InviteRoomPresenter(@NonNull InviteRoomContract.View view, @NonNull Cache<Room> cache,
-                          @NonNull ConnectedDataSource<Room> connectedDataSource,
+                          @NonNull CloudDataSource<Room> connectedDataSource,
                           @NonNull AuthDataSource authDataSource) {
         super(view, cache, connectedDataSource, authDataSource);
     }

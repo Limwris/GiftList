@@ -2,20 +2,18 @@ package com.nichesoftware.giftlist.repository.provider;
 
 import android.util.Log;
 
-import com.nichesoftware.giftlist.BaseApplication;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
+import com.nichesoftware.giftlist.repository.datasource.CloudDataSourceDecorator;
 import com.nichesoftware.giftlist.repository.datasource.DataSource;
 import com.nichesoftware.giftlist.repository.datasource.DiskDataSource;
-import com.nichesoftware.giftlist.utils.NetworkUtils;
 
-import java.net.ConnectException;
 import java.util.List;
 
 import io.reactivex.Observable;
 
 /**
- * Factory that creates different implementations of {@link DataSource} for {@link CloudDataSource}.
+ * Factory that creates different implementations of {@link DataSource}
  */
 public class DataSourceProvider<T> implements DataSource<T> {
     // Constants
@@ -31,9 +29,9 @@ public class DataSourceProvider<T> implements DataSource<T> {
      */
     private final DiskDataSource<T> mDiskDataSource;
     /**
-     * {@link CloudDataSource}
+     * {@link CloudDataSource} decorated to fire Exception if network is not available
      */
-    private final CloudDataSource<T> mCloudDataSource;
+    private final CloudDataSourceDecorator<T> mCloudDataSource;
 
     /**
      * Default constructor
@@ -44,16 +42,12 @@ public class DataSourceProvider<T> implements DataSource<T> {
     public DataSourceProvider(Cache<T> cache, CloudDataSource<T> cloudDataSource) {
         mCache = cache;
         mDiskDataSource = new DiskDataSource<>(cache);
-        mCloudDataSource = cloudDataSource;
+        mCloudDataSource = new CloudDataSourceDecorator<T>(cloudDataSource);
     }
 
     @Override
     public Observable<T> add(T element) {
-        if (!NetworkUtils.isConnectionAvailable(BaseApplication.getAppContext())) {
-            return Observable.error(new ConnectException());
-        } else {
-            return mCloudDataSource.add(element).doOnNext(mCache::put);
-        }
+        return mCloudDataSource.add(element).doOnNext(mCache::put);
     }
 
     @Override
@@ -62,8 +56,6 @@ public class DataSourceProvider<T> implements DataSource<T> {
             Log.d(TAG, "getAll: from cache");
             return mDiskDataSource.getAll()
                     .onErrorResumeNext(mCloudDataSource.getAll().doOnNext(mCache::putAll));
-        } else if (!NetworkUtils.isConnectionAvailable(BaseApplication.getAppContext())) {
-            return Observable.error(new ConnectException("No network connection"));
         } else {
             Log.d(TAG, "getAll: from cloud");
             // If the cache is expired, refresh it
@@ -78,8 +70,6 @@ public class DataSourceProvider<T> implements DataSource<T> {
             // If operation on disk datasource failed, call the cloud datasource
             return mDiskDataSource.get(id)
                     .onErrorResumeNext(mCloudDataSource.get(id).doOnNext(mCache::put));
-        } else if (!NetworkUtils.isConnectionAvailable(BaseApplication.getAppContext())) {
-            return Observable.error(new ConnectException("No network connection"));
         } else {
             Log.d(TAG, "get: from cloud");
             // If the cache is expired, refresh it
@@ -89,22 +79,14 @@ public class DataSourceProvider<T> implements DataSource<T> {
 
     @Override
     public Observable<T> update(T element) {
-        if (!NetworkUtils.isConnectionAvailable(BaseApplication.getAppContext())) {
-            return Observable.error(new ConnectException());
-        } else {
-            return mCloudDataSource.update(element).doOnNext(mCache::put);
-        }
+        return mCloudDataSource.update(element).doOnNext(mCache::put);
     }
 
     @Override
     public Observable<List<T>> delete(T element) {
-        if (!NetworkUtils.isConnectionAvailable(BaseApplication.getAppContext())) {
-            return Observable.error(new ConnectException());
-        } else {
-            return mCloudDataSource.delete(element).doOnNext(elements -> {
-                mCache.evictAll();
-                mCache.putAll(elements);
-            });
-        }
+        return mCloudDataSource.delete(element).doOnNext(elements -> {
+            mCache.evictAll();
+            mCache.putAll(elements);
+        });
     }
 }

@@ -8,7 +8,7 @@ import com.nichesoftware.giftlist.contracts.RoomsContract;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
-import com.nichesoftware.giftlist.repository.datasource.ConnectedDataSource;
+import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
 import com.nichesoftware.giftlist.utils.ResourcesUtils;
 import com.nichesoftware.giftlist.views.rooms.RoomVO;
 
@@ -40,7 +40,7 @@ public class RoomsPresenter extends BasePresenter<RoomsContract.View, Room>
      * @param authDataSource        Authentication data source
      */
     public RoomsPresenter(@NonNull RoomsContract.View view, @NonNull Cache<Room> cache,
-                          @NonNull ConnectedDataSource<Room> connectedDataSource,
+                          @NonNull CloudDataSource<Room> connectedDataSource,
                           @NonNull AuthDataSource authDataSource) {
         super(view, cache, connectedDataSource, authDataSource);
     }
