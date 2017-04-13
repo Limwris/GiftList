@@ -70,9 +70,7 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
     protected void initView() {
         super.initView();
 
-        /**
-         * Récupération de l'identifiant de la salle
-         */
+        // Récupération de l'identifiant de la salle
         roomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
 
         // Set up the toolbar.
@@ -86,7 +84,7 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
             }
         }
 
-        mContactsAdapter = new ContactAdapter(new ArrayList<AddUserVO>(0), new ContactAdapter.ItemChangeListener() {
+        mContactsAdapter = new ContactAdapter(new ContactAdapter.ItemChangeListener() {
             @Override
             public void onItemChanged() {
                 invalidateOptionsMenu();
@@ -166,15 +164,15 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void doInviteUsers() {
-        for (AddUserVO vo : mContactsAdapter.getList()) {
+        for (AddUserVO vo : mContactsAdapter.getData()) {
             if (vo.isChecked()) {
-                presenter.inviteUserToCurrentRoom(roomId, vo.getUser().getUsername());
+                presenter.inviteUserToCurrentRoom(roomId, vo.getUser().getName());
             }
         }
     }
 
     private boolean isItemChecked() {
-        for (AddUserVO vo : mContactsAdapter.getList()) {
+        for (AddUserVO vo : mContactsAdapter.getData()) {
             if (vo.isChecked()) {
                 return true;
             }

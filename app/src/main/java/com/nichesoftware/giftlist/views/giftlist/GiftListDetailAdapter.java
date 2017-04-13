@@ -8,17 +8,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.R;
+import com.nichesoftware.giftlist.views.ViewHolder;
 
 import java.util.List;
+
+import butterknife.BindView;
 
 /**
  * Gift list detail adapter
  */
-public class GiftListDetailAdapter extends RecyclerView.Adapter<GiftListDetailAdapter.ViewHolder> {
+/* package */ class GiftListDetailAdapter extends RecyclerView.Adapter<GiftListDetailAdapter.GiftViewHolder> {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListDetailAdapter.class.getSimpleName();
 
-    // Fields   ------------------------------------------------------------------------------------
+    /// Fields   ------------------------------------------------------------------------------------
     /**
      * Données (liste de cadeaux)
      */
@@ -26,26 +29,26 @@ public class GiftListDetailAdapter extends RecyclerView.Adapter<GiftListDetailAd
 
     /**
      * Constructeur
-     * @param VOs
+     * @param VOs   Data
      */
-    public GiftListDetailAdapter(List<GiftListDetailVO> VOs) {
+    /* package */ GiftListDetailAdapter(List<GiftListDetailVO> VOs) {
         Log.d(TAG, "GiftListDetailAdapter");
         this.VOs = VOs;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public GiftViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View giftDetailView = inflater.inflate(R.layout.gift_list_detail_item_view, parent, false);
 
-        return new ViewHolder(giftDetailView);
+        return new GiftViewHolder(giftDetailView);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(GiftViewHolder viewHolder, int position) {
         if (position < VOs.size()) {
             GiftListDetailVO vo = VOs.get(position);
-            viewHolder.bindData(vo);
+            viewHolder.bind(vo);
         }
     }
 
@@ -54,31 +57,30 @@ public class GiftListDetailAdapter extends RecyclerView.Adapter<GiftListDetailAd
         return VOs.size();
     }
 
-    /* package */ class ViewHolder extends RecyclerView.ViewHolder {
+    /* package */ static class GiftViewHolder extends ViewHolder<GiftListDetailVO> {
 
         /**
          * Nom du cadeau
          */
-        private TextView name;
+        @BindView(R.id.gift_list_detail_username)
+        TextView name;
 
         /**
          * Participation du cadeau
          */
-        private TextView amount;
-
+        @BindView(R.id.gift_list_detail_participation)
+        TextView amount;
 
         /**
-         * Constructeur
-         * @param itemView
+         * Default constructor
+         *
+         * @param itemView Root view of the {@link ViewHolder}
          */
-        /* package */ ViewHolder(View itemView) {
+        /* package */ GiftViewHolder(View itemView) {
             super(itemView);
-
-            name = (TextView) itemView.findViewById(R.id.gift_list_detail_username);
-            amount = (TextView) itemView.findViewById(R.id.gift_list_detail_participation);
         }
 
-        public void bindData(GiftListDetailVO vo) {
+        public void bind(GiftListDetailVO vo) {
             name.setText(vo.getUsername());
             amount.setText(vo.getParticipation(), TextView.BufferType.SPANNABLE);
         }

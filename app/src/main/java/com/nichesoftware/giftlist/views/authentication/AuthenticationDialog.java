@@ -71,6 +71,7 @@ public class AuthenticationDialog extends AppCompatDialog {
         this.mAthenticationlistener = authenticationCallback;
 
         setContentView(R.layout.log_in_dialog);
+        setCancelable(true);
         mButterKnifeUnbinder = ButterKnife.bind(this);
     }
 

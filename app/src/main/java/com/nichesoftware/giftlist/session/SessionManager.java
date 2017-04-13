@@ -60,7 +60,7 @@ public final class SessionManager implements TokenManager {
 
     @Override
     public boolean hasToken() {
-        return (mConnectedUser != null && StringUtils.isEmpty(mConnectedUser.getToken()));
+        return (mConnectedUser != null && !StringUtils.isEmpty(mConnectedUser.getToken()));
     }
     // enregion
 

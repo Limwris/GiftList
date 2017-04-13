@@ -29,16 +29,15 @@ public class TokenInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        Request initialRequest = chain.request();
-        Request modifiedRequest = initialRequest;
+        Request request = chain.request();
 
         if (mTokenManager.hasToken()) {
             //noinspection ConstantConditions
-            modifiedRequest = initialRequest.newBuilder()
+            request = request.newBuilder()
                     .addHeader("X-Auth-Token", mTokenManager.getToken())
                     .build();
         }
 
-        return chain.proceed(modifiedRequest);
+        return chain.proceed(request);
     }
 }

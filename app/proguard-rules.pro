@@ -16,7 +16,7 @@
 #   public *;
 #}
 
-# Problem whn assembling...
+# Problem when assembling...
 -dontwarn com.squareup.picasso.*
 -dontwarn okio.Okio
 -dontwarn retrofit2.*

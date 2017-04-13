@@ -56,16 +56,17 @@ public class AddUserPresenter extends AuthenticationPresenter<AddUserContract.Vi
 
     @Override
     public void inviteUserToCurrentRoom(String roomId, String username) {
-        Room room = new Room(roomId);
         User invitedUser = new User(username);
-        Invitation invitation = new Invitation();
-        invitation.setInvitedUser(invitedUser);
-        invitation.setRoom(room);
+//        Room room = new Room(roomId);
+//        Invitation invitation = new Invitation();
+//        invitation.setInvitedUser(invitedUser);
+//        invitation.setRoom(room);
 
         if (mAddUserSubscription != null && !mAddUserSubscription.isDisposed()) {
             mAddUserSubscription.dispose();
         }
-        mAddUserSubscription = mService.inviteUserToRoom(invitation)
+//        mAddUserSubscription = mService.inviteUserToRoom(invitation)
+        mAddUserSubscription = mService.inviteUserToRoom(roomId, invitedUser)
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSubscribe(disposable -> mAttachedView.showLoader())
                     .doFinally(() -> mAttachedView.hideLoader())

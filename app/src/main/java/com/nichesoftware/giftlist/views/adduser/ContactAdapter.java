@@ -1,6 +1,5 @@
 package com.nichesoftware.giftlist.views.adduser;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,16 +11,19 @@ import android.widget.TextView;
 
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.utils.ContactUtils;
+import com.nichesoftware.giftlist.views.ViewHolder;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Contact adapter
  */
-public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
+/* package */ class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
     // Constants   ---------------------------------------------------------------------------------
     public static final String TAG = ContactAdapter.class.getSimpleName();
 
@@ -29,115 +31,113 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     /**
      * Données (liste de users)
      */
-    private List<AddUserVO> users;
+    private List<AddUserVO> mUsers = new ArrayList<>();
+    /**
+     * Listener on item state changed
+     */
+    private ItemChangeListener mItemChangeListener;
 
     /**
-     * Context
+     * Constructeur
+     *
+     * @param itemChangeListener    Listener {@link ItemChangeListener} when item check changed
      */
-    private Context context;
+    /* package */ ContactAdapter(ItemChangeListener itemChangeListener) {
+        Log.d(TAG, "ContactsAdapter");
+        mItemChangeListener = itemChangeListener;
+    }
 
+    @Override
+    public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View itemView = inflater.inflate(R.layout.contacts_item_view, parent, false);
+
+        return new ContactViewHolder(itemView, mItemChangeListener);
+    }
+
+    @Override
+    public void onBindViewHolder(ContactViewHolder viewHolder, int position) {
+        final AddUserVO vo = mUsers.get(position);
+        Log.d(TAG, String.format("onBindViewHolder - User [username: %s, phone: %s]",
+                vo.getUser().getName(), vo.getUser().getPhoneNumber()));
+        viewHolder.bind(vo);
+    }
+
+    /* package */ void replaceData(List<AddUserVO> users) {
+        mUsers = users;
+        notifyDataSetChanged();
+    }
+
+    public List<AddUserVO> getData() {
+        return mUsers;
+    }
+
+    @Override
+    public int getItemCount() {
+        return mUsers.size();
+    }
+
+    // region Inner class
     /**
      * If an item state has been changed (checked, or not checked)
      */
     interface ItemChangeListener {
         void onItemChanged();
     }
-    private ItemChangeListener itemChangeListener;
 
-    /**
-     * Constructeur
-     * @param users
-     */
-    public ContactAdapter(List<AddUserVO> users, ItemChangeListener itemChangeListener) {
-        Log.d(TAG, "ContactsAdapter");
-        setList(users);
-        this.itemChangeListener = itemChangeListener;
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        this.context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View itemView = inflater.inflate(R.layout.contacts_item_view, parent, false);
-
-        return new ViewHolder(itemView);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        final AddUserVO vo = users.get(position);
-        Log.d(TAG, String.format("onBindViewHolder - User [username: %s, phone: %s]",
-                vo.getUser().getUsername(), vo.getUser().getPhoneNumber()));
-
-        viewHolder.name.setText(vo.getUser().getUsername());
-
-        // in some cases, it will prevent unwanted situations
-        viewHolder.checkBox.setOnCheckedChangeListener(null);
-
-        viewHolder.checkBox.setChecked(vo.isChecked());
-        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                vo.setIsChecked(isChecked);
-                if (itemChangeListener != null) {
-                    itemChangeListener.onItemChanged();
-                }
-            }
-        });
-
-        Picasso.with(context)
-                .load(ContactUtils.getContactImageUrl(vo.getUser().getPhoneNumber()))
-                .placeholder(R.drawable.person_placeholder).into(viewHolder.contactBadge);
-    }
-
-    public void replaceData(List<AddUserVO> users) {
-        setList(users);
-        notifyDataSetChanged();
-    }
-
-    private void setList(List<AddUserVO> users) {
-        this.users = users;
-    }
-
-    public List<AddUserVO> getList() {
-        return this.users;
-    }
-
-    @Override
-    public int getItemCount() {
-        return users.size();
-    }
-
-    public AddUserVO getItem(int position) {
-        return users.get(position);
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    /* package */ static class ContactViewHolder extends ViewHolder<AddUserVO> {
 
         /**
          * Nom de l'utilisateur
          */
+        @BindView(R.id.add_user_contact_name)
         TextView name;
         /**
          * Checkbox de sélection de l'utilisateur
          */
+        @BindView(R.id.add_user_checkbox)
         CheckBox checkBox;
         /**
          * Badge
          */
+        @BindView(R.id.add_user_badge)
         CircleImageView contactBadge;
 
+        /**
+         * Listener on selection change
+         */
+        private final ItemChangeListener mItemChangeListener;
 
         /**
-         * Constructeur
-         * @param itemView
+         * Default constructor
+         *
+         * @param itemView Root view of the {@link ViewHolder}
+         * @param itemChangeListener Listener on selection change
          */
-        public ViewHolder(View itemView) {
+        /* package */ ContactViewHolder(View itemView, ItemChangeListener itemChangeListener) {
             super(itemView);
+            mItemChangeListener = itemChangeListener;
+        }
 
-            name = (TextView) itemView.findViewById(R.id.add_user_contact_name);
-            checkBox = (CheckBox) itemView.findViewById(R.id.add_user_checkbox);
-            contactBadge = (CircleImageView) itemView.findViewById(R.id.add_user_badge);
+        public void bind(AddUserVO vo) {
+
+            name.setText(vo.getUser().getName());
+
+            // in some cases, it will prevent unwanted situations
+            checkBox.setOnCheckedChangeListener(null);
+
+            checkBox.setChecked(vo.isChecked());
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                vo.setIsChecked(isChecked);
+                if (mItemChangeListener != null) {
+                    mItemChangeListener.onItemChanged();
+                }
+            });
+
+            Picasso.with(contactBadge.getContext())
+                    .load(ContactUtils.getContactImageUrl(vo.getUser().getPhoneNumber()))
+                    .placeholder(R.drawable.person_placeholder).into(contactBadge);
         }
     }
+    // endregion
 }

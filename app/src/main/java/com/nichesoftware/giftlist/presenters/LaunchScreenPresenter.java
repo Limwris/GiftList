@@ -52,7 +52,7 @@ public class LaunchScreenPresenter extends AuthenticationPresenter<LaunchScreenC
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> mAttachedView.showLoader())
                 .doFinally(() -> mAttachedView.hideLoader())
-                .subscribe(connectedUser -> Log.d(TAG, "register - onNext: " + connectedUser.getUsername()),
+                .subscribe(connectedUser -> Log.d(TAG, "register - onNext: " + connectedUser.getName()),
                         throwable -> Log.e(TAG, "register - onError", throwable),
                         () -> {
                             Log.d(TAG, "register - onComplete");

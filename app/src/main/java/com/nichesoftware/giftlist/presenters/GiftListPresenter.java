@@ -9,9 +9,12 @@ import android.util.Log;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.model.Gift;
+import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
 import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
+import com.nichesoftware.giftlist.repository.datasource.DataSource;
+import com.nichesoftware.giftlist.repository.provider.DataSourceProvider;
 import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.utils.ResourcesUtils;
 import com.nichesoftware.giftlist.views.giftlist.GiftListDetailVO;
@@ -33,14 +36,18 @@ import io.reactivex.disposables.Disposable;
  */
 public class GiftListPresenter extends BasePresenter<GiftListContract.View, Gift>
         implements GiftListContract.Presenter {
-    // Constants   ---------------------------------------------------------------------------------
+    /// Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListPresenter.class.getSimpleName();
     private static final String PRICE_DECIMAL_PATTERN = "#0.00";
     private static final String AMOUNT_REGEX_PATTERN = "[.|,\\s]\\s*\\d+€$";
 
-    // Fields
+    /// Fields
+    // Data provider for {@link Room}
+    private final DataSource<Room> mRoomDataProvider;
+    // Cache for {@link Room}
+    private final Cache<Room> mRoomCache;
     // Subscription RX
-    private Disposable mLoadGiftsSubscription, mLoadGiftDetailSubscription;
+    private Disposable mLoadGiftsSubscription, mLoadGiftDetailSubscription, mLeaveRoomSubscription;
     // Decimal format (price)
     private final DecimalFormat mDecimalFormat;
     // Pattern
@@ -49,15 +56,21 @@ public class GiftListPresenter extends BasePresenter<GiftListContract.View, Gift
     /**
      * Constructor
      *
-     * @param view                  View to attach
-     * @param cache                 Cache
-     * @param connectedDataSource   The cloud data provider
-     * @param authDataSource        Authentication data source
+     * @param view                      View to attach
+     * @param giftCache                 Cache for {@link Gift}
+     * @param giftConnectedDataSource   The cloud data provider for {@link Gift}
+     * @param roomCache                 Cache for {@link Room}
+     * @param roomConnectedDataSource   The cloud data provider for {@link Room}
+     * @param authDataSource            Authentication data source
      */
-    public GiftListPresenter(@NonNull GiftListContract.View view, @NonNull Cache<Gift> cache,
-                               @NonNull CloudDataSource<Gift> connectedDataSource,
-                               @NonNull AuthDataSource authDataSource) {
-        super(view, cache, connectedDataSource, authDataSource);
+    public GiftListPresenter(@NonNull GiftListContract.View view, @NonNull Cache<Gift> giftCache,
+                             @NonNull CloudDataSource<Gift> giftConnectedDataSource,
+                             @NonNull Cache<Room> roomCache,
+                             @NonNull CloudDataSource<Room> roomConnectedDataSource,
+                             @NonNull AuthDataSource authDataSource) {
+        super(view, giftCache, giftConnectedDataSource, authDataSource);
+        mRoomCache = roomCache;
+        mRoomDataProvider = new DataSourceProvider<>(mRoomCache, roomConnectedDataSource);
         mDecimalFormat = new DecimalFormat(PRICE_DECIMAL_PATTERN);
         mAmountPattern = Pattern.compile(AMOUNT_REGEX_PATTERN);
     }
@@ -71,6 +84,9 @@ public class GiftListPresenter extends BasePresenter<GiftListContract.View, Gift
         }
         if (mLoadGiftDetailSubscription != null && !mLoadGiftDetailSubscription.isDisposed()) {
             mLoadGiftDetailSubscription.dispose();
+        }
+        if (mLeaveRoomSubscription != null && !mLeaveRoomSubscription.isDisposed()) {
+            mLeaveRoomSubscription.dispose();
         }
     }
     // endregion
@@ -92,7 +108,7 @@ public class GiftListPresenter extends BasePresenter<GiftListContract.View, Gift
                 .map(this::map)
                 .subscribe(gifts -> mAttachedView.showGifts(gifts),
                         throwable -> {
-                            Log.e(TAG, "loadGifts", throwable);
+                            Log.e(TAG, "loadGifts: onError", throwable);
                             mAttachedView.showError(throwable.getMessage());
                         });
     }
@@ -106,13 +122,31 @@ public class GiftListPresenter extends BasePresenter<GiftListContract.View, Gift
         mLoadGiftDetailSubscription = mDataProvider.get(giftId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> mAttachedView.showLoader())
-                .doFinally(() -> mAttachedView.hideLoader()).subscribe(gift -> mAttachedView.showGiftDetail(gift),
+                .doFinally(() -> mAttachedView.hideLoader())
+                .subscribe(gift -> mAttachedView.showGiftDetail(gift),
                         throwable -> mAttachedView.showError(throwable.getMessage()));
     }
 
     @Override
     public void leaveCurrentRoom(String roomId) {
-        // Todo
+        Room leavingRoom = new Room(roomId);
+        if (mLeaveRoomSubscription != null && !mLeaveRoomSubscription.isDisposed()) {
+            mLeaveRoomSubscription.dispose();
+        }
+        mLeaveRoomSubscription = mRoomDataProvider.delete(leavingRoom)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(disposable -> mAttachedView.showLoader())
+                .doFinally(() -> mAttachedView.hideLoader())
+                .subscribe(rooms -> {
+                            Log.d(TAG, "leaveCurrentRoom: onNext");
+                            mAttachedView.onLeaveRoomSuccess();
+                        },
+                        throwable -> {
+                            Log.e(TAG, "leaveCurrentRoom: onError", throwable);
+                            mAttachedView.onLeaveRoomError();
+                            mAttachedView.showError(throwable.getMessage());
+                        },
+                        () -> Log.d(TAG, "leaveCurrentRoom: onComplete"));
     }
 
     @Override

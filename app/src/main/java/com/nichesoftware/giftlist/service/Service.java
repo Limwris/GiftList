@@ -6,18 +6,19 @@ import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
-import retrofit2.http.HTTP;
-import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 
 /**
@@ -31,44 +32,76 @@ public interface Service {
     @POST("register")
     Observable<User> register(@Body final User user);
 
-    @POST("invite")
-    Observable<Boolean> inviteUserToRoom(@Body final Invitation invitation);
+    // TODO: 24/03/2017 From GCMRegistrationDTO to String...
+    @POST("gcm")
+    Observable<Boolean> registerDevice(@Body final String registrationId);
+    // endregion
 
+    // region Invitation
+//    @POST("invite")
+//    Observable<Boolean> inviteUserToRoom(@Body final Invitation invitation);
+//
 //    @POST("contacts")
 //    Observable<List<User>> retreiveAvailableContacts(@Header("X-Auth-Token") final String token,
 //                                               @Body final ContactDto contactDto);
 //
+//    @GET("invite")
+//    Observable<List<Room>> getPendingInvitation(@Header("X-Auth-Token") String token);
+    @GET("invite")
+    Observable<List<Invitation>> getPendingInvitation();
 
-    // TODO: 24/03/2017 From GCMRegistrationDTO to String...
-    @POST("gcm")
-    Observable<Boolean> registerDevice(@Body final String registrationId);
+    @POST("rooms/{id}/invite")
+    Observable<Invitation> inviteUserToRoom(@Path("id") final String roomId, @Body final User invitedUser);
+
+    @PUT("rooms/{id}/invite")
+    Observable<List<Room>> acceptInvitationToRoom(@Body final Invitation invitation);
     // endregion
 
     // region Room
     @GET("rooms")
     Observable<List<Room>> getAllRooms();
 
-    @POST("room")
+    @GET("rooms/{id}")
+    Observable<Room> getRoom(@Path("id") final String roomId);
+
+    @POST("rooms")
     Observable<Room> createRoom(@Body final Room room);
 
-    @HTTP(method = "DELETE", path = "room", hasBody = true)
-    Observable<List<Room>> leaveRoom(@Body final Room room);
+    @PUT("rooms/{id}")
+    Observable<Room> updateRoom(@Path("id") final String roomId,
+                                @Body Room room);
+
+    @DELETE("rooms/{id}")
+    Observable<List<Room>> leaveRoom(@Path("id") final String roomId);
     // endregion
 
     // region Gift
-    @GET("gifts")
-    Observable<List<Gift>> getGifts(@Body final Room room);
+    @GET("/rooms/{roomId}/gifts")
+    Observable<List<Gift>> getGifts(@Path("roomId") final String roomId);
 
-    @GET("gift/{id}")
-    Observable<Gift> getGift(@Path("id") final String giftId);
+    @GET("/rooms/{roomId}/gifts/{giftId}")
+    Observable<Gift> getGift(@Path("roomId") final String roomId, @Path("giftId") final String giftId);
 
     @Multipart
-    @POST("gift")
-    Observable<Gift> addGift(@Part MultipartBody.Part file,
-                             @Part("body") final RequestBody gift);
+    @POST("/rooms/{roomId}/gifts")
+    Observable<Gift> addGift(@Path("roomId") final String roomId,
+                             @Part MultipartBody.Part file,
+                             @Part("gift") final RequestBody gift);
+//    Observable<Gift> addGift(@Part MultipartBody.Part file,
+//                             @PartMap() final Map<String, RequestBody> map);
 
-    @PUT("gift")
-    Observable<Gift> updateGift(@Body final Gift gift);
+    @POST("/rooms/{roomId}/gifts")
+    Observable<Gift> addGift(@Path("roomId") final String roomId,
+                             @Body Gift gift);
+
+    @PUT("/rooms/{roomId}/gifts/{id}")
+    Observable<Gift> updateGift(@Path("roomId") final String roomId,
+                                @Path("id") final String giftId,
+                                @Body final Gift gift);
+
+    @DELETE("/rooms/{roomId}/gifts/{id}")
+    Observable<List<Gift>> deleteGift(@Path("roomId") final String roomId,
+                                      @Path("giftId") final String giftId);
     // endregion
 
 //    @Multipart
@@ -80,9 +113,6 @@ public interface Service {
 //    @POST("contacts")
 //    Observable<List<User>> retreiveAvailableContacts(@Header("X-Auth-Token") final String token,
 //                                               @Body final ContactDto contactDto);
-//
-//    @GET("invite")
-//    Observable<List<Room>> getPendingInvitation(@Header("X-Auth-Token") String token);
 //
 //    @POST("accept")
 //    Observable<Boolean> acceptInvitationToRoom(@Header("X-Auth-Token") String token,

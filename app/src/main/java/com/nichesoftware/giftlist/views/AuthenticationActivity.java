@@ -1,11 +1,14 @@
 package com.nichesoftware.giftlist.views;
 
+import android.content.Intent;
+import android.support.v4.content.IntentCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.nichesoftware.giftlist.contracts.AuthenticationContract;
 import com.nichesoftware.giftlist.views.authentication.AuthenticationDialog;
 import com.nichesoftware.giftlist.views.authentication.IAuthenticationListener;
+import com.nichesoftware.giftlist.views.start.LaunchScreenActivity;
 
 /**
  * Authentication activity
@@ -60,6 +63,13 @@ public abstract class AuthenticationActivity<P extends AuthenticationContract.Pr
             mAuthenticationDialog.dismiss();
         }
         performLogin();
+    }
+
+    @Override
+    public void goToLaunchScreen() {
+        Intent backIntent = new Intent(this, LaunchScreenActivity.class);
+        backIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(backIntent);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

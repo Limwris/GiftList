@@ -128,7 +128,7 @@ public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presente
     protected RoomsContract.Presenter newPresenter() {
         final User user = SessionManager.getInstance().getConnectedUser();
         RoomCache cache = new RoomCache(DatabaseManager.getInstance(),
-                user != null ? user.getUsername() : "");
+                user != null ? user.getName() : "");
         RoomCloudDataSource cloudDataSource = new RoomCloudDataSource(Injection.getService());
         UserCache userCache = new UserCache(DatabaseManager.getInstance());
         AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());

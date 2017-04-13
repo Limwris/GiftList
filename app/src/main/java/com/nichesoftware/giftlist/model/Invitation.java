@@ -3,7 +3,7 @@ package com.nichesoftware.giftlist.model;
 import java.util.Date;
 
 /**
- * Created by n_che on 27/06/2016.
+ * Invitation to a room
  */
 public class Invitation {
     /**
@@ -15,9 +15,13 @@ public class Invitation {
      */
     private Room room;
     /**
-     * Date d'expiration du token d'invitation
+     * Utilisateur invitant
      */
-    private Date expireDate;
+    private User invitingUser;
+    /**
+     * Token d'invitation
+     */
+    private String token;
 
     /**
      * Getter sur l'utilisateur étant invité
@@ -52,18 +56,34 @@ public class Invitation {
     }
 
     /**
-     * Getter sur la date d'expiration du token d'invitation
+     * Getter sur l'utilisateur invitant
      * @return
      */
-    public Date getExpireDate() {
-        return expireDate;
+    public User getInvitingUser() {
+        return invitingUser;
     }
 
     /**
-     * Setter sur la date d'expiration du token d'invitation
-     * @param expireDate
+     * Setter sur l'utilisateur invitant
+     * @param invitingUser
      */
-    public void setExpireDate(Date expireDate) {
-        this.expireDate = expireDate;
+    public void setInvitingUser(User invitingUser) {
+        this.invitingUser = invitingUser;
+    }
+
+    /**
+     * Getter sur le token d'invitation
+     * @return
+     */
+    public String getToken() {
+        return token;
+    }
+
+    /**
+     * Setter sur le token d'invitation
+     * @param token
+     */
+    public void setToken(String token) {
+        this.token = token;
     }
 }

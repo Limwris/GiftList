@@ -69,7 +69,7 @@ import io.reactivex.disposables.Disposable;
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> mAttachedView.displayAuthenticationLoader(true))
                 .subscribe(connectedUser -> {
-                            Log.d(TAG, "authenticate - onNext: " + connectedUser.getUsername());
+                            Log.d(TAG, "authenticate - onNext: " + connectedUser.getName());
                             mAttachedView.onAuthenticationSucceeded();
                         },
                         throwable -> {
@@ -102,7 +102,9 @@ import io.reactivex.disposables.Disposable;
     @Override
     public void doDisconnect() {
         final User user = SessionManager.getInstance().getConnectedUser();
-        mAuthDataSource.disconnect(user);
+        mAuthDataSource.disconnect(user)
+                .doOnComplete(() -> mAttachedView.goToLaunchScreen())
+                .subscribe();
     }
     // enregion
 }

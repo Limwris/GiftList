@@ -17,7 +17,7 @@ public class Room implements Parcelable {
     /**
      * Nom de la salle
      */
-    private String roomName;
+    private String name;
     /**
      * Occasion du cadeau
      */
@@ -25,7 +25,7 @@ public class Room implements Parcelable {
     /**
      * Liste des cadeaux associés à cette personne
      */
-    private List<Gift> giftList;
+    private List<Gift> gifts;
 
     /**
      * Contructor
@@ -39,11 +39,11 @@ public class Room implements Parcelable {
     /**
      * Contructor
      *
-     * @param roomName
+     * @param name
      * @param occasion
      */
-    public Room(final String roomName, final String occasion) {
-        this.roomName = roomName;
+    public Room(final String name, final String occasion) {
+        this.name = name;
         this.occasion = occasion;
     }
 
@@ -51,12 +51,12 @@ public class Room implements Parcelable {
      * Contructeur par défaut
      *
      * @param id
-     * @param roomName
+     * @param name
      * @param occasion
      */
-    public Room(final String id, final String roomName, final String occasion) {
+    public Room(final String id, final String name, final String occasion) {
         this.id = id;
-        this.roomName = roomName;
+        this.name = name;
         this.occasion = occasion;
     }
 
@@ -64,15 +64,15 @@ public class Room implements Parcelable {
      * Contructeur avec liste de cadeau
      *
      * @param id
-     * @param roomName
+     * @param name
      * @param occasion
      * @param gifts
      */
-    public Room(final String id, final String roomName, final String occasion, List<Gift> gifts) {
+    public Room(final String id, final String name, final String occasion, List<Gift> gifts) {
         this.id = id;
-        this.roomName = roomName;
+        this.name = name;
         this.occasion = occasion;
-        this.giftList = gifts;
+        this.gifts = gifts;
     }
 
     /**
@@ -93,34 +93,34 @@ public class Room implements Parcelable {
 
     /**
      * Getter sur le nom de la salle
-     * @return roomName
+     * @return name
      */
-    public String getRoomName() {
-        return roomName;
+    public String getName() {
+        return name;
     }
 
     /**
      * Setter sur le nom de la salle
-     * @param roomName
+     * @param name
      */
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
      * Getter sur la liste des cadeaux associés à cette personne
-     * @return List<Gift> giftList
+     * @return List<Gift> gifts
      */
-    public List<Gift> getGiftList() {
-        return giftList;
+    public List<Gift> getGifts() {
+        return gifts;
     }
 
     /**
      * Setter sur la liste des cadeaux associés à cette personne
-     * @param giftList
+     * @param gifts
      */
-    public void setGiftList(List<Gift> giftList) {
-        this.giftList = giftList;
+    public void setGifts(List<Gift> gifts) {
+        this.gifts = gifts;
     }
 
     /**
@@ -144,24 +144,24 @@ public class Room implements Parcelable {
      * @param gift
      */
     public void addGift(Gift gift) {
-        if (giftList == null) {
-            giftList = new ArrayList<>();
+        if (gifts == null) {
+            gifts = new ArrayList<>();
         }
-        giftList.add(gift);
+        gifts.add(gift);
     }
 
     public void addAllGifts(List<Gift> gifts) {
-        if (giftList == null) {
-            giftList = new ArrayList<>();
+        if (this.gifts == null) {
+            this.gifts = new ArrayList<>();
         }
-        giftList.addAll(gifts);
+        this.gifts.addAll(gifts);
     }
     /**
      * Ajout d'un cadeau à la liste
      * @param gift
      */
     public boolean updateGift(Gift gift) {
-        for (Gift temp : giftList) {
+        for (Gift temp : gifts) {
             if (temp.getId().equals(gift.getId())) {
                 // Todo: Update...
                 return true;
@@ -176,10 +176,10 @@ public class Room implements Parcelable {
      * @return room  - cadeau correspondant à l'identifiant passé en paramètre, nul sinon
      */
     public Gift getGiftById(final String giftId) {
-        if (giftList == null) {
-            giftList = new ArrayList<>();
+        if (gifts == null) {
+            gifts = new ArrayList<>();
         }
-        for (Gift gift : giftList) {
+        for (Gift gift : gifts) {
             if (gift.getId().equals(giftId)) {
                 return gift;
             }
@@ -192,10 +192,10 @@ public class Room implements Parcelable {
      * @return
      */
     public int getGiftListSize() {
-        if (giftList == null) {
+        if (gifts == null) {
             return 0;
         } else {
-            return giftList.size();
+            return gifts.size();
         }
     }
 
@@ -204,12 +204,12 @@ public class Room implements Parcelable {
      * @return
      */
     public int getBoughtGiftListSize() {
-        if (giftList == null) {
-            giftList = new ArrayList<>();
+        if (gifts == null) {
+            gifts = new ArrayList<>();
             return 0;
         } else {
             int boughtCounter = 0;
-            for (Gift gift : giftList) {
+            for (Gift gift : gifts) {
                 if (gift != null && gift.isBought()) {
                     boughtCounter++;
                 }
@@ -222,7 +222,7 @@ public class Room implements Parcelable {
     public String toString() {
         return "Room{" +
                 "id='" + id + '\'' +
-                ", roomName='" + roomName + '\'' +
+                ", name='" + name + '\'' +
                 ", occasion='" + occasion + '\'' +
                 '}';
     }
@@ -239,13 +239,13 @@ public class Room implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeString(id);
-        parcel.writeString(roomName);
+        parcel.writeString(name);
         parcel.writeString(occasion);
     }
 
     public Room(Parcel in) {
         this.id = in.readString();
-        this.roomName = in.readString();
+        this.name = in.readString();
         this.occasion = in.readString();
     }
 

@@ -61,6 +61,8 @@ public class AuthDataSourceProvider implements AuthDataSource {
 
     @Override
     public Observable<Void> disconnect(User user) {
-        throw new UnsupportedOperationException("This operation is not supported right now...");
+//        throw new UnsupportedOperationException("This operation is not supported right now...");
+        // TODO: 05/04/2017 Handle disconnection
+        return Observable.empty();
     }
 }

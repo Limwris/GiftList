@@ -11,7 +11,7 @@ public class User {
     /**
      * Identifiant de l'utilisateur
      */
-    private String username;
+    private String name;
     /**
      * Mot de passe de l'utilisateur
      */
@@ -46,7 +46,7 @@ public class User {
      * @param username      Identifiant de l'utilisateur
      */
     public User(final String username) {
-        this.username = username;
+        this.name = username;
     }
 
     /**
@@ -56,7 +56,7 @@ public class User {
      * @param password      Mot de passe de l'utilisateur
      */
     public User(final String username, final String password) {
-        this.username = username;
+        this.name = username;
         this.password = password;
     }
 
@@ -64,16 +64,16 @@ public class User {
      * Getter sur l'identifiant de l'utilisateur
      * @return username
      */
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
     /**
      * Setter sur l'identifiant de l'utilisateur
      * @param username - identfiant de l'utilisateur
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String username) {
+        this.name = username;
     }
 
     public String getPassword() {
@@ -162,7 +162,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "username='" + username + '\'' +
+                "username='" + name + '\'' +
                 ", token='" + token + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", isTokenSent=" + isTokenSent +

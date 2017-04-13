@@ -3,7 +3,6 @@ package com.nichesoftware.giftlist.repository.datasource;
 import com.google.gson.Gson;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
-import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.Service;
 import com.nichesoftware.giftlist.utils.StringUtils;
 
@@ -22,6 +21,7 @@ public class GiftCloudDataSource extends CloudDataSource<Gift> {
     // Constants
     private static final String MEDIATYPE_MULTIPART_FORM_DATA = "multipart/form-data";
     private static final String MEDIATYPE_APPLICATION_JSON = "application/json";
+    private static final String MEDIATYPE_IMAGE = "image/*";
     private static final String MEDIATYPE_FILE = "file";
 
     // Fields
@@ -40,43 +40,44 @@ public class GiftCloudDataSource extends CloudDataSource<Gift> {
 
     @Override
     public Observable<Gift> add(Gift element) {
-        Gson gson = new Gson();
-        // TODO: 29/03/2017 Which MediaType should I choose ?
-//        RequestBody requestBody = RequestBody.create(MediaType.parse(MEDIATYPE_MULTIPART_FORM_DATA), gson.toJson(element));
-        RequestBody requestBody = RequestBody.create(MediaType.parse(MEDIATYPE_APPLICATION_JSON), gson.toJson(element));
+        if (element.isImageFileLocal() && !StringUtils.isEmpty(element.getImageUrl())) {
+            Gson gson = new Gson();
+//            RequestBody giftRequestBody = RequestBody.create(MediaType.parse(MEDIATYPE_APPLICATION_JSON), gson.toJson(element));
+            RequestBody giftRequestBody = RequestBody.create(MultipartBody.FORM, gson.toJson(element));
 
-        MultipartBody.Part fileBody = null;
-        if (!StringUtils.isEmpty(element.getImageUrl())) {
+            MultipartBody.Part fileBody = null;
             File file = new File(element.getImageUrl());
             if (file.exists()) {
                 // create RequestBody instance from file
-                RequestBody requestFile = RequestBody.create(MediaType.parse(MEDIATYPE_MULTIPART_FORM_DATA), file);
+//                RequestBody requestFile = RequestBody.create(MultipartBody.FORM, file);
+                RequestBody requestFile = RequestBody.create(MediaType.parse(MEDIATYPE_IMAGE), file);
 
                 // MultipartBody.Part is used to send also the actual file name
                 fileBody = MultipartBody.Part.createFormData(MEDIATYPE_FILE, file.getName(), requestFile);
             }
+            return mService.addGift(mRoomId, fileBody, giftRequestBody);
+        } else {
+            return mService.addGift(mRoomId, element);
         }
-        return mService.addGift(fileBody, requestBody);
     }
 
     @Override
     public Observable<List<Gift>> getAll() {
-        Room room = new Room(mRoomId);
-        return mService.getGifts(room);
+        return mService.getGifts(mRoomId);
     }
 
     @Override
     public Observable<Gift> get(String id) {
-        return mService.getGift(id);
+        return mService.getGift(mRoomId, id);
     }
 
     @Override
     public Observable<Gift> update(Gift element) {
-        return mService.updateGift(element);
+        return mService.updateGift(mRoomId, element.getId(), element);
     }
 
     @Override
     public Observable<List<Gift>> delete(Gift element) {
-        throw new UnsupportedOperationException("This operation is not supported right now...");
+        return mService.deleteGift(mRoomId, element.getId());
     }
 }

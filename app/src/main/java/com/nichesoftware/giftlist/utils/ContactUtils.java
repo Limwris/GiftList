@@ -40,7 +40,7 @@ public final class ContactUtils {
         return null;
     }
 
-    public static long getContactIdFromPhoneNumber(final String phoneNumber) {
+    private static long getContactIdFromPhoneNumber(final String phoneNumber) {
         Log.d(TAG, "getContactIdFromPhoneNumber");
 
         final Context context = BaseApplication.getAppContext();

@@ -118,7 +118,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         try {
             ContentValues values = new ContentValues();
             values.put(DatabaseContract.RoomEntry.KEY_ROOM_ID, room.getId());
-            values.put(DatabaseContract.RoomEntry.KEY_ROOM_NAME, room.getRoomName());
+            values.put(DatabaseContract.RoomEntry.KEY_ROOM_NAME, room.getName());
             values.put(DatabaseContract.RoomEntry.KEY_ROOM_OCCASION, room.getOccasion());
             values.put(DatabaseContract.RoomEntry.KEY_ROOM_USER_ID_FK, userId);
 
@@ -131,8 +131,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 db.insertOrThrow(DatabaseContract.RoomEntry.TABLE_ROOMS, null, values);
             }
 
-            if (room.getGiftList() != null) {
-                for (Gift gift : room.getGiftList()) {
+            if (room.getGifts() != null) {
+                for (Gift gift : room.getGifts()) {
                     ContentValues giftValues = new ContentValues();
                     giftValues.put(DatabaseContract.GiftEntry.KEY_GIFT_ID, gift.getId());
                     giftValues.put(DatabaseContract.GiftEntry.KEY_GIFT_ROOM_ID_FK, room.getId());
@@ -410,7 +410,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // region User
     // Insert or update a user in the database
     public void addOrUpdateUser(User user) {
-        Log.d(TAG, "addOrUpdateUser: trying to add user" + user);
+        Log.d(TAG, "addOrUpdateUser: trying to add user " + user);
 
         // The database connection is cached so it's not expensive to call getWriteableDatabase() multiple times.
         SQLiteDatabase db = getWritableDatabase();
@@ -418,11 +418,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             ContentValues values = new ContentValues();
-            values.put(DatabaseContract.UserEntry.KEY_USER_ID, user.getUsername());
+            values.put(DatabaseContract.UserEntry.KEY_USER_ID, user.getName());
             values.put(DatabaseContract.UserEntry.KEY_USER_TOKEN, user.getToken());
 
             // First try to update the user in case the user already exists in the database
-            int rows = db.update(DatabaseContract.UserEntry.TABLE_USERS, values, DatabaseContract.UserEntry.KEY_USER_ID + "= ?", new String[]{user.getUsername()});
+            int rows = db.update(DatabaseContract.UserEntry.TABLE_USERS, values, DatabaseContract.UserEntry.KEY_USER_ID + "= ?", new String[]{user.getName()});
 
             // Check if update succeeded
             if (rows < 1) {

@@ -25,15 +25,14 @@ android {
             versionCode versionNumber
             versionName "${versionMajor}.${versionMinor} (${versionBuild})"
             // Needed with Firebase
-            multiDexEnabled true
+            // multiDexEnabled true
 
             // Gradle Plugin 1.5
             // disable limited support for vector drawables for Android Studio 1.4
-            generatedDensities = ['xxhdpi', 'xhdpi', 'hdpi']
+            // generatedDensities = ['xxhdpi', 'xhdpi', 'hdpi']
 
             // Gradle Plugin 2.0
-            // disable limited support for vector drawables for Android Studio 1.4
-            // vectorDrawables.useSupportLibrary = true
+            vectorDrawables.useSupportLibrary = true
         }
     } else {
         throw new GradleException("Could not read version.properties !")
@@ -41,15 +40,15 @@ android {
 
     // Gradle Plugin 1.5
     // disable limited support for vector drawables for Android Studio 1.4
-    aaptOptions {
-        additionalParameters "--no-version-vectors"
-    }
+//    aaptOptions {
+//        additionalParameters "--no-version-vectors"
+//    }
 
     buildTypes {
         release {
             minifyEnabled true
 			// Source: http://tools.android.com/tech-docs/new-build-system/resource-shrinking
-            //shrinkResources true
+            shrinkResources true
 			
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -58,13 +57,14 @@ android {
     // If you need to add more flavors, consider using flavor dimensions.
     productFlavors {
         mock {
-            // Permit to fasten build (gradle plugin pred-dex each module)
+            // Permit to fasten build (gradle plugin pre-dex each module)
             minSdkVersion 21
             applicationIdSuffix = ".mock"
             buildConfigField    "String",   "BASE_URL",     "\"http://localhost/giftlist/\""
         }
         prod {
-            buildConfigField    "String",   "BASE_URL",     "\"http://192.168.1.65:8080/giftlist/\""
+//            buildConfigField    "String",   "BASE_URL",     "\"http://192.168.1.65:8080/giftlist/\""
+            buildConfigField    "String",   "BASE_URL",     "\"http://192.168.56.1:8080/\""
         }
     }
 
@@ -108,38 +108,35 @@ dependencies {
     compile group: 'com.android.support',     name: 'cardview-v7',             version: rootProject.ext.supportLibVersion
     compile group: 'com.android.support',     name: 'design',                  version: rootProject.ext.supportLibVersion
     compile group: 'com.android.support',     name: 'support-vector-drawable', version: rootProject.ext.supportLibVersion
-    // MultiDex
-    compile group: 'com.android.support',     name: 'multidex',                version: "1.0.1"
     // Retrofit
     compile         group: 'com.squareup.retrofit2',  name: 'retrofit',                version: rootProject.ext.retrofitVersion
     compile         group: 'com.squareup.retrofit2',  name: 'converter-gson',          version: rootProject.ext.retrofitVersion
     compile         group: 'com.squareup.retrofit2',  name: 'converter-scalars',       version: rootProject.ext.retrofitVersion
-    compile         group: 'com.squareup.okhttp3',    name: 'logging-interceptor',     version: '3.2.0'
-    debugCompile    group: 'com.squareup.retrofit2',  name: 'retrofit-mock',           version: rootProject.ext.retrofitVersion
     compile         group: 'com.squareup.retrofit2',  name: 'adapter-rxjava2',         version: rootProject.ext.retrofitVersion
+    debugCompile    group: 'com.squareup.retrofit2',  name: 'retrofit-mock',           version: rootProject.ext.retrofitVersion
+    compile         group: 'com.squareup.okhttp3',    name: 'okhttp',                  version: rootProject.ext.okHttpVersion
+    compile         group: 'com.squareup.okhttp3',    name: 'logging-interceptor',     version: rootProject.ext.okHttpVersion
     // CircularImageView
-    compile 'de.hdodenhof:circleimageview:2.0.0'
+    compile group: 'de.hdodenhof', name: 'circleimageview', version: '2.0.0'
     // googlei18n / libphonenumber
     compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '7.4.3'
     // Firebase (GCM)
-    compile group: 'com.google.firebase', name: 'firebase-messaging', version: rootProject.ext.playServicesVersion
-    compile group: "com.google.android.gms", name: 'play-services', version: rootProject.ext.playServicesVersion
+    compile group: 'com.google.firebase',       name: 'firebase-messaging', version: rootProject.ext.playServicesVersion
+    compile group: "com.google.android.gms",    name: 'play-services-gcm',  version: rootProject.ext.playServicesVersion
     // Picasso
     compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.2'
     // ButterKnife
     annotationProcessor group: 'com.jakewharton', name: 'butterknife-compiler', version: rootProject.ext.butterKnifeVersion
     compile             group: 'com.jakewharton', name: 'butterknife',          version: rootProject.ext.butterKnifeVersion
-    // Event Bus
-    compile group: 'com.squareup',              name: 'otto',                   version: '1.3.8'
     // RX
     compile group: 'io.reactivex.rxjava2',      name: 'rxjava',                 version: '2.0.2'
     compile group: 'io.reactivex.rxjava2',      name: 'rxandroid',              version: '2.0.1'
 
-
-    testCompile new StringBuffer('junit:junit:').append(rootProject.ext.junitVersion).toString()
-    testCompile new StringBuffer('org.mockito:mockito-all:').append(rootProject.ext.mockitoVersion).toString()
-    testCompile new StringBuffer('org.powermock:powermock-module-junit4:').append(rootProject.ext.powerMockVersion).toString()
-    testCompile new StringBuffer('org.powermock:powermock-api-mockito:').append(rootProject.ext.powerMockVersion).toString()
+    // Test
+    testCompile group: 'junit',         name: 'junit',                      version: rootProject.ext.junitVersion
+    testCompile group: 'org.mockito',   name: 'mockito-all',                version: rootProject.ext.mockitoVersion
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4',    version: rootProject.ext.powerMockVersion
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito',      version: rootProject.ext.powerMockVersion
 }
 
 // Auto increment build version

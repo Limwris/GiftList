@@ -28,7 +28,7 @@ public class RoomCloudDataSource extends CloudDataSource<Room> {
 
     @Override
     public Observable<Room> get(String id) {
-        throw new UnsupportedOperationException("This operation does not exist...");
+        return mService.getRoom(id);
     }
 
     @Override
@@ -38,11 +38,11 @@ public class RoomCloudDataSource extends CloudDataSource<Room> {
 
     @Override
     public Observable<Room> update(Room element) {
-        throw new UnsupportedOperationException("This operation does not exist...");
+        return mService.updateRoom(element.getId(), element);
     }
 
     @Override
     public Observable<List<Room>> delete(Room element) {
-        return mService.leaveRoom(element);
+        return mService.leaveRoom(element.getId());
     }
 }

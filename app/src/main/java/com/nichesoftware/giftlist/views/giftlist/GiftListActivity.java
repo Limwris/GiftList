@@ -22,11 +22,14 @@ import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
 import com.nichesoftware.giftlist.database.DatabaseManager;
 import com.nichesoftware.giftlist.model.Gift;
+import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.GiftListPresenter;
 import com.nichesoftware.giftlist.repository.cache.GiftCache;
+import com.nichesoftware.giftlist.repository.cache.RoomCache;
 import com.nichesoftware.giftlist.repository.cache.UserCache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
 import com.nichesoftware.giftlist.repository.datasource.GiftCloudDataSource;
+import com.nichesoftware.giftlist.repository.datasource.RoomCloudDataSource;
 import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
 import com.nichesoftware.giftlist.session.SessionManager;
 import com.nichesoftware.giftlist.views.AuthenticationActivity;
@@ -159,11 +162,16 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
         // Get the requested note id
         mRoomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
 
-        GiftCache cache = new GiftCache(DatabaseManager.getInstance(), mRoomId);
-        GiftCloudDataSource cloudDataSource = new GiftCloudDataSource(Injection.getService(), mRoomId);
+        GiftCache giftCache = new GiftCache(DatabaseManager.getInstance(), mRoomId);
+        GiftCloudDataSource giftCloudDataSource = new GiftCloudDataSource(Injection.getService(), mRoomId);
+        final User user = SessionManager.getInstance().getConnectedUser();
+        RoomCache roomCache = new RoomCache(DatabaseManager.getInstance(),
+                user != null ? user.getName() : "");
+        RoomCloudDataSource roomCloudDataSource = new RoomCloudDataSource(Injection.getService());
         UserCache userCache = new UserCache(DatabaseManager.getInstance());
         AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
-        return new GiftListPresenter(this, cache, cloudDataSource, authDataSource);
+        return new GiftListPresenter(this, giftCache, giftCloudDataSource,
+                roomCache, roomCloudDataSource, authDataSource);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

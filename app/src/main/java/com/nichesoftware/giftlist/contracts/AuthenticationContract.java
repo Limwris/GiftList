@@ -11,6 +11,7 @@ public interface AuthenticationContract {
         void displayAuthenticationLoader(boolean show);
         void onAuthenticationError();
         void onAuthenticationSucceeded();
+        void goToLaunchScreen();
     }
     interface Presenter extends IPresenter {
         void onAuthentication(final String username, final String password);

@@ -82,7 +82,7 @@ public class GcmPresenter implements GcmContract.Presenter {
 
         // Si l'utilisateur courant est bien celui qui est invité
         User user = SessionManager.getInstance().getConnectedUser();
-        if (user != null && user.getUsername().equals(invitation.getInvitedUser().getUsername())) {
+        if (user != null && user.getName().equals(invitation.getInvitedUser().getName())) {
             // Build Notification
             NotificationCompat.Builder notificationBuilder =
                     new NotificationCompat.Builder(context)

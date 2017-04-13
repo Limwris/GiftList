@@ -89,7 +89,7 @@ public class RoomsPresenter extends BasePresenter<RoomsContract.View, Room>
         MessageFormat messageFormat = new MessageFormat(ResourcesUtils.getString(R.string.gift_description));
         for (Room room : rooms) {
             Object[] messageArgs = { room.getBoughtGiftListSize(), room.getGiftListSize() };
-            RoomVO vo = new RoomVO(room.getId(), room.getRoomName(), messageFormat.format(messageArgs));
+            RoomVO vo = new RoomVO(room.getId(), room.getName(), messageFormat.format(messageArgs));
             roomVOs.add(vo);
         }
         return roomVOs;

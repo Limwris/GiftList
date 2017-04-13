@@ -7,6 +7,7 @@ import com.nichesoftware.giftlist.model.Invitation;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.service.Service;
+import com.nichesoftware.giftlist.session.SessionManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
-import retrofit2.http.Header;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.MockRetrofit;
@@ -28,7 +29,7 @@ import retrofit2.mock.MockRetrofit;
 /**
  * Mocked implementation of the {@link Service}
  */
-public class MockRestService implements Service {
+/* package */ class MockRestService implements Service {
     // Fields
     private final BehaviorDelegate<Service> delegate;
     private static List<Room> ROOMS = new ArrayList<>();
@@ -108,13 +109,13 @@ public class MockRestService implements Service {
         ROOMS.add(new Room("2", "Jean-Charles Dupond", "Pot de départ", giftsRoom2));
 
         USER.setToken("token");
-        USER.setUsername("Username");
+        USER.setName("Username");
         USER.setPhoneNumber("0102030405");
         USER.setRooms(ROOMS);
         USER.setIsTokenSent(true);
     }
 
-    public MockRestService(MockRetrofit mockRetrofit) {
+    /* package */ MockRestService(MockRetrofit mockRetrofit) {
         delegate = mockRetrofit.create(Service.class);
     }
 
@@ -129,8 +130,28 @@ public class MockRestService implements Service {
     }
 
     @Override
-    public Observable<Boolean> inviteUserToRoom(@Body Invitation invitation) {
-        return delegate.returningResponse(Boolean.TRUE).inviteUserToRoom(invitation);
+    public Observable<List<Invitation>> getPendingInvitation() {
+        Invitation invitation = new Invitation();
+        invitation.setRoom(new Room("xXx"));
+        invitation.setInvitedUser(SessionManager.getInstance().getConnectedUser());
+        invitation.setInvitingUser(new User("Jean-Bertrand"));
+        List<Invitation> invitations = new ArrayList<>();
+        invitations.add(invitation);
+        return delegate.returningResponse(invitations).getPendingInvitation();
+    }
+
+    @Override
+    public Observable<Invitation> inviteUserToRoom(@Path("id") String roomId, @Body User invitedUser) {
+        Invitation invitation = new Invitation();
+        invitation.setRoom(new Room(roomId));
+        invitation.setInvitedUser(invitedUser);
+        invitation.setInvitingUser(SessionManager.getInstance().getConnectedUser());
+        return delegate.returningResponse(invitation).inviteUserToRoom(roomId, invitedUser);
+    }
+
+    @Override
+    public Observable<List<Room>> acceptInvitationToRoom(@Body Invitation invitation) {
+        return delegate.returningResponse(ROOMS).acceptInvitationToRoom(invitation);
     }
 
     @Override
@@ -144,52 +165,79 @@ public class MockRestService implements Service {
     }
 
     @Override
-    public Observable<Room> createRoom(Room room) {
+    public Observable<Room> getRoom(@Path("id") String roomId) {
+        return null;
+    }
+
+    @Override
+    public Observable<Room> createRoom(@Body Room room) {
         room.setId(UUID.randomUUID().toString());
         return delegate.returningResponse(room).createRoom(room);
     }
 
     @Override
-    public Observable<List<Room>> leaveRoom(Room room) {
-        return delegate.returningResponse(ROOMS).leaveRoom(room);
+    public Observable<Room> updateRoom(@Path("id") String roomId, @Body Room room) {
+        return null;
     }
 
     @Override
-    public Observable<List<Gift>> getGifts(Room room) {
+    public Observable<List<Room>> leaveRoom(@Path("id") String roomId) {
+        return delegate.returningResponse(ROOMS).leaveRoom(roomId);
+    }
+
+    @Override
+    public Observable<List<Gift>> getGifts(@Path("roomId") String roomId) {
         List<Gift> gifts = new ArrayList<>();
         for (Room element : ROOMS) {
-            if (element.getId().equals(room.getId())) {
-                gifts = element.getGiftList();
+            if (element.getId().equals(roomId)) {
+                gifts = element.getGifts();
             }
         }
-        return delegate.returningResponse(gifts).getGifts(room);
+        return delegate.returningResponse(gifts).getGifts(roomId);
     }
 
     @Override
-    public Observable<Gift> getGift(@Path("id") String giftId) {
+    public Observable<Gift> getGift(@Path("roomId") String roomId, @Path("giftId") String giftId) {
         for (Room room : ROOMS) {
-            for (Gift gift : room.getGiftList()) {
+            for (Gift gift : room.getGifts()) {
                 if (gift.getId().equals(giftId)) {
-                    return delegate.returningResponse(gift).getGift(giftId);
+                    return delegate.returningResponse(gift).getGift(roomId, giftId);
                 }
             }
         }
-        return delegate.returningResponse(new NoSuchElementException("This gift is not in DB.")).getGift(giftId);
+        return delegate.returningResponse(new NoSuchElementException("This gift is not in DB.")).getGift(roomId, giftId);
     }
 
     @Override
-    public Observable<Gift> addGift(MultipartBody.Part file, RequestBody gift) {
+    public Observable<Gift> addGift(@Path("roomId") String roomId, @Part MultipartBody.Part file, @Part("gift") RequestBody gift) {
         // TODO: 28/03/2017 Extract gift from RequestBody
         if (MediaType.parse("application/json").equals(gift.contentType())) {
             Gift addedGift = new Gson().fromJson(gift.toString(), Gift.class);
             addedGift.setId(UUID.randomUUID().toString());
-            return delegate.returningResponse(addedGift).addGift(file, gift);
+            return delegate.returningResponse(addedGift).addGift(roomId, file, gift);
         }
-        return delegate.returningResponse(new JsonSyntaxException("Could not add the gift")).addGift(file, gift);
+        return delegate.returningResponse(new JsonSyntaxException("Could not add the gift")).addGift(roomId, file, gift);
     }
 
     @Override
-    public Observable<Gift> updateGift(Gift gift) {
-        return delegate.returningResponse(gift).updateGift(gift);
+    public Observable<Gift> addGift(@Path("roomId") String roomId, @Body Gift gift) {
+        return delegate.returningResponse(gift).addGift(roomId, gift);
+    }
+
+    @Override
+    public Observable<Gift> updateGift(@Path("roomId") String roomId, @Path("id") String giftId, @Body Gift gift) {
+        return delegate.returningResponse(gift).updateGift(roomId, giftId, gift);
+    }
+
+    @Override
+    public Observable<List<Gift>> deleteGift(@Path("roomId") String roomId, @Path("giftId") String giftId) {
+        for (Room room : ROOMS) {
+            for (Gift gift : room.getGifts()) {
+                if (gift.getId().equals(giftId)) {
+                    return delegate.returningResponse(room.getGifts()).deleteGift(roomId, giftId);
+                }
+            }
+        }
+        return delegate.returningResponse(new NoSuchElementException("This gift is not in DB.")).deleteGift(roomId, giftId);
     }
 }
