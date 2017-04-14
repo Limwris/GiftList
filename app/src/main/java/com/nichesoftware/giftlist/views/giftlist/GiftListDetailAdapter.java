@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.views.ViewHolder;
+import com.nichesoftware.giftlist.views.adapter.ViewHolder;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import butterknife.BindView;
 /**
  * Gift list detail adapter
  */
-/* package */ class GiftListDetailAdapter extends RecyclerView.Adapter<GiftListDetailAdapter.GiftViewHolder> {
+/* package */ class GiftListDetailAdapter extends RecyclerView.Adapter<GiftListDetailAdapter.GiftDetailViewHolder> {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListDetailAdapter.class.getSimpleName();
 
@@ -37,15 +37,15 @@ import butterknife.BindView;
     }
 
     @Override
-    public GiftViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public GiftDetailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View giftDetailView = inflater.inflate(R.layout.gift_list_detail_item_view, parent, false);
 
-        return new GiftViewHolder(giftDetailView);
+        return new GiftDetailViewHolder(giftDetailView);
     }
 
     @Override
-    public void onBindViewHolder(GiftViewHolder viewHolder, int position) {
+    public void onBindViewHolder(GiftDetailViewHolder viewHolder, int position) {
         if (position < VOs.size()) {
             GiftListDetailVO vo = VOs.get(position);
             viewHolder.bind(vo);
@@ -57,7 +57,7 @@ import butterknife.BindView;
         return VOs.size();
     }
 
-    /* package */ static class GiftViewHolder extends ViewHolder<GiftListDetailVO> {
+    /* package */ static class GiftDetailViewHolder extends ViewHolder<GiftListDetailVO> {
 
         /**
          * Nom du cadeau
@@ -76,7 +76,7 @@ import butterknife.BindView;
          *
          * @param itemView Root view of the {@link ViewHolder}
          */
-        /* package */ GiftViewHolder(View itemView) {
+        /* package */ GiftDetailViewHolder(View itemView) {
             super(itemView);
         }
 

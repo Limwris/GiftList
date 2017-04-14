@@ -1,6 +1,7 @@
 package com.nichesoftware.giftlist.views.rooms;
 
 import android.content.Context;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,7 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.R;
-import com.nichesoftware.giftlist.views.ViewHolder;
+import com.nichesoftware.giftlist.views.adapter.DiffUtilCallback;
+import com.nichesoftware.giftlist.views.adapter.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,8 +67,10 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
     }
 
     public void replaceData(List<RoomVO> rooms) {
-        mRooms = rooms;
-        notifyDataSetChanged();
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtilCallback<>(mRooms, rooms));
+        mRooms.clear();
+        mRooms.addAll(rooms);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @Override

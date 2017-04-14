@@ -12,15 +12,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.R;
+import com.nichesoftware.giftlist.views.adapter.ViewHolder;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.OnClick;
+
 /**
  * Gift list adapter
  */
-public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHolder> {
+public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.GiftViewHolder> {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = GiftListAdapter.class.getSimpleName();
 
@@ -45,11 +49,11 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHo
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public GiftViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View giftView = inflater.inflate(R.layout.gift_list_item_view, parent, false);
 
-        return new ViewHolder(giftView, giftItemListener, new OnSeeMoreClickListener() {
+        return new GiftViewHolder(giftView, new OnGiftViewHolderListener() {
             @Override
             public void onSeeMoreClick(int position) {
                 for (GiftVO gift : gifts) {
@@ -62,14 +66,24 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHo
                 gifts.get(position).setExpanded(!gifts.get(position).isExpanded());
                 notifyDataSetChanged();
             }
+
+            @Override
+            public void onGiftClick(int position) {
+                if (position < gifts.size()) {
+                    GiftVO giftVO = gifts.get(position);
+                    if (giftItemListener != null) {
+                        giftItemListener.onGiftClick(giftVO.getId());
+                    }
+                }
+            }
         });
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(final GiftViewHolder viewHolder, int position) {
         if (position < gifts.size()) {
             GiftVO giftVO = gifts.get(position);
-            viewHolder.bindData(giftVO);
+            viewHolder.bind(giftVO);
         }
     }
 
@@ -83,85 +97,81 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHo
         return gifts.size();
     }
 
-    /* package */ interface OnSeeMoreClickListener {
+    /* package */ interface OnGiftViewHolderListener {
         void onSeeMoreClick(final int position);
+        void onGiftClick(final int position);
     }
 
-    /* package */ class ViewHolder extends RecyclerView.ViewHolder {
+    /* package */ static class GiftViewHolder extends ViewHolder<GiftVO> {
         /**
          * Nom du cadeau
          */
-        private TextView name;
+        @BindView(R.id.gift_name)
+        TextView name;
 
         /**
          * Participation du cadeau
          */
-        private TextView amount;
+        @BindView(R.id.gift_amount)
+        TextView amount;
 
         /**
          * Restant au cadeau
          */
-        private TextView remainder;
+        @BindView(R.id.gift_remainder)
+        TextView remainder;
 
         /**
          * Prix du cadeau
          */
-        private TextView price;
+        @BindView(R.id.gift_price)
+        TextView price;
 
         /**
          * Image associée au cadeau
          */
-        private ImageView image;
-
-        private RecyclerView detailRecyclerView;
-        private AppCompatButton seeMoreButton;
+        @BindView(R.id.gift_image)
+        ImageView image;
 
         /**
-         * Listener sur le clic de la personne
+         * Display participating user
          */
-        private final GiftListActivity.GiftItemListener giftItemListener;
+        @BindView(R.id.gift_list_details)
+        RecyclerView detailRecyclerView;
 
-        private final OnSeeMoreClickListener mSeeMoreClickListener;
+        @OnClick(R.id.gift_list_see_more_button)
+        void onSeeMoreButtonClick() {
+            if (mSeeMoreClickListener != null) {
+                mSeeMoreClickListener.onSeeMoreClick(getAdapterPosition());
+            }
+        }
+
+        @OnClick(R.id.gift_list_detail_button)
+        void onDetailButtonClick() {
+            if (mSeeMoreClickListener != null) {
+                mSeeMoreClickListener.onGiftClick(getAdapterPosition());
+            }
+        }
+
+        /**
+         * Listener
+         */
+        private final OnGiftViewHolderListener mSeeMoreClickListener;
 
         /**
          * Constructeur
          * @param itemView
          */
-        /* package */ ViewHolder(final View itemView, GiftListActivity.GiftItemListener listener,
-                                 OnSeeMoreClickListener seeMoreClickListener) {
+        /* package */ GiftViewHolder(final View itemView, OnGiftViewHolderListener seeMoreClickListener) {
             super(itemView);
-            giftItemListener = listener;
             mSeeMoreClickListener = seeMoreClickListener;
 
-            name = (TextView) itemView.findViewById(R.id.gift_name);
-            price = (TextView) itemView.findViewById(R.id.gift_price);
-            amount = (TextView) itemView.findViewById(R.id.gift_amount);
-            remainder = (TextView) itemView.findViewById(R.id.gift_remainder);
-            image = (ImageView) itemView.findViewById(R.id.gift_image);
-            seeMoreButton = (AppCompatButton) itemView.findViewById(R.id.gift_list_see_more_button);
-
-            detailRecyclerView = (RecyclerView) itemView.findViewById(R.id.gift_list_details);
             detailRecyclerView.setHasFixedSize(true);
             detailRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.VERTICAL, false));
-
-            itemView.findViewById(R.id.gift_list_detail_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int position = getAdapterPosition();
-                    Log.d(TAG, "Clic détecté dans la liste à la position: " + position);
-
-                    if (position < gifts.size()) {
-                        GiftVO giftVO = gifts.get(position);
-                        if (giftItemListener != null) {
-                            giftItemListener.onGiftClick(giftVO.getId());
-                        }
-                    }
-                }
-            });
-
         }
 
-        /* package */ void bindData(GiftVO gift) {
+        @Override
+        public void bind(GiftVO gift) {
             if (!gift.isExpanded()) {
                 detailRecyclerView.setVisibility(View.GONE);
             } else {
@@ -173,11 +183,6 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.ViewHo
             amount.setText(gift.getAmount(), TextView.BufferType.SPANNABLE);
             remainder.setText(gift.getRemainder(), TextView.BufferType.SPANNABLE);
             detailRecyclerView.setAdapter(new GiftListDetailAdapter(gift.getDetailVO()));
-            seeMoreButton.setOnClickListener(view -> {
-                if (mSeeMoreClickListener != null) {
-                    mSeeMoreClickListener.onSeeMoreClick(getAdapterPosition());
-                }
-            });
 
             Picasso.with(image.getContext())
                     .load(gift.getImageUrl())

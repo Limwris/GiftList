@@ -40,14 +40,16 @@
         <!-- Activities -->
         <activity android:name=".views.start.SplashScreenActivity"
             android:windowSoftInputMode="stateHidden"
-            android:theme="@style/AppTheme.SplashTheme">
+            android:theme="@style/AppTheme.SplashTheme"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity android:name=".views.start.LaunchScreenActivity"
-            android:parentActivityName=".views.start.SplashScreenActivity">
+            android:parentActivityName=".views.start.SplashScreenActivity"
+            android:launchMode="singleTop">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -55,41 +57,47 @@
         </activity>
         <activity android:name=".views.rooms.RoomsActivity" /> <!-- No parent, just exit the app -->
         <activity android:name=".views.giftlist.GiftListActivity"
-            android:parentActivityName=".views.rooms.RoomsActivity">
+            android:parentActivityName=".views.rooms.RoomsActivity"
+            android:launchMode="singleTop">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".views.rooms.RoomsActivity" />
         </activity>
         <activity android:name=".views.addroom.AddRoomActivity"
-            android:parentActivityName=".views.rooms.RoomsActivity">
+            android:parentActivityName=".views.rooms.RoomsActivity"
+            android:launchMode="singleTop">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".views.rooms.RoomsActivity" />
         </activity>
         <activity android:name=".views.addgift.AddGiftActivity"
-            android:parentActivityName=".views.giftlist.GiftListActivity">
+            android:parentActivityName=".views.giftlist.GiftListActivity"
+            android:launchMode="singleTop">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".views.giftlist.GiftListActivity" />
         </activity>
         <activity android:name=".views.giftdetail.GiftDetailActivity"
-            android:parentActivityName=".views.giftlist.GiftListActivity">
+            android:parentActivityName=".views.giftlist.GiftListActivity"
+            android:launchMode="singleTop">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".views.giftlist.GiftListActivity" />
         </activity>
         <activity android:name=".views.adduser.AddUserActivity"
-            android:parentActivityName=".views.giftlist.GiftListActivity">
+            android:parentActivityName=".views.giftlist.GiftListActivity"
+            android:launchMode="singleTop">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".views.giftlist.GiftListActivity" />
         </activity>
-        <activity android:name=".views.inviteroom.InviteRoomActivity">
+        <activity android:name=".views.inviteroom.InviteRoomActivity"
+            android:launchMode="singleTop">
             <!-- Permet d'ouvrir l'activité lors de la réception d'une notification idoine -->
             <intent-filter>
                 <action android:name="OPEN_INVITE_TO_ROOM_ACTIVITY" />

@@ -2,12 +2,14 @@ package com.nichesoftware.giftlist.views.giftlist;
 
 import android.text.SpannableString;
 
+import com.nichesoftware.giftlist.views.adapter.ViewHolderVO;
+
 import java.util.List;
 
 /**
  * View object used in {@link GiftListAdapter}
  */
-public class GiftVO {
+public class GiftVO extends ViewHolderVO {
     /**
      * Identifiant unique du cadeau
      */
@@ -129,5 +131,36 @@ public class GiftVO {
 
     public void setExpanded(boolean expanded) {
         isExpanded = expanded;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GiftVO giftVO = (GiftVO) o;
+
+        if (id != null ? !id.equals(giftVO.id) : giftVO.id != null) return false;
+        if (price != null ? !price.equals(giftVO.price) : giftVO.price != null) return false;
+        if (amount != null ? !amount.equals(giftVO.amount) : giftVO.amount != null) return false;
+        if (name != null ? !name.equals(giftVO.name) : giftVO.name != null) return false;
+        if (imageUrl != null ? !imageUrl.equals(giftVO.imageUrl) : giftVO.imageUrl != null)
+            return false;
+        if (remainder != null ? !remainder.equals(giftVO.remainder) : giftVO.remainder != null)
+            return false;
+        return detailVO != null ? detailVO.equals(giftVO.detailVO) : giftVO.detailVO == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (price != null ? price.hashCode() : 0);
+        result = 31 * result + (amount != null ? amount.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (imageUrl != null ? imageUrl.hashCode() : 0);
+        result = 31 * result + (remainder != null ? remainder.hashCode() : 0);
+        result = 31 * result + (detailVO != null ? detailVO.hashCode() : 0);
+        return result;
     }
 }

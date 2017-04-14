@@ -1,17 +1,18 @@
 package com.nichesoftware.giftlist.views.adduser;
 
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.utils.ContactUtils;
-import com.nichesoftware.giftlist.views.ViewHolder;
+import com.nichesoftware.giftlist.views.adapter.DiffUtilCallback;
+import com.nichesoftware.giftlist.views.adapter.ViewHolder;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -64,8 +65,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
     }
 
     /* package */ void replaceData(List<AddUserVO> users) {
-        mUsers = users;
-        notifyDataSetChanged();
+//        mUsers = users;
+//        notifyDataSetChanged();
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtilCallback<>(mUsers, users));
+        mUsers.clear();
+        mUsers.addAll(users);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     public List<AddUserVO> getData() {

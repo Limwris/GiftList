@@ -1,11 +1,12 @@
 package com.nichesoftware.giftlist.views.rooms;
 
 import com.nichesoftware.giftlist.model.Room;
+import com.nichesoftware.giftlist.views.adapter.ViewHolderVO;
 
 /**
  * View Object for the {@link RoomAdapter}
  */
-public class RoomVO {
+public class RoomVO extends ViewHolderVO {
     /**
      * Identifiant unique de la salle
      */
@@ -53,5 +54,25 @@ public class RoomVO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RoomVO vo = (RoomVO) o;
+
+        if (id != null ? !id.equals(vo.id) : vo.id != null) return false;
+        if (roomName != null ? !roomName.equals(vo.roomName) : vo.roomName != null) return false;
+        return description != null ? description.equals(vo.description) : vo.description == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (roomName != null ? roomName.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        return result;
     }
 }
