@@ -12,15 +12,17 @@ import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.InviteRoomContract;
 import com.nichesoftware.giftlist.database.DatabaseManager;
+import com.nichesoftware.giftlist.model.Invitation;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
 import com.nichesoftware.giftlist.presenters.InviteRoomPresenter;
 import com.nichesoftware.giftlist.repository.cache.RoomCache;
 import com.nichesoftware.giftlist.repository.cache.UserCache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
-import com.nichesoftware.giftlist.repository.datasource.RoomCloudDataSource;
+import com.nichesoftware.giftlist.repository.datasource.InvitationCloudDataSource;
 import com.nichesoftware.giftlist.repository.provider.AuthDataSourceProvider;
 import com.nichesoftware.giftlist.session.SessionManager;
+import com.nichesoftware.giftlist.utils.StringUtils;
 import com.nichesoftware.giftlist.views.AuthenticationActivity;
 
 import butterknife.BindView;
@@ -33,13 +35,13 @@ public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContrac
         implements InviteRoomContract.View {
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = InviteRoomActivity.class.getSimpleName();
-    public static final String EXTRA_ROOM = "ROOM";
+    public static final String EXTRA_INVITATION = "EXTRA_INVITATION";
 
     // Fields   ------------------------------------------------------------------------------------
     /**
      * Model
      */
-    private Room room;
+    private Invitation mInvitation;
 
     /**
      * Graphical components
@@ -57,7 +59,9 @@ public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContrac
 
     @OnClick(R.id.invite_room_button_accept)
     void onInviteButtonClick() {
-        presenter.acceptInvitationToRoom(room.getId());
+        if (mInvitation != null && mInvitation.getRoom() != null && !StringUtils.isEmpty(mInvitation.getRoom().getId())) {
+            presenter.acceptInvitationToRoom(mInvitation.getRoom().getId());
+        }
     }
 
     @Override
@@ -67,13 +71,18 @@ public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContrac
         /**
          * Récupération de la salle
          */
-        room = getIntent().getParcelableExtra(EXTRA_ROOM);
+        mInvitation = getIntent().getParcelableExtra(EXTRA_INVITATION);
+
+        if (mInvitation == null || mInvitation.getRoom() == null) {
+            finish();
+        }
 
         // Set up the toolbar.
         if (mToolbar != null) {
             setSupportActionBar(mToolbar);
         }
 
+        Room room = mInvitation.getRoom();
         mMessageTextView.setText(getString(R.string.invite_room_name_room_text, room.getName()));
     }
 
@@ -87,7 +96,7 @@ public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContrac
         final User user = SessionManager.getInstance().getConnectedUser();
         RoomCache cache = new RoomCache(DatabaseManager.getInstance(),
                 user != null ? user.getName() : "");
-        RoomCloudDataSource cloudDataSource = new RoomCloudDataSource(Injection.getService());
+        InvitationCloudDataSource cloudDataSource = new InvitationCloudDataSource(Injection.getService());
         UserCache userCache = new UserCache(DatabaseManager.getInstance());
         AuthDataSource authDataSource = new AuthDataSourceProvider(userCache, Injection.getService());
         return new InviteRoomPresenter(this, cache, cloudDataSource, authDataSource);
@@ -104,7 +113,17 @@ public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContrac
 
     @Override
     public void onAcceptInvitationFailed() {
-        // Todo
+        showError("Une erreur est survenue avec cette invitation. Veuillez réessayer plus tard.");
+    }
+
+    @Override
+    public void onDeclineInvitationSuccess() {
+        finish();
+    }
+
+    @Override
+    public void onDeclineInvitationFailed() {
+        showError("Une erreur est survenue lors du refus de cette invitation. Veuillez réessayer plus tard.");
     }
 
     @Override
@@ -125,6 +144,6 @@ public class InviteRoomActivity extends AuthenticationActivity<InviteRoomContrac
 
     @Override
     protected void performLogin() {
-
+        // TODO: 23/04/2017
     }
 }

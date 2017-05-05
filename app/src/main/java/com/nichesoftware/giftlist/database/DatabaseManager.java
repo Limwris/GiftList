@@ -147,13 +147,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                     giftValues.put(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER, gson.toJson(gift.getAmountByUser()));
 
                     // First try to update the gift in case it already exists in the database
-                    Log.d(TAG, "addOrUpdateGift: Try to update the gift in case it already exists in the database");
+                    Log.d(TAG, "addOrUpdateRoom: Try to update the gift in case it already exists in the database");
                     int giftRows = db.update(DatabaseContract.GiftEntry.TABLE_GIFTS, giftValues, DatabaseContract.GiftEntry.KEY_GIFT_ID + "= ?", new String[]{ gift.getId() });
 
                     // Check if update succeeded
                     if (giftRows < 1) {
                         // gift with this id did not already exist, so insert new gift
-                        Log.d(TAG, "addOrUpdateGift: Gift with this id did not already exist, so insert new gift");
+                        Log.d(TAG, "addOrUpdateRoom: Gift with this id did not already exist, so insert new gift");
                         db.insertOrThrow(DatabaseContract.GiftEntry.TABLE_GIFTS, null, giftValues);
                     }
                 }

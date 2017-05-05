@@ -78,7 +78,7 @@ public class GcmPresenter implements GcmContract.Presenter {
         NotificationDto notificationDto = gson.fromJson(notification, NotificationDto.class);
 
         Intent intent = new Intent(context, InviteRoomActivity.class);
-        intent.putExtra(InviteRoomActivity.EXTRA_ROOM, invitation.getRoom());
+        intent.putExtra(InviteRoomActivity.EXTRA_INVITATION, invitation);
 
         // Si l'utilisateur courant est bien celui qui est invité
         User user = SessionManager.getInstance().getConnectedUser();

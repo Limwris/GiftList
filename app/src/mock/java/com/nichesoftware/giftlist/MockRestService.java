@@ -2,6 +2,7 @@ package com.nichesoftware.giftlist;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.nichesoftware.giftlist.model.Contacts;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Invitation;
 import com.nichesoftware.giftlist.model.Room;
@@ -34,8 +35,16 @@ import retrofit2.mock.MockRetrofit;
     private final BehaviorDelegate<Service> delegate;
     private static List<Room> ROOMS = new ArrayList<>();
     private static User USER = new User();
+    private static List<User> USERS_TO_INVITE = new ArrayList<>();
 
     static {
+        User jeanPierre = new User("Jean-Pierre");
+        USERS_TO_INVITE.add(jeanPierre);
+        User jeanBernard = new User("Jean-Bernard");
+        USERS_TO_INVITE.add(jeanBernard);
+        User jeanMarie = new User("Jean-Marie");
+        USERS_TO_INVITE.add(jeanMarie);
+
         List<Gift> giftsRoom0 = new ArrayList<>();
         Gift gift = new Gift();
         gift.setId(UUID.randomUUID().toString());
@@ -141,17 +150,31 @@ import retrofit2.mock.MockRetrofit;
     }
 
     @Override
-    public Observable<Invitation> inviteUserToRoom(@Path("id") String roomId, @Body User invitedUser) {
-        Invitation invitation = new Invitation();
-        invitation.setRoom(new Room(roomId));
-        invitation.setInvitedUser(invitedUser);
+    public Observable<Invitation> inviteUserToRoom(@Path("id") String roomId, @Body Invitation invitation) {
         invitation.setInvitingUser(SessionManager.getInstance().getConnectedUser());
-        return delegate.returningResponse(invitation).inviteUserToRoom(roomId, invitedUser);
+        return delegate.returningResponse(invitation).inviteUserToRoom(roomId, invitation);
     }
 
     @Override
-    public Observable<List<Room>> acceptInvitationToRoom(@Body Invitation invitation) {
-        return delegate.returningResponse(ROOMS).acceptInvitationToRoom(invitation);
+    public Observable<List<Invitation>> inviteUsersToRoom(@Path("id") String roomId, @Body List<Invitation> invitations) {
+        return null;
+    }
+
+    @Override
+    public Observable<Invitation> acceptInvitationToRoom(@Path("id") String roomId, @Body Invitation invitation) {
+        return delegate.returningResponse(ROOMS).acceptInvitationToRoom(roomId, invitation);
+    }
+
+    @Override
+    public Observable<List<Invitation>> declineInvitation(@Path("id") String roomId, @Body Invitation invitation) {
+        List<Invitation> invitations = new ArrayList<>();
+        invitations.add(invitation);
+        return delegate.returningResponse(invitations).declineInvitation(roomId, invitation);
+    }
+
+    @Override
+    public Observable<List<User>> retreiveAvailableContacts(@Path("id") String roomId, @Body Contacts contacts) {
+        return delegate.returningResponse(USERS_TO_INVITE).retreiveAvailableContacts(roomId, contacts);
     }
 
     @Override

@@ -50,8 +50,14 @@ public class GiftDetailPresenter extends BasePresenter<GiftDetailContract.View, 
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> mAttachedView.showLoader())
                 .doFinally(() -> mAttachedView.hideLoader())
-                .subscribe(addGift -> mAttachedView.onUpdateGiftSuccess(),
-                        throwable -> mAttachedView.showError(throwable.getMessage()),
+                .subscribe(addGift -> {
+                            Log.d(TAG, "updateGift: onNext with gift: " + addGift);
+                            mAttachedView.onUpdateGiftSuccess();
+                        },
+                        throwable -> {
+                            Log.e(TAG, "updateGift: onError", throwable);
+                            mAttachedView.showError(throwable.getMessage());
+                        },
                         () -> Log.d(TAG, "addGift: onComplete"));
     }
 }

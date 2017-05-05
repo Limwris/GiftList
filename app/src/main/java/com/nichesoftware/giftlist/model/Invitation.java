@@ -1,11 +1,13 @@
 package com.nichesoftware.giftlist.model;
 
-import java.util.Date;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /**
  * Invitation to a room
  */
-public class Invitation {
+public class Invitation implements Parcelable {
     /**
      * Utilisateur étant invité
      */
@@ -22,6 +24,12 @@ public class Invitation {
      * Token d'invitation
      */
     private String token;
+
+    /**
+     * Default constructor
+     */
+    public Invitation() {
+    }
 
     /**
      * Getter sur l'utilisateur étant invité
@@ -86,4 +94,38 @@ public class Invitation {
     public void setToken(String token) {
         this.token = token;
     }
+
+    // region Parcelable
+    protected Invitation(Parcel in) {
+        invitedUser = in.readParcelable(User.class.getClassLoader());
+        room = in.readParcelable(Room.class.getClassLoader());
+        invitingUser = in.readParcelable(User.class.getClassLoader());
+        token = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeParcelable(invitedUser, flags);
+        dest.writeParcelable(room, flags);
+        dest.writeParcelable(invitingUser, flags);
+        dest.writeString(token);
+    }
+
+    public static final Creator<Invitation> CREATOR = new Creator<Invitation>() {
+        @Override
+        public Invitation createFromParcel(Parcel in) {
+            return new Invitation(in);
+        }
+
+        @Override
+        public Invitation[] newArray(int size) {
+            return new Invitation[size];
+        }
+    };
+    // endregion
 }

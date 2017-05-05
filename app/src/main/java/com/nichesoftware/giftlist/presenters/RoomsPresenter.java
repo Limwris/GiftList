@@ -1,6 +1,8 @@
 package com.nichesoftware.giftlist.presenters;
 
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
+import android.support.v7.util.DiffUtil;
 import android.util.Log;
 
 import com.nichesoftware.giftlist.R;
@@ -10,6 +12,7 @@ import com.nichesoftware.giftlist.repository.cache.Cache;
 import com.nichesoftware.giftlist.repository.datasource.AuthDataSource;
 import com.nichesoftware.giftlist.repository.datasource.CloudDataSource;
 import com.nichesoftware.giftlist.utils.ResourcesUtils;
+import com.nichesoftware.giftlist.views.adapter.DiffUtilCallback;
 import com.nichesoftware.giftlist.views.rooms.RoomVO;
 
 import java.text.MessageFormat;
@@ -28,8 +31,11 @@ public class RoomsPresenter extends BasePresenter<RoomsContract.View, Room>
     // Constants   ---------------------------------------------------------------------------------
     private static final String TAG = RoomsPresenter.class.getSimpleName();
 
-    // Fields
+    /// Fields
+    // Subscription RX
     private Disposable mLoadRoomsSubscription;
+    // Cached data used for diff
+    private List<RoomVO> cachedRooms = new ArrayList<>();
 
     /**
      * Constructor
@@ -63,16 +69,30 @@ public class RoomsPresenter extends BasePresenter<RoomsContract.View, Room>
     public void loadRooms(boolean forceUpdate) {
         Log.d(TAG, "loadRooms");
 
+        Pair<List<RoomVO>, DiffUtil.DiffResult> initialPair = Pair.create(cachedRooms, null);
+
         mLoadRoomsSubscription = Observable.defer(() -> {
             if (forceUpdate) {
                 mCache.evictAll();
             }
             return mDataProvider.getAll();
-        }).observeOn(AndroidSchedulers.mainThread())
+        })
                 .doOnSubscribe(disposable -> mAttachedView.showLoader())
                 .doFinally(() -> mAttachedView.hideLoader())
                 .map(this::map)
-                .subscribe(rooms -> mAttachedView.showRooms(rooms),
+                // Cache data for next loading
+                .doOnNext(roomVOs -> cachedRooms = roomVOs)
+                .scan(initialPair, (pair, next) -> {
+                    DiffUtil.Callback callback = new DiffUtilCallback<>(pair.first, next);
+                    DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
+                    return Pair.create(next, result);
+                })
+                .skip(1)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(pair -> {
+                            Log.d(TAG, "loadRooms: onNext");
+                            mAttachedView.showRooms(pair.first, pair.second);
+                        },
                         throwable -> {
                             Log.e(TAG, "loadRooms", throwable);
                             mAttachedView.showError(throwable.getMessage());

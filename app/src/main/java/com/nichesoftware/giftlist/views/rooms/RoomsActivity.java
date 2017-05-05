@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -73,7 +74,6 @@ public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presente
         Intent intent = new Intent(this, AddRoomActivity.class);
         startActivityForResult(intent, RoomsActivity.ADD_ROOM_REQUEST);
     }
-
 
     @Override
     protected void initView() {
@@ -204,9 +204,7 @@ public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presente
     }
 
     @Override
-    public void showRooms(List<RoomVO> rooms) {
-        Log.d(TAG, "showRooms");
-
+    public void showRooms(List<RoomVO> rooms, DiffUtil.DiffResult diffResult) {
         if (rooms.isEmpty()) {
             mErrorView.setMessage(getResources().getString(R.string.room_error_view_message));
             mErrorView.setVisibility(View.VISIBLE);
@@ -215,6 +213,7 @@ public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presente
             mErrorView.setVisibility(View.GONE);
             mRecyclerView.setVisibility(View.VISIBLE);
             mRoomsAdapter.replaceData(rooms);
+            diffResult.dispatchUpdatesTo(mRoomsAdapter);
         }
     }
 

@@ -1,8 +1,11 @@
 package com.nichesoftware.giftlist.presenters;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.nichesoftware.giftlist.BaseApplication;
 import com.nichesoftware.giftlist.Injection;
 import com.nichesoftware.giftlist.contracts.LaunchScreenContract;
 import com.nichesoftware.giftlist.database.DatabaseManager;
@@ -43,7 +46,12 @@ public class LaunchScreenPresenter extends AuthenticationPresenter<LaunchScreenC
     public void register(final String username, final String password) {
         Log.d(TAG, "register");
 
+        TelephonyManager telephonyManager = (TelephonyManager) BaseApplication.getAppContext()
+                .getSystemService(Context.TELEPHONY_SERVICE);
+        final String phoneNumber = telephonyManager.getLine1Number();
+
         User user = new User(username, password);
+        user.setPhoneNumber(phoneNumber);
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         AuthDataSource authProvider = new AuthDataSourceProvider(new UserCache(databaseManager),
                 Injection.getService());

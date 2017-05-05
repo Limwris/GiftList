@@ -1,5 +1,6 @@
 package com.nichesoftware.giftlist.service;
 
+import com.nichesoftware.giftlist.model.Contacts;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Invitation;
 import com.nichesoftware.giftlist.model.Room;
@@ -50,11 +51,20 @@ public interface Service {
     @GET("invite")
     Observable<List<Invitation>> getPendingInvitation();
 
-    @POST("rooms/{id}/invite")
-    Observable<Invitation> inviteUserToRoom(@Path("id") final String roomId, @Body final User invitedUser);
+    @POST("/rooms/{id}/invite")
+    Observable<Invitation> inviteUserToRoom(@Path("id") final String roomId, @Body final Invitation invitation);
 
-    @PUT("rooms/{id}/invite")
-    Observable<List<Room>> acceptInvitationToRoom(@Body final Invitation invitation);
+    @POST("/rooms/{id}/invite")
+    Observable<List<Invitation>> inviteUsersToRoom(@Path("id") final String roomId, @Body final List<Invitation> invitations);
+
+    @PUT("/rooms/{id}/invite")
+    Observable<Invitation> acceptInvitationToRoom(@Path("id") final String roomId, @Body final Invitation invitation);
+
+    @DELETE("/rooms/{id}/invite")
+    Observable<List<Invitation>> declineInvitation(@Path("id") final String roomId, @Body final Invitation invitation);
+
+    @POST("/rooms/{id}/contacts")
+    Observable<List<User>> retreiveAvailableContacts(@Path("id") final String roomId, @Body final Contacts contacts);
     // endregion
 
     // region Room

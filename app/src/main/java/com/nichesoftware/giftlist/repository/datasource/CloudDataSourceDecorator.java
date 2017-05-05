@@ -9,9 +9,8 @@ import java.util.List;
 import io.reactivex.Observable;
 
 /**
- * Created by admin on 27/03/2017.
+ * Decorator for {@link CloudDataSource} used to handle connectivity check
  */
-
 public class CloudDataSourceDecorator<T> extends CloudDataSource<T> {
 
     /**

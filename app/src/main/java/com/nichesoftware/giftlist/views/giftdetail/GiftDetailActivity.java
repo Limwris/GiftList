@@ -106,7 +106,7 @@ public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContrac
         try {
             double amount = Double.valueOf(mGiftAmountEditText.getText().toString());
             final String description = mDescriptionEditText.getText().toString();
-            if (amount > gift.getRemainder()) {
+            if (amount > (gift.getRemainder() + gift.getAmount())) {
                 mGiftAmountEditText.setError(
                         String.format(getString(R.string.gift_detail_too_high_error_text),
                                 gift.getRemainder())
@@ -130,9 +130,7 @@ public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContrac
     protected void initView() {
         super.initView();
 
-        /**
-         * Récupération du cadeau
-         */
+        // Récupération du cadeau
         gift = getIntent().getParcelableExtra(PARCELABLE_GIFT_KEY);
 
         // Set up the toolbar.
@@ -141,7 +139,7 @@ public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContrac
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setTitle(getString(R.string.gift_detail_title));
+                ab.setTitle(getString(R.string.gift_detail_title));
                 ab.setHomeAsUpIndicator(R.drawable.ic_back_up_navigation);
             }
         }
@@ -180,9 +178,7 @@ public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContrac
 
     @Override
     protected GiftDetailContract.Presenter newPresenter() {
-        /**
-         * Récupération de l'identifiant de la salle
-         */
+        // Récupération de l'identifiant de la salle
         mRoomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
 
         GiftCache cache = new GiftCache(DatabaseManager.getInstance(), mRoomId);
@@ -275,10 +271,13 @@ public class GiftDetailActivity extends AuthenticationActivity<GiftDetailContrac
 
     @Override
     public void onUpdateGiftSuccess() {
+        Log.d(TAG, "onUpdateGiftSuccess");
         // Force Picasso to reload data for this file
         final String filePath = gift.getImageUrl();
-        Picasso.with(this).invalidate(filePath);
-        Picasso.with(this).load(filePath).fit().centerCrop().into(mGiftImageView);
+        if (!StringUtils.isEmpty(filePath)) {
+            Picasso.with(this).invalidate(filePath);
+            Picasso.with(this).load(filePath).fit().centerCrop().into(mGiftImageView);
+        }
         Intent intent = new Intent();
         intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, mRoomId);
         setResult(RESULT_OK, intent);

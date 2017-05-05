@@ -1,9 +1,7 @@
 package com.nichesoftware.giftlist.dto;
 
-import com.google.gson.annotations.SerializedName;
-
 /**
- * Created by Kattleya on 07/07/2016.
+ * Payload of a {@link com.google.firebase.messaging.RemoteMessage.Notification}
  */
 public class NotificationDto {
     /**

@@ -67,10 +67,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
     }
 
     public void replaceData(List<RoomVO> rooms) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtilCallback<>(mRooms, rooms));
-        mRooms.clear();
-        mRooms.addAll(rooms);
-        diffResult.dispatchUpdatesTo(this);
+        mRooms = rooms;
     }
 
     @Override

@@ -58,6 +58,7 @@ public class LaunchScreenActivity extends AuthenticationActivity<LaunchScreenCon
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int  whichButton) {
+                                // TODO: 18/04/2017 Handling disconnected user ?
                                 presenter.startApplication();
                                 if (dialogInterface != null) {
                                     dialogInterface.dismiss();

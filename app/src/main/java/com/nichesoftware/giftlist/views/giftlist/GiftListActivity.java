@@ -68,14 +68,14 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
     private DialogInterface mLeaveDialog = null;
 
     /**
-     * Listener sur le clic d'un cadeau
-     */
-    private GiftItemListener mGiftItemListener;
-
-    /**
      * Identifiant de la salle
      */
     private String mRoomId;
+
+    /**
+     * Flag which indicates if a gift was added
+     */
+    private boolean mAddedGift;
 
     /**
      * Graphical components
@@ -113,7 +113,10 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
             }
         }
 
-        mGiftItemListener = new GiftItemListener() {
+        mAddedGift = false;
+
+        // Listener sur le clic d'un cadeau
+        GiftItemListener mGiftItemListener = new GiftItemListener() {
             @Override
             public void onGiftClick(String clickedGiftId) {
                 Log.d(TAG, "Clic détecté sur le cadeau " + clickedGiftId);
@@ -182,6 +185,7 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 forceReload();
+                mAddedGift = true;
             }
         } else if (requestCode == ADD_USER_REQUEST) {
             if (resultCode == RESULT_OK) {
@@ -198,6 +202,12 @@ public class GiftListActivity extends AuthenticationActivity<GiftListContract.Pr
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(mAddedGift ? RESULT_RELOAD : RESULT_CANCELED);
+        super.onBackPressed();
     }
 
     @Override

@@ -1,13 +1,16 @@
 package com.nichesoftware.giftlist.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * User model
  */
-public class User {
-    public final static String DISCONNECTED_USER = "DISCONNECTED_USER";
+public class User implements Parcelable {
     /**
      * Identifiant de l'utilisateur
      */
@@ -168,4 +171,40 @@ public class User {
                 ", isTokenSent=" + isTokenSent +
                 '}';
     }
+
+    // region Parcelable
+    protected User(Parcel in) {
+        name = in.readString();
+        password = in.readString();
+        token = in.readString();
+        phoneNumber = in.readString();
+        isTokenSent = in.readInt() != 0;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(password);
+        dest.writeString(token);
+        dest.writeString(phoneNumber);
+        dest.writeInt(isTokenSent ? 1 : 0);
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+    // endregion
 }

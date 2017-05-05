@@ -164,11 +164,13 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void doInviteUsers() {
+        List<String> usernames = new ArrayList<>();
         for (AddUserVO vo : mContactsAdapter.getData()) {
             if (vo.isChecked()) {
-                presenter.inviteUserToCurrentRoom(roomId, vo.getUser().getName());
+                usernames.add(vo.getUser().getName());
             }
         }
+        presenter.inviteUsersToCurrentRoom(roomId, usernames);
     }
 
     private boolean isItemChecked() {
@@ -186,17 +188,13 @@ public class AddUserActivity extends AuthenticationActivity<AddUserContract.Pres
 
     @Override
     public void onUserAddedSuccess() {
-        Intent intent = new Intent();
-        intent.putExtra(GiftListActivity.EXTRA_ROOM_ID, roomId);
-        setResult(RESULT_OK, intent);
+        setResult(RESULT_OK);
         finish();
     }
 
     @Override
     public void onUserAddedFailed() {
-        // Todo
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed", Snackbar.LENGTH_SHORT);
-        snackbar.show();
+        setResult(RESULT_CANCELED);
     }
 
     @Override
