@@ -241,12 +241,14 @@ public class Room implements Parcelable {
         parcel.writeString(id);
         parcel.writeString(name);
         parcel.writeString(occasion);
+        parcel.writeTypedList(gifts);
     }
 
     public Room(Parcel in) {
         this.id = in.readString();
         this.name = in.readString();
         this.occasion = in.readString();
+        in.readTypedList(gifts, Gift.CREATOR);
     }
 
     public static final Parcelable.Creator<Room> CREATOR = new Parcelable.Creator<Room>() {

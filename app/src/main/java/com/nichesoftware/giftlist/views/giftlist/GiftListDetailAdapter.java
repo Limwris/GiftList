@@ -32,7 +32,6 @@ import butterknife.BindView;
      * @param VOs   Data
      */
     /* package */ GiftListDetailAdapter(List<GiftListDetailVO> VOs) {
-        Log.d(TAG, "GiftListDetailAdapter");
         this.VOs = VOs;
     }
 

@@ -10,6 +10,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.nichesoftware.giftlist.BaseApplication;
+import com.nichesoftware.giftlist.model.AmountByUser;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.model.User;
@@ -17,7 +18,6 @@ import com.nichesoftware.giftlist.model.User;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * C
@@ -171,7 +171,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Room room = null;
 
         Gson gson = new Gson();
-        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+//        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+        Type amountByUserListType = new TypeToken<List<AmountByUser>>(){}.getType();
 
         // Create and/or open the database for writing
         SQLiteDatabase db = getReadableDatabase();
@@ -235,9 +236,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_URL)),
                             giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_IMAGE)),
                             giftCursor.getInt(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_LOCAL_IMAGE_FLAG)) > 0);
-                    Map<String, Double> amoutPerUser =
-                            gson.fromJson(giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
-                                    mapType);
+                    // TODO: 07/05/2017 Handling new AmountByUser
+//                    Map<String, Double> amoutPerUser =
+//                            gson.fromJson(giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
+//                                    mapType);
+                    List<AmountByUser> amoutPerUser =
+                            gson.fromJson(cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
+                                    amountByUserListType);
                     gift.setAmountByUser(amoutPerUser);
                     gifts.add(gift);
                 } while(giftCursor.moveToNext());
@@ -300,7 +305,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         List<Room> rooms = new ArrayList<>();
 
         Gson gson = new Gson();
-        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+//        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+        Type amountByUserListType = new TypeToken<List<AmountByUser>>(){}.getType();
 
         SQLiteDatabase db = getReadableDatabase();
 
@@ -365,9 +371,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                                 giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_URL)),
                                 giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_IMAGE)),
                                 giftCursor.getInt(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_LOCAL_IMAGE_FLAG)) > 0);
-                        Map<String, Double> amoutPerUser =
-                                gson.fromJson(giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
-                                        mapType);
+                        // TODO: 07/05/2017 Handling new AmountByUser
+//                        Map<String, Double> amoutPerUser =
+//                                gson.fromJson(giftCursor.getString(giftCursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
+//                                        mapType);
+                        List<AmountByUser> amoutPerUser =
+                                gson.fromJson(cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
+                                        amountByUserListType);
                         gift.setAmountByUser(amoutPerUser);
                         gifts.add(gift);
                     } while(giftCursor.moveToNext());
@@ -500,7 +510,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Gift gift = null;
 
         Gson gson = new Gson();
-        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+//        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+        Type amountByUserListType = new TypeToken<List<AmountByUser>>(){}.getType();
 
         // Create and/or open the database for writing
         SQLiteDatabase db = getReadableDatabase();
@@ -544,9 +555,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_URL)),
                     cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_IMAGE)),
                     cursor.getInt(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_LOCAL_IMAGE_FLAG)) > 0);
-            Map<String, Double> amoutPerUser =
+            // TODO: 07/05/2017 Handling new AmountByUser
+//            Map<String, Double> amoutPerUser =
+//                    gson.fromJson(cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
+//                            mapType);
+            List<AmountByUser> amoutPerUser =
                     gson.fromJson(cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
-                            mapType);
+                            amountByUserListType);
             gift.setAmountByUser(amoutPerUser);
             db.setTransactionSuccessful();
         }
@@ -602,7 +617,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
 
         Gson gson = new Gson();
-        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+//        Type mapType = new TypeToken<Map<String, Double>>(){}.getType();
+        Type amountByUserListType = new TypeToken<List<AmountByUser>>(){}.getType();
 
         String [] settingsProjection = {
                 DatabaseContract.GiftEntry.KEY_GIFT_ID,
@@ -641,9 +657,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_URL)),
                         cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_IMAGE)),
                         cursor.getInt(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_LOCAL_IMAGE_FLAG)) > 0);
-                Map<String, Double> amoutPerUser =
+//                Map<String, User> amoutPerUser =
+//                        gson.fromJson(cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
+//                                mapType);
+                List<AmountByUser> amoutPerUser =
                         gson.fromJson(cursor.getString(cursor.getColumnIndex(DatabaseContract.GiftEntry.KEY_GIFT_AMOUNT_PER_USER)),
-                                mapType);
+                                amountByUserListType);
                 gift.setAmountByUser(amoutPerUser);
                 gifts.add(gift);
             } while(cursor.moveToNext());

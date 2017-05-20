@@ -5,8 +5,8 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Gift model
@@ -143,7 +143,7 @@ public class Gift implements Parcelable, Cloneable {
     /**
      * Montants alloués par utilisateur au cadeau
      */
-    private Map<String, Double> amountByUser = new HashMap<>();
+    private List<AmountByUser> amountByUser = new ArrayList<>();
 
     /**
      * Montant restant afin d'acheter le cadeau
@@ -212,7 +212,7 @@ public class Gift implements Parcelable, Cloneable {
      * Getter sur les montants alloués par utilisateur au cadeau
      * @return
      */
-    public Map<String, Double> getAmountByUser() {
+    public List<AmountByUser> getAmountByUser() {
         return amountByUser;
     }
 
@@ -285,7 +285,7 @@ public class Gift implements Parcelable, Cloneable {
      * Setter sur les montants alloués par utilisateur au cadeau
      * @param amountByUser
      */
-    public void setAmountByUser(Map<String, Double> amountByUser) {
+    public void setAmountByUser(List<AmountByUser> amountByUser) {
         this.amountByUser = amountByUser;
     }
 
@@ -314,11 +314,7 @@ public class Gift implements Parcelable, Cloneable {
         parcel.writeString(name);
         parcel.writeString(description);
         parcel.writeString(url);
-        parcel.writeInt(amountByUser.size());
-        for (Map.Entry<String, Double> entry : amountByUser.entrySet()) {
-            parcel.writeString(entry.getKey());
-            parcel.writeDouble(entry.getValue());
-        }
+        parcel.writeTypedList(amountByUser);
     }
 
     public Gift(Parcel in) {
@@ -328,10 +324,7 @@ public class Gift implements Parcelable, Cloneable {
         this.name = in.readString();
         this.description = in.readString();
         this.url = in.readString();
-        int count = in.readInt();
-        for (int i = 0; i < count; i++) {
-            amountByUser.put(in.readString(), in.readDouble());
-        }
+        in.readTypedList(amountByUser, AmountByUser.CREATOR);
     }
 
     public static final Parcelable.Creator<Gift> CREATOR = new Parcelable.Creator<Gift>() {

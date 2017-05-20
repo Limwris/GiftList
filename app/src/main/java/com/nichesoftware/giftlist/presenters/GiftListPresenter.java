@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.nichesoftware.giftlist.R;
 import com.nichesoftware.giftlist.contracts.GiftListContract;
+import com.nichesoftware.giftlist.model.AmountByUser;
 import com.nichesoftware.giftlist.model.Gift;
 import com.nichesoftware.giftlist.model.Room;
 import com.nichesoftware.giftlist.repository.cache.Cache;
@@ -23,7 +24,6 @@ import com.nichesoftware.giftlist.views.giftlist.GiftVO;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -171,10 +171,10 @@ public class GiftListPresenter extends BasePresenter<GiftListContract.View, Gift
             GiftVO giftVO = new GiftVO(gift.getId(), spannablePrice, spannableAmount,
                     gift.getName(), gift.getImageUrl(), spannableRemainder);
             List<GiftListDetailVO> detailVOs = new ArrayList<>();
-            for (Map.Entry<String, Double> entry : gift.getAmountByUser().entrySet()) {
+            for (AmountByUser amountByUser : gift.getAmountByUser()) {
                 GiftListDetailVO vo = new GiftListDetailVO();
-                vo.setUsername(entry.getKey());
-                double participation = entry.getValue();
+                vo.setUsername(amountByUser.getUser().getName());
+                double participation = amountByUser.getAmount();
                 SpannableString spannableAmountPerUser = getSpannableStringFromDouble(participation);
                 vo.setParticipation(spannableAmountPerUser);
                 detailVOs.add(vo);
