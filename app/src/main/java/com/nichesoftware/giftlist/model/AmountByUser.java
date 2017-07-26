@@ -11,6 +11,18 @@ public class AmountByUser implements Parcelable {
     private User user;
     private double amount;
 
+    /**
+     * Default constructor
+     */
+    public AmountByUser() {
+        // Nothing
+    }
+
+    public AmountByUser(User user, double amount) {
+        this.user = user;
+        this.amount = amount;
+    }
+
     public User getUser() {
         return user;
     }
