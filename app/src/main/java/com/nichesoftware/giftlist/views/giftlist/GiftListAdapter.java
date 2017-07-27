@@ -1,10 +1,8 @@
 package com.nichesoftware.giftlist.views.giftlist;
 
 import android.support.annotation.NonNull;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +40,7 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.GiftVi
     /**
      * Constructeur
      *
-     * @param giftItemListener      Click listener
+     * @param giftItemListener Click listener
      */
     public GiftListAdapter(GiftListActivity.GiftItemListener giftItemListener) {
         this.giftItemListener = giftItemListener;
@@ -99,6 +97,7 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.GiftVi
 
     /* package */ interface OnGiftViewHolderListener {
         void onSeeMoreClick(final int position);
+
         void onGiftClick(final int position);
     }
 
@@ -139,6 +138,9 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.GiftVi
         @BindView(R.id.gift_list_details)
         RecyclerView detailRecyclerView;
 
+        @BindView(R.id.gift_list_see_more_button)
+        View mSeeMoreButton;
+
         @OnClick(R.id.gift_list_see_more_button)
         void onSeeMoreButtonClick() {
             if (mSeeMoreClickListener != null) {
@@ -160,6 +162,7 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.GiftVi
 
         /**
          * Constructeur
+         *
          * @param itemView
          */
         /* package */ GiftViewHolder(final View itemView, OnGiftViewHolderListener seeMoreClickListener) {
@@ -182,7 +185,12 @@ public class GiftListAdapter extends RecyclerView.Adapter<GiftListAdapter.GiftVi
             price.setText(gift.getPrice(), TextView.BufferType.SPANNABLE);
             amount.setText(gift.getAmount(), TextView.BufferType.SPANNABLE);
             remainder.setText(gift.getRemainder(), TextView.BufferType.SPANNABLE);
-            detailRecyclerView.setAdapter(new GiftListDetailAdapter(gift.getDetailVO()));
+            if (gift.getDetailVO() != null && !gift.getDetailVO().isEmpty()) {
+                detailRecyclerView.setAdapter(new GiftListDetailAdapter(gift.getDetailVO()));
+                mSeeMoreButton.setEnabled(true);
+            } else {
+                mSeeMoreButton.setEnabled(false);
+            }
 
             Picasso.with(image.getContext())
                     .load(gift.getImageUrl())

@@ -45,6 +45,9 @@
 
     <!-- GiftlisActivity -->
     <string name="gift_list_title">Liste des cadeaux</string>
+    <string name="gift_price_description" translatable="false">%1$,.2f €</string>
+    <string name="gift_amount_description">Participation: %1$,.2f €</string>
+    <string name="gift_remainder_description">Restant: %1$,.2f €</string>
     <string name="gift_error_view_message">Aucun cadeau n\'a été proposé pour cette salle.</string>
     <string name="gift_list_leave_room_menu_item">Quitter la salle</string>
     <string name="gift_list_invite_user_menu_item">Inviter un utilisateur</string>

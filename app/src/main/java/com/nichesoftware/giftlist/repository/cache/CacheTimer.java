@@ -6,10 +6,9 @@ import android.content.SharedPreferences;
 import com.nichesoftware.giftlist.BaseApplication;
 
 /**
- * Created by admin on 22/03/2017.
+ * Timer which handles cache expiration
  */
-
-public final class CacheTimer {
+/* package */ final class CacheTimer {
     // Constants
     private static final String SETTINGS_FILE_NAME = "com.nichesoftware.giftlist.SETTINGS";
     /* package */ static final String SETTINGS_USER_KEY_LAST_CACHE_UPDATE = "last_cache_update";
@@ -26,6 +25,7 @@ public final class CacheTimer {
 
     /**
      * Set in millis, the last time the cache was accessed.
+     *
      * @param settingsKey
      */
     public static void setLastCacheUpdateTimeMillis(String settingsKey) {
@@ -36,6 +36,7 @@ public final class CacheTimer {
 
     /**
      * Indicates the cache is expired.
+     *
      * @param settingsKey
      */
     public static void setCacheExpired(String settingsKey) {
@@ -46,6 +47,7 @@ public final class CacheTimer {
 
     /**
      * Get in millis, the last time the cache was accessed.
+     *
      * @param settingsKey
      */
     public static long getLastCacheUpdateTimeMillis(String settingsKey) {
@@ -56,13 +58,13 @@ public final class CacheTimer {
     /**
      * Write a value to a user preferences file.
      *
-     * @param context {@link android.content.Context} to retrieve android user preferences.
+     * @param context            {@link android.content.Context} to retrieve android user preferences.
      * @param preferenceFileName A file name reprensenting where data will be written to.
-     * @param key A string for the key that will be used to retrieve the value in the future.
-     * @param value A long representing the value to be inserted.
+     * @param key                A string for the key that will be used to retrieve the value in the future.
+     * @param value              A long representing the value to be inserted.
      */
     private static void writeToPreferences(Context context, String preferenceFileName,
-                            String key, long value) {
+                                           String key, long value) {
 
         final SharedPreferences sharedPreferences = context.getSharedPreferences(preferenceFileName,
                 Context.MODE_PRIVATE);
@@ -74,9 +76,9 @@ public final class CacheTimer {
     /**
      * Get a value from a user preferences file.
      *
-     * @param context {@link android.content.Context} to retrieve android user preferences.
+     * @param context            {@link android.content.Context} to retrieve android user preferences.
      * @param preferenceFileName A file name representing where data will be get from.
-     * @param key A key that will be used to retrieve the value from the preference file.
+     * @param key                A key that will be used to retrieve the value from the preference file.
      * @return A long representing the value retrieved from the preferences file.
      */
     private static long getFromPreferences(Context context, String preferenceFileName, String key) {

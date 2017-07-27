@@ -48,7 +48,7 @@
 
     <!-- GiftlisActivity -->
     <string name="gift_list_title">Gifts\' list</string>
-    <string name="gift_price_description">%1$,.2f €</string>
+    <string name="gift_price_description" translatable="false">%1$,.2f €</string>
     <string name="gift_amount_description">Participation: %1$,.2f €</string>
     <string name="gift_remainder_description">Remainder: %1$,.2f €</string>
     <string name="gift_error_view_message">Empty room ! Be the first to propose a gift.</string>

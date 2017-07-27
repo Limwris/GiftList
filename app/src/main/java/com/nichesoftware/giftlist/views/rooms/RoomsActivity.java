@@ -57,18 +57,18 @@ public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presente
     /**
      * Graphical components
      */
-    @BindView(R.id.toolbar)
+    @BindView(R.id.rooms_toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.coordinatorLayout)
+    @BindView(R.id.rooms_coordinatorLayout)
     CoordinatorLayout mCoordinatorLayout;
-    @BindView(R.id.recycler_view)
+    @BindView(R.id.rooms_recycler_view)
     RecyclerView mRecyclerView;
-    @BindView(R.id.refresh_layout)
+    @BindView(R.id.rooms_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    @BindView(R.id.error_view)
+    @BindView(R.id.rooms_error_view)
     ErrorView mErrorView;
 
-    @OnClick(R.id.fab_add_room)
+    @OnClick(R.id.rooms_fab_add_room)
     void onAddRoomClick() {
         Log.d(TAG, "onClick FAB");
         Intent intent = new Intent(this, AddRoomActivity.class);
@@ -190,7 +190,9 @@ public class RoomsActivity extends AuthenticationActivity<RoomsContract.Presente
 
     @Override
     public void showError(@NonNull String message) {
-        Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
+        mRecyclerView.setVisibility(View.GONE);
+        mErrorView.setMessage(message);
+        mErrorView.setVisibility(View.VISIBLE);
     }
 
     private void setRefreshIndicator(final boolean doShow) {

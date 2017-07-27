@@ -32,14 +32,14 @@ allprojects {
 ext {
     minSdkVersion = 16
     targetSdkVersion = 21
-    compileSdkVersion = 23
-    buildToolsVersion = "25.0.2"
+    compileSdkVersion = 26
+    buildToolsVersion = "26.0.1"
 
     retrofitVersion = "2.2.0"
     okHttpVersion = "3.6.0"
     butterKnifeVersion = "8.5.1"
     playServicesVersion = "9.0.0"
-    supportLibVersion = "24.2.1"
+    supportLibVersion = "26.0.0"
 
     junitVersion = "4.12"
     mockitoVersion = "1.10.19"

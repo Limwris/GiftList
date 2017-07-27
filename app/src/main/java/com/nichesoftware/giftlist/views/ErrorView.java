@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.nichesoftware.giftlist.R;
 
 /**
- * Created by n_che on 27/04/2016.
+ * View displayed if an error happened
  */
 public class ErrorView extends LinearLayout {
     private static final String TAG = ErrorView.class.getSimpleName();
@@ -21,6 +21,7 @@ public class ErrorView extends LinearLayout {
      * TextView contenant le message d'erreur à afficher
      */
     private TextView messageTextView;
+
     /**
      * Constructeur
      * @param context
@@ -36,11 +37,13 @@ public class ErrorView extends LinearLayout {
 
     public ErrorView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context, attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public ErrorView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init(context, attrs);
     }
 
     /**

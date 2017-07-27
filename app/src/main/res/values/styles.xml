@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="actionBarTheme">@style/AppTheme.ActionBarTheme</item>
+        <item name="actionBarTheme">@style/ActionBarTheme</item>
         <item name="colorControlNormal">@color/colorControlNormal</item>
 
         <item name="android:windowBackground">@color/windowBackground</item>
@@ -53,7 +53,8 @@
         <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
     </style>
 
-    <style name="AppTheme.ActionBarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+    <!--<style name="ActionBarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">-->
+    <style name="ActionBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- THIS is where you can color the arrow! -->
         <item name="colorControlNormal">@color/colorControlNormal</item>
     </style>

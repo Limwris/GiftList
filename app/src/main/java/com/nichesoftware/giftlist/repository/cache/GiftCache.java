@@ -26,10 +26,10 @@ public class GiftCache implements Cache<Gift> {
     private final String mRoomId;
 
     /**
-     *  Default constructor
+     * Default constructor
      *
-     *  @param databaseManager      Instance of {@link DatabaseManager}
-     *  @param roomId               {@link com.nichesoftware.giftlist.model.Room} primary key
+     * @param databaseManager Instance of {@link DatabaseManager}
+     * @param roomId          {@link com.nichesoftware.giftlist.model.Room} primary key
      */
     public GiftCache(@NonNull DatabaseManager databaseManager, @NonNull final String roomId) {
         mDatabaseManager = databaseManager;
