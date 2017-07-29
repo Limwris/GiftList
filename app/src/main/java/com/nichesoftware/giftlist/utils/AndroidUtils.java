@@ -11,7 +11,7 @@ import com.nichesoftware.giftlist.BuildConfig;
 import java.util.List;
 
 /**
- * Created by n_che on 15/04/2016.
+ * Utility class which handles framework actions
  */
 public final class AndroidUtils {
     private static final String TAG = AndroidUtils.class.getSimpleName();

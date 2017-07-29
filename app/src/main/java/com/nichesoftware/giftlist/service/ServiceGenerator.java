@@ -43,7 +43,7 @@ public class ServiceGenerator {
         return httpClient;
     }
 
-    public static Retrofit getRetrofit() {
+    private static Retrofit getRetrofit() {
         return retrofitBuilder.client(getHttpClientBuilder().build()).build();
     }
 

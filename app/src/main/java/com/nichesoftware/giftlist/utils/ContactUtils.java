@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.nichesoftware.giftlist.BaseApplication;
@@ -18,6 +19,7 @@ import java.util.Locale;
 public final class ContactUtils {
     // Constants
     private static final String TAG = ContactUtils.class.getSimpleName();
+    public static final long NO_ID = -1;
 
     /**
      * Private constructor
@@ -26,11 +28,11 @@ public final class ContactUtils {
         // Nothing
     }
 
-    public static Uri getContactImageUrl(final String phoneNumber) {
+    public static @Nullable Uri getContactImageUrl(final String phoneNumber) {
         Log.d(TAG, String.format(Locale.getDefault(),
                 "getContactImageUrl [phone number: %s]", phoneNumber));
         long contactId = getContactIdFromPhoneNumber(phoneNumber);
-        if (contactId > 0) {
+        if (contactId != ContactUtils.NO_ID) {
             Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
             Log.d(TAG, String.format(Locale.getDefault(),
                     "getContactImageUrl [uri: %s]", contactUri.toString()));
@@ -57,9 +59,17 @@ public final class ContactUtils {
             long contactId = cursor.getLong(cursor.getColumnIndex(ContactsContract.PhoneLookup._ID));
             Log.d(TAG, String.format(Locale.getDefault(),
                     "getContactIdFromPhoneNumber - contact found with id %d", contactId));
+            close(cursor);
             return contactId;
         }
 
-        return -1;
+        close(cursor);
+        return NO_ID;
+    }
+
+    private static void close(Cursor cursor) {
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
     }
 }
